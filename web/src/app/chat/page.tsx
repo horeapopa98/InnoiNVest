@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TopNav } from "@/components/stitch/TopNav";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { MessageThread } from "@/components/chat/MessageThread";
@@ -9,7 +9,9 @@ import { SuggestedPrompts } from "@/components/chat/SuggestedPrompts";
 import { readStorage, writeStorage } from "@/lib/persistence/storage";
 import { STORAGE_KEYS } from "@/lib/persistence/keys";
 import {
+  followUpsFor,
   respondTo,
+  summarizeIntent,
   type Conversation,
   type Message,
 } from "@/lib/mock/chat";
@@ -25,10 +27,19 @@ function blankConversation(): Conversation {
   };
 }
 
+/** Time the assistant "thinks" before streaming begins (ms). */
+const THINKING_MS = 600;
+/** Total duration of the word-by-word stream (ms). */
+const STREAM_MS = 1400;
+
 export default function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [streaming, setStreaming] = useState(false);
+  const [pendingIntent, setPendingIntent] = useState<string | null>(null);
+  const [streamingProgress, setStreamingProgress] = useState<number | null>(null);
+  /** Follow-up prompts per assistant message id (keyed so they survive reorders). */
+  const [followUps, setFollowUps] = useState<Record<string, readonly string[]>>({});
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const stored = readStorage<Conversation[]>(STORAGE_KEYS.chats, []);
@@ -42,7 +53,15 @@ export default function ChatPage() {
     }
   }, []);
 
+  // Tear down any in-flight animation on unmount.
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
   const active = conversations.find((c) => c.id === activeId);
+  const isBusy = pendingIntent !== null || streamingProgress !== null;
 
   function persist(updater: (prev: Conversation[]) => Conversation[], nextActive: string | null) {
     setConversations((prev) => {
@@ -57,17 +76,21 @@ export default function ChatPage() {
   }
 
   function handleNew() {
+    if (isBusy) return;
     const fresh = blankConversation();
     persist((prev) => [fresh, ...prev], fresh.id);
   }
 
   function handleSelect(id: string) {
+    if (isBusy) return;
     setActiveId(id);
     writeStorage(STORAGE_KEYS.activeChat, id);
   }
 
   function handleSend(text: string) {
-    if (!active) return;
+    if (!active || isBusy) return;
+
+    // 1. Append the user message immediately.
     const userMsg: Message = {
       id: `m-${crypto.randomUUID()}`,
       role: "user",
@@ -83,15 +106,22 @@ export default function ChatPage() {
     };
     persist((prev) => prev.map((c) => (c.id === active.id ? withUser : c)), active.id);
 
-    setStreaming(true);
+    // 2. Show the smart "thinking" indicator with the classified intent.
+    setPendingIntent(summarizeIntent(text));
+
+    // 3. After the "thinking" delay, append the assistant message and
+    //    animate its reveal word-by-word over STREAM_MS.
     setTimeout(() => {
       const blocks = respondTo(text);
+      const assistantId = `m-${crypto.randomUUID()}`;
       const assistantMsg: Message = {
-        id: `m-${crypto.randomUUID()}`,
+        id: assistantId,
         role: "assistant",
         blocks,
         timestamp: Date.now(),
       };
+      const follow = followUpsFor(text);
+      setFollowUps((prev) => ({ ...prev, [assistantId]: follow }));
       persist(
         (prev) =>
           prev.map((c) =>
@@ -101,8 +131,32 @@ export default function ChatPage() {
           ),
         active.id
       );
-      setStreaming(false);
-    }, 700);
+      setPendingIntent(null);
+      setStreamingProgress(0);
+
+      const start = performance.now();
+      const tick = (now: number) => {
+        const elapsed = now - start;
+        const p = Math.min(1, elapsed / STREAM_MS);
+        setStreamingProgress(p);
+        if (p < 1) {
+          rafRef.current = requestAnimationFrame(tick);
+        } else {
+          rafRef.current = null;
+          setStreamingProgress(null);
+        }
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }, THINKING_MS);
+  }
+
+  function handleStop() {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    setPendingIntent(null);
+    setStreamingProgress(null);
   }
 
   return (
@@ -117,6 +171,7 @@ export default function ChatPage() {
             onNew={handleNew}
           />
         </aside>
+
         <main className="mx-auto flex w-full max-w-[880px] flex-1 flex-col px-6">
           {active && (
             <>
@@ -127,21 +182,34 @@ export default function ChatPage() {
               </header>
               <div className="flex-1 overflow-y-auto">
                 {active.messages.length === 0 ? (
-                  <div className="mx-auto max-w-[640px] py-10">
+                  <div className="mx-auto max-w-[680px] py-12">
                     <h2 className="font-headline-md text-headline-md mb-2 text-on-surface">
-                      Ask anything about the data
+                      What can I help you understand?
                     </h2>
-                    <p className="font-body-md text-body-md mb-6 text-on-surface-variant">
-                      The assistant has access to ~800 observations across NW Romania.
+                    <p className="font-body-md text-body-md mb-8 text-on-surface-variant">
+                      I have access to {/* keep simple — exact counts live on /data */}
+                      ~2,000 observations across NW Romania&apos;s 13 commune-, city-, and
+                      county-level locations. Ask in plain English.
                     </p>
                     <SuggestedPrompts onPick={handleSend} />
                   </div>
                 ) : (
-                  <MessageThread messages={active.messages} streaming={streaming} />
+                  <MessageThread
+                    messages={active.messages}
+                    streamingProgress={streamingProgress}
+                    pendingIntent={pendingIntent}
+                    followUpsByMessageId={followUps}
+                    onPickFollowUp={handleSend}
+                  />
                 )}
               </div>
               <div className="py-4">
-                <MessageInput disabled={streaming} onSubmit={handleSend} />
+                <MessageInput
+                  disabled={isBusy}
+                  isStreaming={streamingProgress !== null}
+                  onSubmit={handleSend}
+                  onStop={handleStop}
+                />
               </div>
             </>
           )}

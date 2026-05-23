@@ -198,6 +198,7 @@ function fallbackResponse(): AssistantBlock[] {
 // --- Public entry point ------------------------------------------------
 
 export function respondTo(text: string, history: Message[] = []): AssistantBlock[] {
+  void history; // mock doesn't use multi-turn; signature matches future LLM call
   const intent = classifyIntent(text);
   switch (intent.kind) {
     case "trend":
@@ -215,9 +216,137 @@ export function respondTo(text: string, history: Message[] = []): AssistantBlock
   }
 }
 
-export const SUGGESTED_PROMPTS: readonly string[] = [
-  "Show me unemployment trends in Cluj",
-  "Compare GDP per capita in Cluj-Napoca vs Maramureș",
-  "Which commune has the highest GDP per capita?",
-  "Generate a Florești dossier",
+/**
+ * One-line description of what the assistant is "doing" right now,
+ * shown in the loading state instead of a generic "typing…". Drives
+ * believability — the analyst sees that the system understood the
+ * question before the answer arrives.
+ */
+export function summarizeIntent(text: string): string {
+  const intent = classifyIntent(text);
+  switch (intent.kind) {
+    case "trend":
+      return `Analysing ${intent.kpi.nameEn.toLowerCase()} trend in ${intent.location.name}`;
+    case "compare":
+      return `Comparing ${intent.kpi.nameEn.toLowerCase()} across ${intent.locations.map((l) => l.name).join(", ")}`;
+    case "lookup":
+      return `Looking up ${intent.kpi.nameEn.toLowerCase()} for ${intent.location.name}`;
+    case "ranking":
+      return `Ranking locations by ${intent.kpi.nameEn.toLowerCase()}`;
+    case "dossier":
+      return `Preparing a ${intent.location.name} dossier`;
+    case "fallback":
+      return "Searching the dataset";
+  }
+}
+
+/**
+ * 2–3 context-aware follow-up prompts shown after a completed
+ * response so the analyst can keep drilling without retyping.
+ */
+export function followUpsFor(text: string): string[] {
+  const intent = classifyIntent(text);
+  switch (intent.kind) {
+    case "trend":
+      return [
+        `Compare ${intent.kpi.nameEn} across counties`,
+        `What about ${intent.kpi.nameEn} in 2024 only?`,
+        `Show ${otherKpiInCategory(intent.kpi.category, intent.kpi.code)} in ${intent.location.name}`,
+      ];
+    case "compare":
+      return [
+        `Which location has the highest ${intent.kpi.nameEn}?`,
+        `Show the ${intent.kpi.nameEn} trend for ${intent.locations[0].name}`,
+        `Generate a ${intent.locations[0].name} dossier`,
+      ];
+    case "lookup":
+      return [
+        `Show the ${intent.kpi.nameEn} trend in ${intent.location.name}`,
+        `Compare ${intent.kpi.nameEn} between ${intent.location.name} and ${otherLocationName(intent.location.sirutaCode)}`,
+        `Which location has the highest ${intent.kpi.nameEn}?`,
+      ];
+    case "ranking":
+      return [
+        `Show me the ${intent.kpi.nameEn} trend in the top location`,
+        `What does ${intent.kpi.nameEn} look like over the past 5 years?`,
+      ];
+    case "dossier":
+      return [
+        `What's the unemployment rate in ${intent.location.name}?`,
+        `Compare ${intent.location.name} to other counties`,
+      ];
+    case "fallback":
+      return [];
+  }
+}
+
+function otherKpiInCategory(cat: Kpi["category"], excludeCode: string): string {
+  const candidate = KPIS.find((k) => k.category === cat && k.code !== excludeCode);
+  return candidate?.nameEn ?? "another indicator";
+}
+
+function otherLocationName(excludeCode: string): string {
+  return LOCATIONS.find((l) => l.sirutaCode !== excludeCode)?.name ?? "another location";
+}
+
+/**
+ * Render an assistant message back to plain text — used by the Copy
+ * action on the message hover row. Non-text blocks become inline
+ * descriptors so the copied output still makes sense in a notes app.
+ */
+export function messageToCopyText(blocks: AssistantBlock[]): string {
+  const parts: string[] = [];
+  for (const b of blocks) {
+    if (b.kind === "text") parts.push(b.text);
+    else if (b.kind === "sparkline")
+      parts.push(`[Trend chart for ${b.kpiCode} — ${b.values.join(", ")}]`);
+    else if (b.kind === "comparison")
+      parts.push(`[Comparison of ${b.kpiCode} across ${b.series.length} locations]`);
+    else if (b.kind === "citation")
+      parts.push("Sources:\n" + b.sources.map((s, i) => `[${i + 1}] ${s.label}`).join("\n"));
+  }
+  return parts.join("\n\n");
+}
+
+/** Curated capability cards for the empty-state. */
+export type CapabilityCard = {
+  id: string;
+  icon: "trending_up" | "compare" | "trophy" | "document";
+  title: string;
+  description: string;
+  example: string;
+};
+
+export const CAPABILITIES: readonly CapabilityCard[] = [
+  {
+    id: "trend",
+    icon: "trending_up",
+    title: "Trends over time",
+    description: "See how any indicator has moved across the past decade for a location.",
+    example: "Show me unemployment trends in Cluj county",
+  },
+  {
+    id: "compare",
+    icon: "compare",
+    title: "Compare locations",
+    description: "Stack 2+ counties or cities side-by-side on any indicator.",
+    example: "Compare GDP per capita in Cluj-Napoca vs Maramureș",
+  },
+  {
+    id: "ranking",
+    icon: "trophy",
+    title: "Rank by indicator",
+    description: "Surface the leaders or laggards across the NW region.",
+    example: "Which county has the highest GDP per capita?",
+  },
+  {
+    id: "dossier",
+    icon: "document",
+    title: "Generate a dossier",
+    description: "Get a structured intelligence brief for any commune.",
+    example: "Generate a Florești dossier",
+  },
 ];
+
+/** Back-compat: kept so existing call sites still compile. */
+export const SUGGESTED_PROMPTS: readonly string[] = CAPABILITIES.map((c) => c.example);

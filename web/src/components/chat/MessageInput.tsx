@@ -1,16 +1,27 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { ArrowUp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUp, Square } from "lucide-react";
 
 type Props = {
   disabled?: boolean;
+  /** When true, the send button morphs into a Stop button. */
+  isStreaming?: boolean;
   onSubmit: (text: string) => void;
+  onStop?: () => void;
 };
 
-export function MessageInput({ disabled, onSubmit }: Props) {
+export function MessageInput({ disabled, isStreaming, onSubmit, onStop }: Props) {
   const [text, setText] = useState("");
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-grow the textarea up to ~6 lines.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 144)}px`;
+  }, [text]);
 
   function send() {
     const trimmed = text.trim();
@@ -25,7 +36,13 @@ export function MessageInput({ disabled, onSubmit }: Props) {
       e.preventDefault();
       send();
     }
+    if (e.key === "Escape" && isStreaming && onStop) {
+      e.preventDefault();
+      onStop();
+    }
   }
+
+  const canSend = !disabled && text.trim().length > 0;
 
   return (
     <form
@@ -33,27 +50,38 @@ export function MessageInput({ disabled, onSubmit }: Props) {
         e.preventDefault();
         send();
       }}
-      className="flex items-end gap-2 rounded-lg border border-border-subtle bg-surface-container-lowest p-2 focus-within:border-primary"
+      className="flex items-end gap-2 rounded-2xl border border-border-subtle bg-surface-container-lowest p-2 shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
     >
       <textarea
         ref={ref}
-        aria-label="Message"
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKey}
         rows={1}
-        placeholder="Ask anything about the data…"
-        disabled={disabled}
-        className="font-body-md max-h-48 min-h-[2.5rem] w-full resize-none border-none bg-transparent text-on-surface focus:outline-none"
+        placeholder={isStreaming ? "Press Esc to stop…" : "Ask anything about the data…"}
+        aria-label="Message"
+        disabled={disabled && !isStreaming}
+        className="font-body-md max-h-36 min-h-[2rem] w-full resize-none border-none bg-transparent px-2 py-1.5 text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none"
       />
-      <button
-        type="submit"
-        disabled={disabled || text.trim().length === 0}
-        aria-label="Send"
-        className="rounded bg-primary p-2 text-on-primary transition-colors hover:bg-primary-deep disabled:opacity-40"
-      >
-        <ArrowUp size={16} />
-      </button>
+      {isStreaming && onStop ? (
+        <button
+          type="button"
+          onClick={onStop}
+          aria-label="Stop generating"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-on-surface text-surface transition-opacity hover:opacity-90"
+        >
+          <Square size={14} fill="currentColor" />
+        </button>
+      ) : (
+        <button
+          type="submit"
+          disabled={!canSend}
+          aria-label="Send"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-on-primary transition-colors hover:bg-primary-deep disabled:opacity-40"
+        >
+          <ArrowUp size={16} />
+        </button>
+      )}
     </form>
   );
 }
