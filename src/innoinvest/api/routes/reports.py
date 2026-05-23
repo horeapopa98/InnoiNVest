@@ -1,10 +1,15 @@
 from collections import defaultdict
+from io import StringIO
+from tempfile import NamedTemporaryFile
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 
 from ..deps import get_db
 from ...models import Kpi, KpiValue, Location
+from ...export.csv import write_csv as write_csv_file
+from ...export.docx import write_docx
 
 router = APIRouter()
 
@@ -104,3 +109,33 @@ def _serialize_row(v: KpiValue, k: Kpi, loc: Location) -> dict:
         "aggregation_level": k.aggregation_level,
         "for_siruta": v.siruta_code,
     }
+
+
+@router.get("/report/{siruta_code}/export.csv")
+def export_csv(siruta_code: str, db: Session = Depends(get_db)):
+    body = get_report(siruta_code, format="flat", db=db)  # reuse logic
+    out = StringIO()
+    write_csv_file(out, body["rows"])
+    out.seek(0)
+    return StreamingResponse(
+        iter([out.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="innoinvest-{siruta_code}.csv"'},
+    )
+
+
+@router.get("/report/{siruta_code}/export.docx")
+def export_docx(siruta_code: str, db: Session = Depends(get_db)):
+    body = get_report(siruta_code, format="grouped", db=db)
+    with NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
+        write_docx(
+            tmp.name,
+            location_name=body["location"]["name"],
+            grouped_categories=body["categories"],
+        )
+        path = tmp.name
+    return FileResponse(
+        path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=f"innoinvest-{siruta_code}.docx",
+    )
