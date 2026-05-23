@@ -7,7 +7,7 @@ import yaml
 
 from .base import KpiConfig
 
-_VALID_AGG_LEVELS = {"commune", "county", "country"}
+_VALID_AGG_LEVELS = {"commune", "county", "region", "country"}
 
 
 def load_kpis(path: Path) -> list[KpiConfig]:

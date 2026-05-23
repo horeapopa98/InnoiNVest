@@ -76,6 +76,8 @@ class IngestionRunner:
                 return [l for l in locations if l.type in ("commune", "city")]
             case "county":
                 return [l for l in locations if l.type == "county"]
+            case "region":
+                return [l for l in locations if l.type == "region"]
             case "country":
                 return [l for l in locations if l.type == "country"]
             case _:

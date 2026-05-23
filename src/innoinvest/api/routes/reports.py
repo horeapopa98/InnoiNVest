@@ -24,10 +24,15 @@ def get_report(
     if loc is None:
         raise HTTPException(status_code=404, detail=f"location {siruta_code} not found")
 
-    # County-level KPIs are joined via parent_siruta when the location is a commune/city.
+    # Walk up the hierarchy (commune/city → county → region → country) so a
+    # location inherits every KPI available at a coarser geography.
     candidate_siruta = [siruta_code]
-    if loc.parent_siruta and loc.type in ("commune", "city"):
-        candidate_siruta.append(loc.parent_siruta)
+    cursor = loc
+    seen = {siruta_code}
+    while cursor and cursor.parent_siruta and cursor.parent_siruta not in seen:
+        candidate_siruta.append(cursor.parent_siruta)
+        seen.add(cursor.parent_siruta)
+        cursor = db.get(Location, cursor.parent_siruta)
 
     rows = (
         db.query(KpiValue, Kpi)
@@ -60,10 +65,18 @@ def get_report(
     grouped: dict[str, list[dict]] = defaultdict(list)
     for kpi_code, values in by_kpi.items():
         meta = kpi_meta[kpi_code]
+        # Prefer the latest period that actually has a value (Eurostat returns
+        # NaN/null for the most recent year before data is finalized).
+        latest_idx = next(
+            (i for i, v in enumerate(values) if v["value"] is not None),
+            0,
+        )
+        latest = values[latest_idx]
+        history = [v for i, v in enumerate(values) if i != latest_idx]
         grouped[meta["category"]].append({
             **meta,
-            "latest": values[0],
-            "history": values[1:],
+            "latest": latest,
+            "history": history,
         })
 
     return {
