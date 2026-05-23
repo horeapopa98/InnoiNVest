@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.locations import router as locations_router
+from .routes.reports import router as reports_router
 
 
 def create_app() -> FastAPI:
@@ -13,6 +14,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(locations_router)
+    app.include_router(reports_router)
     return app
 
 

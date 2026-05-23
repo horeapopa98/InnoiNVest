@@ -1,0 +1,106 @@
+from collections import defaultdict
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
+from ..deps import get_db
+from ...models import Kpi, KpiValue, Location
+
+router = APIRouter()
+
+
+@router.get("/report/{siruta_code}")
+def get_report(
+    siruta_code: str,
+    format: str = Query("grouped", pattern="^(grouped|flat)$"),
+    db: Session = Depends(get_db),
+):
+    loc = db.get(Location, siruta_code)
+    if loc is None:
+        raise HTTPException(status_code=404, detail=f"location {siruta_code} not found")
+
+    # County-level KPIs are joined via parent_siruta when the location is a commune/city.
+    candidate_siruta = [siruta_code]
+    if loc.parent_siruta and loc.type in ("commune", "city"):
+        candidate_siruta.append(loc.parent_siruta)
+
+    rows = (
+        db.query(KpiValue, Kpi)
+        .join(Kpi, KpiValue.kpi_code == Kpi.kpi_code)
+        .filter(KpiValue.siruta_code.in_(candidate_siruta))
+        .order_by(Kpi.category, Kpi.name_en, KpiValue.period.desc())
+        .all()
+    )
+
+    serialized_rows = [_serialize_row(v, k, loc) for v, k in rows]
+
+    if format == "flat":
+        return {"location": _serialize_loc(loc), "rows": serialized_rows}
+
+    # Grouped: category -> kpi_code -> {latest, history}
+    by_kpi: dict[str, list[dict]] = defaultdict(list)
+    kpi_meta: dict[str, dict] = {}
+    for v, k in rows:
+        by_kpi[k.kpi_code].append(_serialize_value(v))
+        if k.kpi_code not in kpi_meta:
+            kpi_meta[k.kpi_code] = {
+                "kpi_code": k.kpi_code,
+                "name_en": k.name_en,
+                "name_ro": k.name_ro,
+                "unit": k.unit,
+                "category": k.category,
+                "aggregation_level": k.aggregation_level,
+            }
+
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for kpi_code, values in by_kpi.items():
+        meta = kpi_meta[kpi_code]
+        grouped[meta["category"]].append({
+            **meta,
+            "latest": values[0],
+            "history": values[1:],
+        })
+
+    return {
+        "location": _serialize_loc(loc),
+        "categories": [
+            {"category": cat, "kpis": kpis} for cat, kpis in grouped.items()
+        ],
+    }
+
+
+def _serialize_loc(loc: Location) -> dict:
+    return {
+        "siruta_code": loc.siruta_code,
+        "name": loc.name,
+        "type": loc.type,
+        "parent_siruta": loc.parent_siruta,
+        "nuts_code": loc.nuts_code,
+    }
+
+
+def _serialize_value(v: KpiValue) -> dict:
+    return {
+        "period": v.period,
+        "value": str(v.value) if v.value is not None else None,
+        "source_code": v.source_code,
+        "source_dataset_id": v.source_dataset_id,
+        "source_url": v.source_url,
+        "fetched_at": v.fetched_at.isoformat() if v.fetched_at else None,
+    }
+
+
+def _serialize_row(v: KpiValue, k: Kpi, loc: Location) -> dict:
+    return {
+        "kpi_code": v.kpi_code,
+        "kpi_name_en": k.name_en,
+        "category": k.category,
+        "unit": k.unit,
+        "period": v.period,
+        "value": str(v.value) if v.value is not None else None,
+        "source_code": v.source_code,
+        "source_dataset_id": v.source_dataset_id,
+        "source_url": v.source_url,
+        "aggregation_level": k.aggregation_level,
+        "for_siruta": v.siruta_code,
+    }
