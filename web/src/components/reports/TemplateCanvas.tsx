@@ -38,6 +38,7 @@ export function TemplateCanvas({ template, onChange }: Props) {
   const [locationSiruta, setLocationSiruta] = useState<string>("");
   const [generating, setGenerating] = useState(false);
   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -100,9 +101,10 @@ export function TemplateCanvas({ template, onChange }: Props) {
 
   function handleGenerate() {
     if (!locationSiruta) {
-      alert("Pick a location first.");
+      setValidationError("Pick a location first.");
       return;
     }
+    setValidationError(null);
     setGenerating(true);
     setTimeout(() => {
       const loc = getLocation(locationSiruta)!;
@@ -174,16 +176,29 @@ export function TemplateCanvas({ template, onChange }: Props) {
           />
         ))}
 
-        <footer className="sticky bottom-12 z-10 flex items-center justify-between gap-3 rounded-lg border border-border-subtle bg-surface p-3 shadow-sm">
-          <LocationPicker value={locationSiruta} onChange={setLocationSiruta} />
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={generating}
-            className="font-label-md text-label-md rounded bg-primary px-5 py-2 text-on-primary transition-colors hover:bg-primary-deep disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
-          >
-            {generating ? "Compiling…" : "Generate"}
-          </button>
+        <footer className="sticky bottom-12 z-10 flex flex-col gap-2 rounded-lg border border-border-subtle bg-surface p-3 shadow-sm">
+          {validationError && (
+            <p className="font-label-md text-label-md text-error" role="alert">
+              {validationError}
+            </p>
+          )}
+          <div className="flex items-center justify-between gap-3">
+            <LocationPicker
+              value={locationSiruta}
+              onChange={(v) => {
+                setLocationSiruta(v);
+                setValidationError(null);
+              }}
+            />
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={generating}
+              className="font-label-md text-label-md rounded bg-primary px-5 py-2 text-on-primary transition-colors hover:bg-primary-deep disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              {generating ? "Compiling…" : "Generate"}
+            </button>
+          </div>
         </footer>
       </div>
       <GenerateOverlay visible={generating} />

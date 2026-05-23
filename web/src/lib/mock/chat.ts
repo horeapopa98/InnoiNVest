@@ -8,6 +8,7 @@
 import { getKpi, KPIS, type Kpi } from "./kpis";
 import { LOCATIONS, type Location } from "./locations";
 import { getSeries, getObservation } from "./observations";
+import { getSystemYear } from "@/lib/system-clock";
 
 export type AssistantBlock =
   | { kind: "text"; text: string }
@@ -144,7 +145,8 @@ function compareResponse(intent: Extract<Intent, { kind: "compare" }>): Assistan
 }
 
 function lookupResponse(intent: Extract<Intent, { kind: "lookup" }>): AssistantBlock[] {
-  const obs = getObservation(intent.location.sirutaCode, intent.kpi.code, 2024);
+  const year = getSystemYear();
+  const obs = getObservation(intent.location.sirutaCode, intent.kpi.code, year);
   if (!obs) return fallbackResponse();
   return [
     {
@@ -156,16 +158,17 @@ function lookupResponse(intent: Extract<Intent, { kind: "lookup" }>): AssistantB
 }
 
 function rankingResponse(intent: Extract<Intent, { kind: "ranking" }>): AssistantBlock[] {
+  const year = getSystemYear();
   const eligibleLocs = LOCATIONS.filter((l) => {
-    const obs = getObservation(l.sirutaCode, intent.kpi.code, 2024);
+    const obs = getObservation(l.sirutaCode, intent.kpi.code, year);
     return obs !== undefined;
   });
   const ranked = eligibleLocs
-    .map((l) => ({ loc: l, value: getObservation(l.sirutaCode, intent.kpi.code, 2024)!.value }))
+    .map((l) => ({ loc: l, value: getObservation(l.sirutaCode, intent.kpi.code, year)!.value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 5);
   return [
-    { kind: "text", text: `Top 5 by ${intent.kpi.nameEn} (2024):` },
+    { kind: "text", text: `Top 5 by ${intent.kpi.nameEn} (${year}):` },
     {
       kind: "text",
       text: ranked.map((r, i) => `${i + 1}. ${r.loc.name} — ${r.value.toLocaleString("en-US")} ${intent.kpi.unit}`).join("\n"),
@@ -194,7 +197,7 @@ function fallbackResponse(): AssistantBlock[] {
 
 // --- Public entry point ------------------------------------------------
 
-export function respondTo(text: string): AssistantBlock[] {
+export function respondTo(text: string, history: Message[] = []): AssistantBlock[] {
   const intent = classifyIntent(text);
   switch (intent.kind) {
     case "trend":

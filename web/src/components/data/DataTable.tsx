@@ -75,6 +75,7 @@ export function DataTable({ rows, onRowClick }: Props) {
             <th
               key={c.key}
               scope="col"
+              aria-sort={sortCol === c.key ? (sortDir === 1 ? "ascending" : "descending") : "none"}
               className={
                 c.align === "right"
                   ? "font-label-md text-label-md cursor-pointer p-3 text-right uppercase tracking-wider text-on-surface-variant hover:text-primary-deep"
@@ -91,6 +92,7 @@ export function DataTable({ rows, onRowClick }: Props) {
           <th
             className="font-label-md text-label-md p-3 text-left uppercase tracking-wider text-on-surface-variant"
             scope="col"
+            aria-sort="none"
           >
             Source
           </th>
