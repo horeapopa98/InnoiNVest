@@ -278,3 +278,23 @@
     vertical-align: middle;
   }
 }
+
+/* A4-aspect document preview used by /report-preview (screen 3 of the
+   Stitch port). Mirrors the .a4-page rule from the source HTML so the
+   browser preview reads like a real document and prints cleanly. */
+.a4-page {
+  aspect-ratio: 1 / 1.414;
+  width: 100%;
+  max-width: 800px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .a4-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+}
