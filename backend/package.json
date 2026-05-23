@@ -6,14 +6,19 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "mcp": "node src/mcp/server.js",
     "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\""
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "node-html-parser": "^7.1.0",
     "pg": "^8.21.0",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
