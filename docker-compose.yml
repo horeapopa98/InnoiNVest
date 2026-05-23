@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: innoinvest
       POSTGRES_PASSWORD: innoinvest
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./db/migrations:/docker-entrypoint-initdb.d:ro
