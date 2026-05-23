@@ -86,6 +86,11 @@ export default function ReportsPage() {
 
   return (
     <DndContext
+      // Stable id avoids a hydration mismatch on the per-draggable
+      // aria-describedby attribute — without it, dnd-kit's internal
+      // counter starts at 0 on the SSR pre-render and somewhere else
+      // on the client, producing "DndDescribedBy-0" vs "DndDescribedBy-1".
+      id="reports-builder-dnd"
       sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
