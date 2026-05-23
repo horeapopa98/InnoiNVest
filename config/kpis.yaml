@@ -1,0 +1,62 @@
+# 5 KPIs for v1 demo, mapped to brief categories.
+# Add more by appending entries; the runner picks them up automatically.
+
+- kpi_code: pop_total
+  name_en: Total population
+  name_ro: Populația totală
+  unit: persons
+  category: Demographics
+  aggregation_level: commune
+  description: Total resident population, all ages, both sexes.
+  ins_tempo:
+    matrix: POP107D
+    dims: { SEX: "Total", AGE: "Total", URBAN_RURAL: "Total" }
+    geo_level: lau2
+
+- kpi_code: gross_monthly_salary
+  name_en: Average gross monthly nominal earnings
+  name_ro: Câștigul salarial mediu nominal brut lunar
+  unit: RON
+  category: Labor Market
+  aggregation_level: county
+  description: Average gross nominal earnings, monthly, all sectors.
+  ins_tempo:
+    matrix: FOM104D
+    dims: { CAEN: "Total" }
+    geo_level: nuts3
+
+- kpi_code: unemployment_rate
+  name_en: Registered unemployment rate
+  name_ro: Rata șomajului înregistrat
+  unit: percent
+  category: Labor Market
+  aggregation_level: county
+  description: Registered unemployed as a share of the active population.
+  ins_tempo:
+    matrix: SOM101A
+    dims: { SEX: "Total" }
+    geo_level: nuts3
+
+- kpi_code: gdp_per_capita
+  name_en: Regional GDP per capita
+  name_ro: PIB pe locuitor, regional
+  unit: EUR
+  category: Macro-Economy
+  aggregation_level: county
+  description: Gross domestic product per inhabitant, NUTS3 level, current prices in EUR.
+  eurostat:
+    dataset: nama_10r_3gdp
+    filters: { unit: "EUR_HAB" }
+    geo_level: nuts3
+
+- kpi_code: active_population
+  name_en: Working-age population (15-64)
+  name_ro: Populația activă (15-64 ani)
+  unit: persons
+  category: Demographics
+  aggregation_level: commune
+  description: Resident population aged 15 to 64.
+  ins_tempo:
+    matrix: POP107D
+    dims: { SEX: "Total", AGE: "15-64", URBAN_RURAL: "Total" }
+    geo_level: lau2
