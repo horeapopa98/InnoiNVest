@@ -18,7 +18,7 @@ export function MessageThread({ messages, streaming }: Props) {
   }, [messages, streaming]);
 
   return (
-    <div className="flex flex-col gap-4 py-6">
+    <div role="log" aria-live="polite" aria-relevant="additions" className="flex flex-col gap-4 py-6">
       {messages.map((m) =>
         m.role === "user" ? (
           <div key={m.id} className="self-end max-w-[80%] rounded-lg bg-primary px-4 py-3 text-on-primary">

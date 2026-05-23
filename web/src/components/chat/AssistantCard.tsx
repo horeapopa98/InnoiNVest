@@ -56,6 +56,8 @@ export function AssistantCard({ blocks }: { blocks: AssistantBlock[] }) {
               </ol>
             );
           }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const _exhaustive: never = b;
           return null;
         })}
       </div>

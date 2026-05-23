@@ -37,6 +37,7 @@ export function MessageInput({ disabled, onSubmit }: Props) {
     >
       <textarea
         ref={ref}
+        aria-label="Message"
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKey}

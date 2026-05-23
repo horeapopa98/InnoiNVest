@@ -44,9 +44,12 @@ export default function ChatPage() {
 
   const active = conversations.find((c) => c.id === activeId);
 
-  function persist(next: Conversation[], nextActive: string | null) {
-    setConversations(next);
-    writeStorage(STORAGE_KEYS.chats, next);
+  function persist(updater: (prev: Conversation[]) => Conversation[], nextActive: string | null) {
+    setConversations((prev) => {
+      const next = updater(prev);
+      writeStorage(STORAGE_KEYS.chats, next);
+      return next;
+    });
     if (nextActive !== null) {
       setActiveId(nextActive);
       writeStorage(STORAGE_KEYS.activeChat, nextActive);
@@ -55,7 +58,7 @@ export default function ChatPage() {
 
   function handleNew() {
     const fresh = blankConversation();
-    persist([fresh, ...conversations], fresh.id);
+    persist((prev) => [fresh, ...prev], fresh.id);
   }
 
   function handleSelect(id: string) {
@@ -66,7 +69,7 @@ export default function ChatPage() {
   function handleSend(text: string) {
     if (!active) return;
     const userMsg: Message = {
-      id: `m-${Date.now()}`,
+      id: `m-${crypto.randomUUID()}`,
       role: "user",
       text,
       timestamp: Date.now(),
@@ -78,25 +81,26 @@ export default function ChatPage() {
       messages: [...active.messages, userMsg],
       updatedAt: Date.now(),
     };
-    let next = conversations.map((c) => (c.id === active.id ? withUser : c));
-    persist(next, active.id);
+    persist((prev) => prev.map((c) => (c.id === active.id ? withUser : c)), active.id);
 
     setStreaming(true);
     setTimeout(() => {
       const blocks = respondTo(text);
       const assistantMsg: Message = {
-        id: `m-${Date.now() + 1}`,
+        id: `m-${crypto.randomUUID()}`,
         role: "assistant",
         blocks,
-        timestamp: Date.now() + 1,
+        timestamp: Date.now(),
       };
-      const final: Conversation = {
-        ...withUser,
-        messages: [...withUser.messages, assistantMsg],
-        updatedAt: Date.now() + 1,
-      };
-      next = next.map((c) => (c.id === active.id ? final : c));
-      persist(next, active.id);
+      persist(
+        (prev) =>
+          prev.map((c) =>
+            c.id === active.id
+              ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
+              : c
+          ),
+        active.id
+      );
       setStreaming(false);
     }, 700);
   }
