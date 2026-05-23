@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ReportOutline, type OutlineItem } from "@/components/stitch/ReportOutline";
+import { PrintButton } from "@/components/stitch/PrintButton";
 
 /**
  * Screen 3: Report Generation Preview
@@ -71,6 +72,7 @@ const TREND_ICON: Record<
 };
 
 export default function ReportPreviewPage() {
+  const year = new Date().getFullYear();
   return (
     <div className="scroll-smooth bg-surface font-body-md text-on-surface">
       {/* Top nav — minimal, report-specific */}
@@ -114,19 +116,22 @@ export default function ReportPreviewPage() {
               Risks
             </a>
           </nav>
-          <div className="flex items-center gap-4">
-            <button className="font-label-md hidden items-center gap-2 rounded-lg border border-primary px-4 py-2 text-primary transition-all hover:bg-primary-container/10 sm:flex">
-              <span className="material-symbols-outlined text-[18px]">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="font-label-md hidden items-center gap-2 rounded border border-primary px-4 py-2 text-primary-deep transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 sm:flex"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 share
               </span>
-              Share Report
+              Share report
             </button>
-            <button className="font-label-md flex items-center gap-2 rounded-lg bg-primary-container px-4 py-2 text-white shadow-sm transition-all hover:opacity-90">
-              <span className="material-symbols-outlined text-[18px]">
+            <PrintButton className="font-label-md flex items-center gap-2 rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
+              <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: 18 }}>
                 download
               </span>
               Download PDF
-            </button>
+            </PrintButton>
           </div>
         </div>
       </header>
@@ -471,7 +476,7 @@ export default function ReportPreviewPage() {
             InnoInvest
           </div>
           <div className="font-label-md text-label-md text-secondary">
-            © 2024 InnoInvest Intelligence. Institutional Grade Analysis.
+            © {year} InnoiNVest Intelligence · ADR Nord-Vest
           </div>
           <div className="flex gap-6">
             <a

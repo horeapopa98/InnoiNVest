@@ -1,98 +1,137 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { InitialsAvatar } from "./InitialsAvatar";
 
 /**
- * Shared top navigation bar used by the Stitch-ported "Intelligence" screens.
- * Matches the InnoiNVest Intelligence design system from
- * https://stitch.withgoogle.com/projects/17049715552381140836
+ * Shared top navigation for the InnoiNVest Intelligence screens. The
+ * brand identity follows inno.ro (teal #45afaa primary, no shadows,
+ * generous white space, modest scale).
+ *
+ * Behaviour:
+ * - Active tab is derived from usePathname() instead of hardcoded flags
+ *   so deep links highlight the right item.
+ * - Touch targets meet WCAG 2.5.5 (44×44 minimum on the icon buttons).
+ * - Focus-visible outlines are restored where Tailwind's default would
+ *   have hidden them.
  */
 
 export type TopNavItem = {
   label: string;
   href: string;
-  active?: boolean;
+  /** Optional matcher; defaults to startsWith(href) when href !== "/". */
+  matches?: (pathname: string) => boolean;
 };
 
 type Props = {
-  /** Optional override of nav items. Defaults to the standard 3-tab set. */
   items?: TopNavItem[];
-  /** Show the right-side search input. Hidden on focused sub-pages. */
   showSearch?: boolean;
-  /** Show a notification dot on the bell. */
   hasUnreadNotifications?: boolean;
+  /** Display name for the demo user avatar. Defaults to "Nord-Vest Analyst". */
+  userName?: string;
 };
 
 const DEFAULT_ITEMS: TopNavItem[] = [
-  { label: "Intelligence Hub", href: "/sectors", active: true },
-  { label: "Global Benchmarks", href: "#" },
-  { label: "Team Archive", href: "#" },
+  { label: "Intelligence Hub", href: "/sectors" },
+  { label: "Global Benchmarks", href: "/benchmarks" },
+  { label: "Team Archive", href: "/archive" },
 ];
+
+function isActive(pathname: string, item: TopNavItem): boolean {
+  if (item.matches) return item.matches(pathname);
+  if (item.href === "/") return pathname === "/";
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+const ICON_BUTTON =
+  "relative flex h-11 w-11 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2";
 
 export function TopNav({
   items = DEFAULT_ITEMS,
   showSearch = true,
   hasUnreadNotifications = false,
+  userName = "Nord-Vest Analyst",
 }: Props) {
+  const pathname = usePathname();
+
   return (
-    <header className="fixed top-0 left-0 z-50 flex h-16 w-full items-center justify-between border-b border-border-subtle bg-surface px-margin-desktop">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-border-subtle bg-surface/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-surface/80 md:px-margin-desktop">
       <div className="flex items-center gap-8">
         <Link
           href="/sectors"
-          className="font-headline-md text-headline-md font-bold text-primary"
+          className="font-headline-md text-headline-md rounded font-bold text-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-4"
         >
           InnoiNVest
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          {items.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={
-                item.active
-                  ? "font-body-md text-body-md border-b-2 border-primary py-4 text-primary"
-                  : "font-body-md text-body-md py-4 text-on-surface-variant transition-colors hover:bg-surface-muted"
-              }
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          {items.map((item) => {
+            const active = isActive(pathname, item);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={
+                  active
+                    ? "font-body-md text-body-md relative rounded-sm px-3 py-2 font-semibold text-primary-deep after:absolute after:inset-x-3 after:-bottom-[17px] after:h-[2px] after:bg-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                    : "font-body-md text-body-md rounded-sm px-3 py-2 text-on-surface-variant transition-colors hover:bg-surface-muted hover:text-on-surface focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         {showSearch && (
-          <div className="flex items-center rounded-lg border border-border-subtle bg-surface-muted px-3 py-1.5">
+          <label className="hidden items-center rounded-md border border-border-subtle bg-surface-muted px-3 py-1.5 transition-colors focus-within:border-primary focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 md:flex">
+            <span className="sr-only">Search projects</span>
             <span
+              aria-hidden="true"
               className="material-symbols-outlined mr-2 text-on-surface-variant"
               style={{ fontSize: 18 }}
             >
               search
             </span>
             <input
-              type="text"
-              placeholder="Search projects..."
-              className="w-48 border-none bg-transparent text-sm focus:ring-0"
+              type="search"
+              placeholder="Search projects…"
+              className="w-48 border-none bg-transparent text-sm placeholder:text-on-surface-variant/70 focus:outline-none"
             />
-          </div>
+          </label>
         )}
-        <button className="relative rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-muted">
-          <span className="material-symbols-outlined">notifications</span>
+        <button
+          className={ICON_BUTTON}
+          aria-label={
+            hasUnreadNotifications
+              ? "Notifications, unread"
+              : "Notifications"
+          }
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            notifications
+          </span>
           {hasUnreadNotifications && (
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-surface bg-error" />
+            <span
+              className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-surface bg-error"
+              aria-hidden="true"
+            />
           )}
         </button>
-        <button className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-muted">
-          <span className="material-symbols-outlined">settings</span>
+        <button
+          className={`${ICON_BUTTON} hidden sm:flex`}
+          aria-label="Settings"
+        >
+          <span className="material-symbols-outlined" aria-hidden="true">
+            settings
+          </span>
         </button>
-        <button className="font-label-md text-label-md rounded bg-primary px-4 py-2 text-on-primary transition-opacity hover:opacity-90">
+        <button className="font-label-md text-label-md ml-1 hidden rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 sm:inline-flex">
           New Project
         </button>
-        <div
-          className="h-8 w-8 rounded-full border border-border-subtle bg-surface-container-high bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url(https://lh3.googleusercontent.com/aida-public/AB6AXuAJfAkqlL1tlfRO6CbvKUFBKsFlYd6nvfTWK7FgEGamQorV1a98k0kyCH-UsHxQ8K2tC6bI0mxRukKhKAvlywZzznLxTKOwvf1bfXH5-R8xYx1eL2lK034oY8k4M2ECZ23BaOLJya7FA2AQkHuVynf3_5f-8NNGa6mnIkOxDeejdqW-t_uc2M0dJOYoy2ys_XhLc4tQRFIBcJkye6kiu2pZlveMXCqo8fHgN12nkEsxSbprif1bWqI-K7q52j4JUuwf3CdgYOPrfQhF)",
-          }}
-          aria-label="User profile"
-        />
+        <InitialsAvatar name={userName} />
       </div>
     </header>
   );

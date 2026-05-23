@@ -2,246 +2,293 @@ import Link from "next/link";
 import { TopNav } from "@/components/stitch/TopNav";
 
 /**
- * Screen 2: Macro-Economic Indicators
+ * Macro-Economic Indicators detail.
  *
- * Static port of the sector-detail Stitch screen
- * (projects/17049715552381140836). This is the "drill-in" view shown
- * after a user clicks "View Full Summary" on a loaded sector card.
- *
- * Per the Stitch design's Shell Visibility Rule, the side nav is
- * suppressed on focused task pages — only the top nav remains.
+ * Design intent (post-audit): drop the "huge number + tiny label + icon
+ * tile + colored trend pill" bento that screamed AI-template. Replaced
+ * with an editorial layout — small uppercase label, value inline with
+ * source citation, change indicator integrated rather than badged.
+ * Each metric also shows a horizontal comparison-to-benchmark bar so
+ * users can read context without a click.
  */
 
-type Trend = "up" | "down" | "flat" | "neutral";
+type Trend = "up" | "down" | "flat";
 
 type Metric = {
-  icon: string;
-  iconTone: "primary" | "secondary" | "tertiary";
   label: string;
-  source: string;
   value: string;
+  unit: string;
+  source: string;
   change: string;
   trend: Trend;
+  /** Position on a 0–100 scale relative to the metric's healthy benchmark. */
+  benchmarkPosition: number;
 };
 
 const METRICS: readonly Metric[] = [
   {
-    icon: "trending_up",
-    iconTone: "primary",
-    label: "GDP Growth Rate (%)",
-    source: "IMF World Bank",
+    label: "Real GDP growth",
     value: "2.4",
-    change: "+0.3% vs Prev. Qtr",
+    unit: "%",
+    source: "IMF World Economic Outlook",
+    change: "+0.3pp vs prev. quarter",
     trend: "up",
+    benchmarkPosition: 68,
   },
   {
-    icon: "price_change",
-    iconTone: "secondary",
-    label: "Inflation Rate (%)",
-    source: "OECD Data",
+    label: "Headline inflation",
     value: "3.1",
-    change: "-0.5% vs Prev. Qtr",
+    unit: "%",
+    source: "OECD harmonised CPI",
+    change: "−0.5pp vs prev. quarter",
     trend: "down",
+    benchmarkPosition: 42,
   },
   {
-    icon: "group",
-    iconTone: "tertiary",
-    label: "Unemployment Rate (%)",
-    source: "BLS / Eurostat",
+    label: "Unemployment rate",
     value: "3.8",
-    change: "Stable vs Prev. Qtr",
+    unit: "%",
+    source: "Eurostat LFS",
+    change: "Stable vs prev. quarter",
     trend: "flat",
+    benchmarkPosition: 78,
   },
   {
-    icon: "payments",
-    iconTone: "primary",
-    label: "GDP Per Capita (USD)",
-    source: "World Bank",
+    label: "GDP per capita",
     value: "68,420",
-    change: "Updated Yearly",
-    trend: "neutral",
+    unit: "USD",
+    source: "World Bank",
+    change: "Updated annually",
+    trend: "flat",
+    benchmarkPosition: 60,
   },
 ];
 
-const ICON_TONE_CLASSES: Record<Metric["iconTone"], string> = {
-  primary: "bg-primary-container/10 text-primary",
-  secondary: "bg-secondary-container/10 text-secondary",
-  tertiary: "bg-tertiary-container/10 text-tertiary",
+const TREND_GLYPH: Record<Trend, { symbol: string; tone: string }> = {
+  up: { symbol: "↑", tone: "text-primary-deep" },
+  down: { symbol: "↓", tone: "text-error" },
+  flat: { symbol: "→", tone: "text-on-surface-variant" },
 };
-
-const TREND_INFO: Record<
-  Trend,
-  { color: string; icon: string }
-> = {
-  up: { color: "text-primary", icon: "arrow_upward" },
-  down: { color: "text-error", icon: "arrow_downward" },
-  flat: { color: "text-on-surface-variant", icon: "horizontal_rule" },
-  neutral: { color: "text-primary", icon: "add" },
-};
-
-function MetricCard({ metric }: { metric: Metric }) {
-  const trend = TREND_INFO[metric.trend];
-
-  return (
-    <div className="group relative cursor-pointer rounded-xl border border-border-subtle bg-surface-container-lowest p-6 transition-shadow hover:border-primary/50 hover:shadow-sm">
-      <div className="mb-6 flex items-start justify-between">
-        <div
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${ICON_TONE_CLASSES[metric.iconTone]}`}
-        >
-          <span className="material-symbols-outlined">{metric.icon}</span>
-        </div>
-        <span className="font-label-md text-label-md rounded bg-surface-muted px-2 py-1 text-on-surface-variant">
-          {metric.source}
-        </span>
-      </div>
-      <label className="font-label-md text-label-md mb-1 block uppercase tracking-wider text-outline">
-        {metric.label}
-      </label>
-      <div className="font-display-lg text-display-lg mb-2 text-on-surface">
-        {metric.value}
-      </div>
-      <div
-        className={`font-label-md text-label-md flex items-center gap-2 ${trend.color}`}
-      >
-        <span className="material-symbols-outlined text-[14px]">
-          {trend.icon}
-        </span>
-        {metric.change}
-      </div>
-    </div>
-  );
-}
 
 const SUBPAGE_NAV = [
-  { label: "Dashboard", href: "/sectors" },
-  { label: "Intelligence", href: "/sectors/macro", active: true },
+  { label: "Workspace", href: "/sectors" },
+  { label: "Intelligence", href: "/sectors/macro" },
   { label: "Reports", href: "/report-preview" },
 ];
 
-export default function MacroIndicatorsPage() {
+function MetricRow({ metric }: { metric: Metric }) {
+  const trend = TREND_GLYPH[metric.trend];
   return (
-    <div className="min-h-screen bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+    <article className="grid grid-cols-12 items-baseline gap-4 border-b border-border-subtle py-6 last:border-b-0">
+      <div className="col-span-12 md:col-span-4">
+        <p className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">
+          {metric.label}
+        </p>
+        <p className="font-body-sm text-body-sm mt-1 text-on-surface-variant/80">
+          {metric.source}
+        </p>
+      </div>
+      <div className="col-span-6 md:col-span-3">
+        <p className="font-display-lg text-display-lg leading-none text-on-surface">
+          {metric.value}
+          <span className="font-headline-md text-headline-md ml-1 text-on-surface-variant">
+            {metric.unit}
+          </span>
+        </p>
+      </div>
+      <div className="col-span-6 md:col-span-5">
+        <p className={`font-body-sm text-body-sm flex items-center gap-2 ${trend.tone}`}>
+          <span aria-hidden="true" className="text-base">
+            {trend.symbol}
+          </span>
+          {metric.change}
+        </p>
+        <div
+          className="mt-3 h-1 w-full rounded-full bg-surface-container"
+          role="img"
+          aria-label={`Benchmark position: ${metric.benchmarkPosition} of 100`}
+        >
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{ width: `${metric.benchmarkPosition}%` }}
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default function MacroIndicatorsPage() {
+  const year = new Date().getFullYear();
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-on-surface selection:bg-primary/20 selection:text-primary-deep">
       <TopNav items={SUBPAGE_NAV} showSearch={false} hasUnreadNotifications />
 
-      <main className="mx-auto min-h-screen max-w-container-max px-margin-desktop pb-32 pt-24">
+      <main className="mx-auto w-full max-w-container-max flex-1 px-margin-desktop py-10">
         {/* Breadcrumbs */}
-        <nav className="mb-6 flex items-center gap-2 text-on-surface-variant">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-6 flex items-center gap-2 text-on-surface-variant"
+        >
           <Link
             href="/sectors"
-            className="font-label-md text-label-md transition-colors hover:text-primary"
+            className="font-label-md text-label-md rounded transition-colors hover:text-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
           >
             Workspace
           </Link>
-          <span className="material-symbols-outlined text-sm">
+          <span aria-hidden="true" className="material-symbols-outlined text-sm">
             chevron_right
           </span>
-          <span className="font-label-md text-label-md font-bold text-primary">
+          <span
+            aria-current="page"
+            className="font-label-md text-label-md font-semibold text-on-surface"
+          >
             Macro-Economic Indicators
           </span>
         </nav>
 
         {/* Page header */}
-        <header className="mb-section-gap flex flex-col justify-between gap-4 border-b border-border-subtle pb-8 md:flex-row md:items-end">
+        <header className="mb-10 flex flex-col gap-6 border-b border-border-subtle pb-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-2 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <h1 className="font-headline-lg text-headline-lg text-on-surface">
                 Macro-Economic Indicators
               </h1>
-              <span className="font-label-md text-label-md rounded border border-primary/20 bg-primary-container/10 px-2 py-0.5 tracking-widest text-primary">
+              <span className="font-label-md text-label-md rounded-sm bg-primary/10 px-2 py-0.5 text-primary-deep">
                 LOADED
               </span>
             </div>
-            <p className="font-body-sm text-body-sm flex items-center gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined text-[16px]">
+            <p className="font-body-sm text-body-sm mt-2 flex items-center gap-2 text-on-surface-variant">
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined"
+                style={{ fontSize: 16 }}
+              >
                 schedule
               </span>
-              Last fetch: October 24, 2024 • 09:42 AM GMT
+              Last fetch · October 24, 2024 · 09:42 GMT
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/sectors"
-              className="font-label-md text-label-md flex items-center gap-2 rounded-lg border border-outline-variant px-4 py-2 text-on-surface-variant transition-all hover:bg-surface-muted active:scale-95"
+              className="font-label-md text-label-md inline-flex items-center gap-2 rounded border border-border-subtle px-3 py-2 text-on-surface-variant transition-colors hover:border-outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             >
-              <span className="material-symbols-outlined text-[18px]">
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined"
+                style={{ fontSize: 16 }}
+              >
                 arrow_back
               </span>
-              Back to Workspace
+              Back
             </Link>
-            <button className="font-label-md text-label-md flex items-center gap-2 rounded-lg border border-primary px-4 py-2 text-primary transition-all hover:bg-surface-muted active:scale-95">
-              <span className="material-symbols-outlined text-[18px]">
+            <button
+              type="button"
+              className="font-label-md text-label-md inline-flex items-center gap-2 rounded border border-border-subtle px-3 py-2 text-on-surface-variant transition-colors hover:border-outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined"
+                style={{ fontSize: 16 }}
+              >
                 refresh
               </span>
-              Re-fetch Data
+              Re-fetch
             </button>
-            <button className="font-label-md text-label-md flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-on-primary shadow-sm ring-2 ring-primary/30 transition-all hover:opacity-90 active:translate-y-0.5 active:scale-95 active:bg-primary/80">
-              <span className="material-symbols-outlined text-[18px]">
+            <button
+              type="button"
+              className="font-label-md text-label-md inline-flex items-center gap-2 rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="material-symbols-outlined"
+                style={{ fontSize: 16 }}
+              >
                 save
               </span>
-              Save Changes
+              Save changes
             </button>
           </div>
         </header>
 
-        <div className="grid grid-cols-12 gap-gutter">
-          {/* Executive Insights */}
-          <section className="group col-span-12 rounded-xl border border-outline-variant/30 bg-surface-container-low p-gutter transition-colors hover:border-primary/50">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="material-symbols-outlined text-sm text-outline opacity-60">
-                edit
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[2fr_3fr]">
+          {/* Executive Insights — narrow column, editorial framing */}
+          <section aria-labelledby="insights-heading">
+            <header className="mb-3 flex items-center justify-between">
+              <h2
+                id="insights-heading"
+                className="font-headline-sm text-headline-sm text-on-surface"
+              >
+                Executive insights
+              </h2>
+              <span className="font-label-md text-label-md text-on-surface-variant">
+                EDITABLE
               </span>
-              <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                Executive Insights
-              </h3>
-              <span className="material-symbols-outlined text-outline">
-                edit_note
-              </span>
-            </div>
+            </header>
+            <label className="sr-only" htmlFor="executive-insights">
+              Executive insights
+            </label>
             <textarea
+              id="executive-insights"
               defaultValue="Recent quarterly data indicates a stabilizing inflation trend across G7 nations, though labor market tightness remains a persistent concern. GDP growth trajectories are being revised upward slightly due to unexpected resilience in consumer spending and manufacturing output. Immediate focus should remain on interest rate pivot timelines and their subsequent impact on liquidity scores."
-              placeholder="Enter high-level summary here..."
-              className="custom-scrollbar font-body-md text-body-md h-32 w-full resize-none rounded-lg border-none bg-transparent leading-relaxed text-on-surface-variant focus:ring-2 focus:ring-primary/20 group-hover:cursor-text"
+              placeholder="Enter high-level summary…"
+              className="font-body-md text-body-md min-h-[16rem] w-full rounded border border-border-subtle bg-surface-container-lowest p-5 leading-relaxed text-on-surface transition-colors focus:border-primary focus:outline-2 focus:outline-primary focus:outline-offset-1"
             />
           </section>
 
-          {/* Key Metrics Bento */}
-          <section className="col-span-12 grid grid-cols-1 gap-gutter md:grid-cols-2">
-            {METRICS.map((metric) => (
-              <MetricCard key={metric.label} metric={metric} />
-            ))}
+          {/* Key Metrics — editorial rows, no icon tiles, comparison bars */}
+          <section aria-labelledby="metrics-heading">
+            <header className="mb-3 flex items-center justify-between">
+              <h2
+                id="metrics-heading"
+                className="font-headline-sm text-headline-sm text-on-surface"
+              >
+                Key metrics
+              </h2>
+              <span className="font-label-md text-label-md text-on-surface-variant">
+                Q3 2024
+              </span>
+            </header>
+            <div className="border-t border-border-subtle">
+              {METRICS.map((m) => (
+                <MetricRow key={m.label} metric={m} />
+              ))}
+            </div>
+            <p className="font-body-sm text-body-sm mt-3 text-on-surface-variant/80">
+              Comparison bars show the metric&rsquo;s position relative to
+              the healthy benchmark range (0 = bottom of range, 100 = top).
+              Source data refreshed on save.
+            </p>
           </section>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 right-0 z-40 flex w-full flex-col items-center justify-between border-t border-border-subtle bg-surface/80 px-margin-desktop py-4 shadow-sm backdrop-blur-md md:flex-row">
-        <div className="mb-4 flex items-center gap-6 md:mb-0">
-          <span className="font-headline-sm text-headline-sm font-bold text-primary">
-            InnoiNVest
-          </span>
+      <footer className="border-t border-border-subtle bg-surface">
+        <div className="mx-auto flex w-full max-w-container-max flex-col items-start justify-between gap-3 px-margin-desktop py-4 md:flex-row md:items-center">
           <p className="font-label-md text-label-md text-on-surface-variant">
-            © 2024 InnoiNVest Intelligence. Institutional Grade Analysis.
+            © {year} InnoiNVest Intelligence · ADR Nord-Vest
           </p>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link
-            href="/report-preview"
-            className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary"
-          >
-            Generate Final Report
-          </Link>
-          <a
-            href="#"
-            className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary"
-          >
-            Export PDF
-          </a>
-          <a
-            href="#"
-            className="font-label-md text-label-md font-bold text-primary transition-colors hover:text-primary"
-          >
-            Share Workspace
-          </a>
+          <nav className="flex items-center gap-5" aria-label="Footer">
+            <a
+              href="#"
+              className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              Export PDF
+            </a>
+            <Link
+              href="/report-preview"
+              className="font-label-md text-label-md text-on-surface-variant transition-colors hover:text-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              Generate report
+            </Link>
+            <a
+              href="#"
+              className="font-label-md text-label-md font-semibold text-primary-deep hover:underline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+            >
+              Share workspace
+            </a>
+          </nav>
         </div>
       </footer>
     </div>
