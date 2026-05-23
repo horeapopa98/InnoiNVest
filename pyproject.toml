@@ -1,0 +1,41 @@
+[project]
+name = "innoinvest"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+    "requests>=2.32",
+    "pyjstat>=2.4",
+    "lxml>=5.3",
+    "PyYAML>=6.0",
+    "apscheduler>=3.10",
+    "python-docx>=1.1",
+    "typer>=0.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "responses>=0.25",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+innoinvest = "innoinvest.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/innoinvest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
