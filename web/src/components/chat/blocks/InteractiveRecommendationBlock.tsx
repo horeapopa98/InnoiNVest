@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
 import { RankingTableBlock } from "./RankingTableBlock";
-import { MapBlock } from "./MapBlock";
 import {
   DEFAULT_WEIGHTS,
   computeComposite,
@@ -12,6 +12,17 @@ import {
   type WeightedKpi,
 } from "@/lib/mock/composite";
 import { LOCATIONS } from "@/lib/mock/locations";
+
+// MapBlock pulls in Leaflet (needs window). Load it client-only so
+// the InteractiveRecommendationBlock doesn't trip SSR.
+const MapBlock = dynamic(() => import("./MapBlock").then((m) => m.MapBlock), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-[320px] w-full items-center justify-center rounded-lg border border-border-subtle bg-surface-muted text-on-surface-variant">
+      Loading map…
+    </div>
+  ),
+});
 
 type Props = {
   initialSector: Sector;
