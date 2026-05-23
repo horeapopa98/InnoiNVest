@@ -1,0 +1,11 @@
+{
+  "matrixName": "POP107D",
+  "dimensions": [
+    {"name": "Localitate", "options": [{"code": "4324", "label": "FLORESTI"}]},
+    {"name": "Ani", "options": [{"code": "2024", "label": "Anul 2024"}, {"code": "2025", "label": "Anul 2025"}]}
+  ],
+  "dataPoints": [
+    {"Localitate": "4324", "Ani": "2024", "value": 56279},
+    {"Localitate": "4324", "Ani": "2025", "value": 57437}
+  ]
+}
