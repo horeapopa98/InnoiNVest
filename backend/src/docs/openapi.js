@@ -34,8 +34,245 @@ module.exports = {
       name: 'Chat',
       description: 'AI assistant powered by Gemini — answers investment questions using live data from all connected sources',
     },
+    {
+      name: 'Investment Report',
+      description:
+        'Combined location analysis — merges INNO property data (land, parks, airports, rail stations, borders) ' +
+        'with ProInfrastructura transport projects (roads, highways, railways) around a target location. ' +
+        'Returns a connectivity score, distance-bucketed infrastructure, and transport project details.',
+    },
+    {
+      name: 'Agents',
+      description:
+        'Data extraction agents — one per INNO category. Each agent fetches raw source data, normalises field names, ' +
+        'adds computed fields, and returns a clean structured envelope with an items[] array and a summary block. ' +
+        'Agents: inno_properties, inno_listings, inno_industrial_parks, inno_airports, inno_railway_stations, inno_border_crossings.',
+    },
   ],
   paths: {
+    '/api/investment-report': {
+      get: {
+        tags: ['Investment Report'],
+        summary: 'Generate a combined investment location report',
+        description:
+          'Combines INNO property data (ALL types — industrial, agricultural, residential, commercial, arable, parks) ' +
+          'with ProInfrastructura transport infrastructure around a target location.\n\n' +
+          'Provide one of: `propertyId`, `name` (searches across all property types + parks + listings), ' +
+          '`county` + `landType`, or `lat` + `lng`.\n\n' +
+          'Returns:\n' +
+          '- **Target details**: full property info (area, land type, destination, acquisition method)\n' +
+          '- **Connectivity score** (0-100) with reasons\n' +
+          '- **Nearby investment properties** with distances\n' +
+          '- **Infrastructure**: industrial parks, airports, railway stations, border crossings\n' +
+          '- **Transport projects**: roads/highways/railways from ProInfrastructura with status and progress',
+        parameters: [
+          {
+            name: 'id',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description:
+              'INNO property/listing ID. Accepts: "467" or "inno-467" (HTML listing) or "arcgis-inno-42" (ArcGIS map pin). ' +
+              'Automatically resolves the exact map coordinates by cross-matching county + area against the ArcGIS layer.',
+            example: '467',
+          },
+          {
+            name: 'name',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Property, park, or listing name (partial match). Searches all INNO types.',
+            example: 'BH_Tauteu',
+          },
+          {
+            name: 'county',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'County name to filter properties, e.g. "Cluj", "Bihor"',
+            example: 'Bihor',
+          },
+          {
+            name: 'landType',
+            in: 'query',
+            required: false,
+            schema: { type: 'string' },
+            description: 'Land type filter, e.g. "Built-up", "Urban", "Agricultural"',
+            example: 'Urban',
+          },
+          {
+            name: 'lat',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Latitude (WGS84)',
+            example: 46.77,
+          },
+          {
+            name: 'lng',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            description: 'Longitude (WGS84)',
+            example: 23.59,
+          },
+          {
+            name: 'radiusKm',
+            in: 'query',
+            required: false,
+            schema: { type: 'number', default: 30 },
+            description: 'Search radius in km',
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Combined investment location report',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/InvestmentReport' },
+              },
+            },
+          },
+          400: { description: 'Missing required parameters (need propertyId, parkName, or lat+lng)' },
+        },
+      },
+    },
+    '/api/agents': {
+      get: {
+        tags: ['Agents'],
+        summary: 'List all agents + last-run status',
+        description:
+          'Returns every registered data extraction agent with its metadata and last-run health: ' +
+          'when it last ran, how many records it extracted, whether it is currently running, and any error.',
+        responses: {
+          200: {
+            description: 'Agent list',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AgentList' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/agents/run': {
+      post: {
+        tags: ['Agents'],
+        summary: 'Run all agents (or one category) in parallel',
+        description:
+          'Triggers every registered agent simultaneously and returns their normalised results. ' +
+          'Use the optional `category` query param to run only `real_estate` or `infrastructure` agents.',
+        parameters: [
+          {
+            name: 'category',
+            in: 'query',
+            required: false,
+            schema: { type: 'string', enum: ['real_estate', 'infrastructure'] },
+            description: 'Filter by agent category. Omit to run all.',
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Map of agentId → structured result',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AgentRunAllResult' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/agents/{id}/run': {
+      post: {
+        tags: ['Agents'],
+        summary: 'Run a single agent',
+        description: 'Fetches and normalises data for one agent. Always re-fetches from the source.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              enum: [
+                'inno_properties',
+                'inno_listings',
+                'inno_industrial_parks',
+                'inno_airports',
+                'inno_railway_stations',
+                'inno_border_crossings',
+              ],
+            },
+            description: 'Agent identifier',
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Normalised agent result',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AgentResult' },
+              },
+            },
+          },
+          404: { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
+    '/api/agents/{id}': {
+      get: {
+        tags: ['Agents'],
+        summary: 'Get cached result (no re-fetch)',
+        description:
+          'Returns the last successful result for an agent without triggering a new extraction. ' +
+          'Returns 202 with instructions if the agent has never been run.',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+              enum: [
+                'inno_properties',
+                'inno_listings',
+                'inno_industrial_parks',
+                'inno_airports',
+                'inno_railway_stations',
+                'inno_border_crossings',
+              ],
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Cached agent result',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/AgentResult' },
+              },
+            },
+          },
+          202: {
+            description: 'Agent not yet run — trigger POST /api/agents/{id}/run first',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    status: { $ref: '#/components/schemas/AgentStatus' },
+                  },
+                },
+              },
+            },
+          },
+          404: { $ref: '#/components/responses/NotFound' },
+        },
+      },
+    },
     '/api/chat': {
       post: {
         tags: ['Chat'],
@@ -806,6 +1043,131 @@ module.exports = {
           grouped_by: { type: 'string' },
           breakdown: { type: 'object', additionalProperties: { type: 'integer' } },
           generated_at: { type: 'string', format: 'date-time' },
+        },
+      },
+      InvestmentReport: {
+        type: 'object',
+        properties: {
+          report_type: { type: 'string', example: 'combined_investment_location' },
+          target: {
+            type: 'object',
+            description: 'Resolved target — property, park, or raw coordinates',
+          },
+          center: {
+            type: 'object',
+            properties: {
+              lat: { type: 'number', example: 46.77 },
+              lng: { type: 'number', example: 23.59 },
+            },
+          },
+          radius_km: { type: 'number', example: 30 },
+          connectivity_score: {
+            type: 'object',
+            properties: {
+              score: { type: 'integer', description: '0-100 composite score', example: 65 },
+              reasons: {
+                type: 'array',
+                items: { type: 'string' },
+                example: ['Highway/expressway within 5 km', 'Railway station within 10 km'],
+              },
+            },
+          },
+          property_context: {
+            type: 'object',
+            properties: {
+              nearby_investment_properties: { type: 'integer' },
+              closest_properties: { type: 'array', items: { type: 'object' } },
+            },
+          },
+          infrastructure: {
+            type: 'object',
+            properties: {
+              industrial_parks: { type: 'object' },
+              airports: { type: 'object' },
+              railway_stations: { type: 'object' },
+              border_crossings: { type: 'object' },
+            },
+          },
+          transport: {
+            type: 'object',
+            properties: {
+              summary: {
+                type: 'object',
+                properties: {
+                  total_segments: { type: 'integer' },
+                  roads: { type: 'integer' },
+                  railways: { type: 'integer' },
+                  active_construction: { type: 'integer' },
+                  highways_expressways: { type: 'integer' },
+                  by_distance: { type: 'object', additionalProperties: { type: 'integer' } },
+                  by_category: { type: 'object', additionalProperties: { type: 'integer' } },
+                },
+              },
+              projects: { type: 'array', items: { type: 'object' } },
+            },
+          },
+          generated_at: { type: 'string', format: 'date-time' },
+        },
+      },
+      AgentStatus: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', example: 'inno_industrial_parks' },
+          name: { type: 'string', example: 'INNO — Industrial & Smart Specialisation Parks' },
+          category: { type: 'string', enum: ['real_estate', 'infrastructure'] },
+          source: { type: 'string', format: 'uri' },
+          running: { type: 'boolean' },
+          last_run: { type: 'string', format: 'date-time', nullable: true },
+          last_duration_ms: { type: 'integer', nullable: true },
+          record_count: { type: 'integer', nullable: true },
+          has_result: { type: 'boolean' },
+          error: { type: 'string', nullable: true },
+        },
+      },
+      AgentList: {
+        type: 'object',
+        properties: {
+          agents: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/AgentStatus' },
+          },
+        },
+      },
+      AgentSummary: {
+        type: 'object',
+        description: 'Category-level aggregation included in every agent result',
+        additionalProperties: true,
+        example: {
+          total: 69,
+          smart_parks: 20,
+          industrial_parks: 18,
+          by_county: { Bihor: 23, Cluj: 21 },
+        },
+      },
+      AgentResult: {
+        type: 'object',
+        properties: {
+          agent_id: { type: 'string', example: 'inno_industrial_parks' },
+          category: { type: 'string', example: 'infrastructure' },
+          source: { type: 'string', format: 'uri' },
+          extracted_at: { type: 'string', format: 'date-time' },
+          summary: { $ref: '#/components/schemas/AgentSummary' },
+          items: {
+            type: 'array',
+            description: 'Normalised records — schema varies per agent',
+            items: { type: 'object' },
+          },
+        },
+      },
+      AgentRunAllResult: {
+        type: 'object',
+        properties: {
+          ran_at: { type: 'string', format: 'date-time' },
+          results: {
+            type: 'object',
+            description: 'Keys are agent ids, values are AgentResult objects',
+            additionalProperties: { $ref: '#/components/schemas/AgentResult' },
+          },
         },
       },
       ChatRequest: {

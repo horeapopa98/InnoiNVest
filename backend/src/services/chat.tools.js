@@ -1,6 +1,7 @@
 const cityService = require('./city.service');
 const resourceService = require('./resource.service');
 const connectorRegistry = require('../repositories/connectors/registry');
+const combinedReportService = require('./combined-report.service');
 
 // ─── Tool definitions (Gemini FunctionDeclaration format) ────────────────────
 
@@ -155,6 +156,52 @@ const TOOL_DEFINITIONS = [
       required: ['type'],
     },
   },
+  {
+    name: 'generate_investment_report',
+    description:
+      'Generate a combined investment location report. Use this when the user mentions any Romanian place — ' +
+      'a city, commune, village, or region (e.g. "comuna Moldovenești", "Aleșd", "zona Cluj"). ' +
+      'Also works with INNO listing IDs. Merges INNO property data with ProInfrastructura transport ' +
+      'infrastructure (roads, highways, railways under construction). Returns a connectivity score, ' +
+      'nearby infrastructure, and a full transport analysis.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        location: {
+          type: 'STRING',
+          description:
+            'Any Romanian place name the user mentions — commune, city, village, or region. ' +
+            'E.g. "comuna Moldovenești", "Aleșd", "Bistrița", "zona industrială Cluj". ' +
+            'The system geocodes it automatically and finds the nearest INNO properties. ' +
+            'USE THIS when the user says a place name instead of an ID.',
+        },
+        id: {
+          type: 'STRING',
+          description:
+            'INNO property/listing ID. Accepts: "467", "inno-467" (HTML listing), or ' +
+            '"arcgis-inno-42" (ArcGIS property). Use only when the user explicitly references an ID.',
+        },
+        name: {
+          type: 'STRING',
+          description:
+            'Property or park name (partial match). Searches across ALL types: land plots, industrial parks, ' +
+            'smart parks, logistic parks, and HTML listings. E.g. "Tetarom", "BH_Tauteu", "Aleșd".',
+        },
+        county: {
+          type: 'STRING',
+          description: 'County name to filter properties, e.g. "Cluj", "Bihor", "Satu Mare".',
+        },
+        land_type: {
+          type: 'STRING',
+          description: 'Land type filter, e.g. "Built-up", "Urban", "Agricultural".',
+        },
+        lat: { type: 'NUMBER', description: 'Latitude (WGS84). Use with lng when no name/ID.' },
+        lng: { type: 'NUMBER', description: 'Longitude (WGS84).' },
+        radius_km: { type: 'NUMBER', description: 'Search radius in km (default 30).' },
+      },
+      required: [],
+    },
+  },
 ];
 
 // ─── Tool executor ────────────────────────────────────────────────────────────
@@ -214,6 +261,18 @@ async function executeTool(name, args = {}) {
 
     case 'get_infrastructure_features':
       return inno.getInfrastructure(args.type);
+
+    case 'generate_investment_report':
+      return combinedReportService.generateLocationReport({
+        id: args.id,
+        location: args.location,
+        name: args.name,
+        county: args.county,
+        landType: args.land_type,
+        lat: args.lat,
+        lng: args.lng,
+        radiusKm: args.radius_km,
+      });
 
     default:
       throw new Error(`Unknown tool: ${name}`);
