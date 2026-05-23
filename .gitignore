@@ -1,0 +1,14 @@
+.DS_Store
+~$*
+*.tmp
+__pycache__/
+*.pyc
+.env
+.env.local
+node_modules/
+.next/
+dist/
+build/
+*.egg-info/
+.venv/
+venv/
