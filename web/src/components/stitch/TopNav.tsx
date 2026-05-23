@@ -34,9 +34,10 @@ type Props = {
 };
 
 const DEFAULT_ITEMS: TopNavItem[] = [
-  { label: "Intelligence Hub", href: "/sectors" },
-  { label: "Global Benchmarks", href: "/benchmarks" },
-  { label: "Team Archive", href: "/archive" },
+  { label: "Workspace", href: "/sectors" },
+  { label: "Reports", href: "/reports" },
+  { label: "Data", href: "/data" },
+  { label: "Chat", href: "/chat" },
 ];
 
 function isActive(pathname: string, item: TopNavItem): boolean {
