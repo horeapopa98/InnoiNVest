@@ -103,3 +103,14 @@ def test_fetch_raises_for_non_200():
     client = InsTempoClient(base_url="http://statistici.insse.ro:8077/tempo-ins")
     with pytest.raises(RuntimeError, match="503"):
         client.fetch(make_kpi(), make_locations())
+
+
+@pytest.mark.live
+def test_live_floresti_population():
+    """Hit the real INS Tempo endpoint. Run with: pytest -m live."""
+    from innoinvest.settings import settings
+    client = InsTempoClient(base_url=settings.ins_tempo_base_url)
+    rows = client.fetch(make_kpi(), make_locations())
+    assert any(r.siruta_code == "4324" and r.value and r.value > 50000 for r in rows), (
+        "expected Floresti population > 50,000 in at least one year"
+    )
