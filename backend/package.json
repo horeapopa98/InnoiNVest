@@ -5,12 +5,15 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\""
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.21.0",
+    "sequelize": "^6.37.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
