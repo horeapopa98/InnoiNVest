@@ -10,6 +10,7 @@
     "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\""
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
