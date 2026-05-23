@@ -53,6 +53,11 @@ class EurostatClient(BaseClient):
             siruta = nuts_to_siruta.get(geo)
             if siruta is None or time is None:
                 continue
+            # Sanitize raw_payload: replace float NaN/Inf with None so JSONB accepts it.
+            clean_payload = {
+                k: (None if isinstance(v, float) and not math.isfinite(v) else v)
+                for k, v in record.items()
+            }
             rows.append(
                 ValueRow(
                     siruta_code=siruta,
@@ -66,7 +71,7 @@ class EurostatClient(BaseClient):
                     source_code=self.name,
                     source_dataset_id=dataset,
                     source_url=resp.url,
-                    raw_payload=record,
+                    raw_payload=clean_payload,
                 )
             )
         return rows

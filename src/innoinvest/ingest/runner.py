@@ -11,7 +11,7 @@ from typing import Callable, Mapping
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
-from ..models import Kpi, KpiValue, Location, RunLog
+from ..models import Kpi, KpiValue, Location, RunLog, Source
 from .base import BaseClient, KpiConfig
 
 log = logging.getLogger(__name__)
@@ -35,6 +35,7 @@ class IngestionRunner:
         session.commit()
 
         try:
+            self._upsert_sources(session)
             self._upsert_kpi_catalog(session)
             errors: list[dict] = []
 
@@ -79,6 +80,33 @@ class IngestionRunner:
                 return [l for l in locations if l.type == "country"]
             case _:
                 return []
+
+    # ------------------------------------------------------------------ helpers
+    _SOURCE_REGISTRY: dict[str, dict] = {
+        "eurostat": {
+            "name": "Eurostat",
+            "homepage_url": "https://ec.europa.eu/eurostat",
+            "license": "CC BY 4.0",
+        },
+        "ins_tempo": {
+            "name": "INS TEMPO (Romanian National Institute of Statistics)",
+            "homepage_url": "http://statistici.insse.ro:8077/tempo-ins",
+            "license": None,
+        },
+    }
+
+    def _upsert_sources(self, session: Session) -> None:
+        """Ensure every client that may produce rows has a row in source."""
+        for code, client in self._clients.items():
+            meta = self._SOURCE_REGISTRY.get(code, {"name": code, "homepage_url": None, "license": None})
+            stmt = pg_insert(Source).values(
+                source_code=code,
+                name=meta["name"],
+                homepage_url=meta.get("homepage_url"),
+                license=meta.get("license"),
+            ).on_conflict_do_nothing(index_elements=["source_code"])
+            session.execute(stmt)
+        session.commit()
 
     def _upsert_kpi_catalog(self, session: Session) -> None:
         for kpi in self._kpis:
