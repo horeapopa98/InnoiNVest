@@ -4,7 +4,7 @@ type Props = {
 };
 
 export function DiffBadge({ previous, current }: Props) {
-  if (previous === undefined || previous === current) return null;
+  if (previous === undefined || previous === 0 || previous === current) return null;
   const delta = current - previous;
   const pct = (delta / previous) * 100;
   const isUp = delta > 0;

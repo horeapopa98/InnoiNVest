@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Download, RotateCcw } from "lucide-react";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { DiffBadge } from "./DiffBadge";
@@ -21,12 +23,18 @@ type Props = {
 };
 
 export function ReportPreview({ report, template, onBack }: Props) {
+  const router = useRouter();
   const loc = getLocation(report.locationSiruta);
-  const parent = report.parentReportId
-    ? readStorage<GeneratedReport[]>(STORAGE_KEYS.reports, []).find(
-        (r) => r.id === report.parentReportId
-      )
-    : null;
+  const [parent, setParent] = useState<GeneratedReport | null>(null);
+
+  useEffect(() => {
+    if (!report.parentReportId) {
+      setParent(null);
+      return;
+    }
+    const all = readStorage<GeneratedReport[]>(STORAGE_KEYS.reports, []);
+    setParent(all.find((r) => r.id === report.parentReportId) ?? null);
+  }, [report.parentReportId]);
 
   function handleRegenerate() {
     const systemYear = getSystemYear();
@@ -52,7 +60,7 @@ export function ReportPreview({ report, template, onBack }: Props) {
     };
     const all = readStorage<GeneratedReport[]>(STORAGE_KEYS.reports, []);
     writeStorage(STORAGE_KEYS.reports, [newReport, ...all].slice(0, 50));
-    window.location.href = `/reports/${newReport.id}`;
+    router.push(`/reports/${newReport.id}`);
   }
 
   return (

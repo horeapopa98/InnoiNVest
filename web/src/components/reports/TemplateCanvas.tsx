@@ -9,6 +9,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { SectionBlock } from "./SectionBlock";
 import { LocationPicker } from "./LocationPicker";
 import { GenerateOverlay } from "./GenerateOverlay";
@@ -30,7 +31,10 @@ type Props = {
 };
 
 export function TemplateCanvas({ template, onChange }: Props) {
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   const [locationSiruta, setLocationSiruta] = useState<string>("");
   const [generating, setGenerating] = useState(false);
   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);

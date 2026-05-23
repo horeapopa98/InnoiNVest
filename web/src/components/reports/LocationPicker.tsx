@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { MapPin } from "lucide-react";
 import { locationsByCounty } from "@/lib/mock/locations";
 
@@ -9,7 +10,7 @@ type Props = {
 };
 
 export function LocationPicker({ value, onChange }: Props) {
-  const groups = locationsByCounty();
+  const groups = useMemo(() => locationsByCounty(), []);
   return (
     <label className="flex flex-1 items-center gap-2 rounded border border-border-subtle bg-surface-muted px-3 py-2 focus-within:border-primary">
       <MapPin size={16} className="text-on-surface-variant" />
