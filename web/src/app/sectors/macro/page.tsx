@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TopNav } from "@/components/stitch/TopNav";
+import { Icon } from "@/components/stitch/Icon";
 
 /**
  * Macro-Economic Indicators detail.
@@ -78,6 +79,9 @@ const SUBPAGE_NAV = [
 
 function MetricRow({ metric }: { metric: Metric }) {
   const trend = TREND_GLYPH[metric.trend];
+  // Long values like "68,420" need wider value column at display-lg
+  // sizing — otherwise the unit overlaps the change indicator.
+  const isLongValue = metric.value.length > 4;
   return (
     <article className="grid grid-cols-12 items-baseline gap-4 border-b border-border-subtle py-6 last:border-b-0">
       <div className="col-span-12 md:col-span-4">
@@ -88,15 +92,39 @@ function MetricRow({ metric }: { metric: Metric }) {
           {metric.source}
         </p>
       </div>
-      <div className="col-span-6 md:col-span-3">
-        <p className="font-display-lg text-display-lg leading-none text-on-surface">
+      <div
+        className={
+          isLongValue
+            ? "col-span-12 md:col-span-4"
+            : "col-span-6 md:col-span-3"
+        }
+      >
+        <p
+          className={
+            isLongValue
+              ? "font-headline-lg text-headline-lg leading-none text-on-surface"
+              : "font-display-lg text-display-lg leading-none text-on-surface"
+          }
+        >
           {metric.value}
-          <span className="font-headline-md text-headline-md ml-1 text-on-surface-variant">
+          <span
+            className={
+              isLongValue
+                ? "font-body-md text-body-md ml-2 text-on-surface-variant"
+                : "font-headline-md text-headline-md ml-1 text-on-surface-variant"
+            }
+          >
             {metric.unit}
           </span>
         </p>
       </div>
-      <div className="col-span-6 md:col-span-5">
+      <div
+        className={
+          isLongValue
+            ? "col-span-12 md:col-span-4"
+            : "col-span-6 md:col-span-5"
+        }
+      >
         <p className={`font-body-sm text-body-sm flex items-center gap-2 ${trend.tone}`}>
           <span aria-hidden="true" className="text-base">
             {trend.symbol}
@@ -136,9 +164,7 @@ export default function MacroIndicatorsPage() {
           >
             Workspace
           </Link>
-          <span aria-hidden="true" className="material-symbols-outlined text-sm">
-            chevron_right
-          </span>
+          <Icon name="chevron_right" size={14} />
           <span
             aria-current="page"
             className="font-label-md text-label-md font-semibold text-on-surface"
@@ -159,13 +185,7 @@ export default function MacroIndicatorsPage() {
               </span>
             </div>
             <p className="font-body-sm text-body-sm mt-2 flex items-center gap-2 text-on-surface-variant">
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined"
-                style={{ fontSize: 16 }}
-              >
-                schedule
-              </span>
+              <Icon name="schedule" size={14} />
               Last fetch · October 24, 2024 · 09:42 GMT
             </p>
           </div>
@@ -174,39 +194,21 @@ export default function MacroIndicatorsPage() {
               href="/sectors"
               className="font-label-md text-label-md inline-flex items-center gap-2 rounded border border-border-subtle px-3 py-2 text-on-surface-variant transition-colors hover:border-outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             >
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined"
-                style={{ fontSize: 16 }}
-              >
-                arrow_back
-              </span>
+              <Icon name="arrow_back" size={14} />
               Back
             </Link>
             <button
               type="button"
               className="font-label-md text-label-md inline-flex items-center gap-2 rounded border border-border-subtle px-3 py-2 text-on-surface-variant transition-colors hover:border-outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             >
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined"
-                style={{ fontSize: 16 }}
-              >
-                refresh
-              </span>
+              <Icon name="refresh" size={14} />
               Re-fetch
             </button>
             <button
               type="button"
               className="font-label-md text-label-md inline-flex items-center gap-2 rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
             >
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined"
-                style={{ fontSize: 16 }}
-              >
-                save
-              </span>
+              <Icon name="save" size={14} />
               Save changes
             </button>
           </div>

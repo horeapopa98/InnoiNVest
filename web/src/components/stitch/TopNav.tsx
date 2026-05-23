@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Icon } from "./Icon";
 import { InitialsAvatar } from "./InitialsAvatar";
 
 /**
@@ -88,13 +89,11 @@ export function TopNav({
         {showSearch && (
           <label className="hidden items-center rounded-md border border-border-subtle bg-surface-muted px-3 py-1.5 transition-colors focus-within:border-primary focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 md:flex">
             <span className="sr-only">Search projects</span>
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined mr-2 text-on-surface-variant"
-              style={{ fontSize: 18 }}
-            >
-              search
-            </span>
+            <Icon
+              name="search"
+              size={16}
+              className="mr-2 text-on-surface-variant"
+            />
             <input
               type="search"
               placeholder="Search projects…"
@@ -110,9 +109,7 @@ export function TopNav({
               : "Notifications"
           }
         >
-          <span className="material-symbols-outlined" aria-hidden="true">
-            notifications
-          </span>
+          <Icon name="notifications" size={20} />
           {hasUnreadNotifications && (
             <span
               className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-surface bg-error"
@@ -124,9 +121,7 @@ export function TopNav({
           className={`${ICON_BUTTON} hidden sm:flex`}
           aria-label="Settings"
         >
-          <span className="material-symbols-outlined" aria-hidden="true">
-            settings
-          </span>
+          <Icon name="settings" size={20} />
         </button>
         <button className="font-label-md text-label-md ml-1 hidden rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 sm:inline-flex">
           New Project

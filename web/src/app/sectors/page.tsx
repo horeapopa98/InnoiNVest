@@ -1,4 +1,5 @@
 import { TopNav } from "@/components/stitch/TopNav";
+import { Icon, type IconName } from "@/components/stitch/Icon";
 
 /**
  * Intelligence Hub workspace.
@@ -20,7 +21,7 @@ type Sector = {
   number: number;
   title: string;
   description: string;
-  icon: string;
+  icon: IconName;
   status: SectorStatus;
   /** Featured tile data (LOADED status only). */
   featured?: {
@@ -178,13 +179,7 @@ function FeaturedCard({ sector }: { sector: Sector }) {
     <article className="md:col-span-2 group flex flex-col gap-4 rounded-md border border-primary/30 bg-surface-container-lowest p-7 ring-1 ring-primary/10 transition-colors hover:border-primary">
       <header className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined text-primary"
-            style={{ fontSize: 22 }}
-          >
-            {sector.icon}
-          </span>
+          <Icon name={sector.icon} size={20} className="text-primary" />
           <h2 className="font-headline-sm text-headline-sm text-on-surface">
             {sector.title}
           </h2>
@@ -219,9 +214,7 @@ function FeaturedCard({ sector }: { sector: Sector }) {
           className="font-label-md text-label-md inline-flex items-center gap-1 rounded text-primary-deep underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
         >
           View summary
-          <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: 16 }}>
-            arrow_forward
-          </span>
+          <Icon name="arrow_forward" size={14} />
         </a>
       </div>
     </article>
@@ -233,13 +226,11 @@ function PendingCard({ sector }: { sector: Sector }) {
   // shorter, no description visible until hover, no separate icon tile.
   return (
     <article className="group flex items-start gap-3 rounded-sm border border-border-subtle bg-surface-container-lowest p-4 transition-colors hover:border-outline">
-      <span
-        aria-hidden="true"
-        className="material-symbols-outlined mt-0.5 text-on-surface-variant"
-        style={{ fontSize: 20 }}
-      >
-        {sector.icon}
-      </span>
+      <Icon
+        name={sector.icon}
+        size={18}
+        className="mt-0.5 text-on-surface-variant"
+      />
       <div className="min-w-0 flex-1">
         <h3 className="font-body-md text-body-md truncate font-semibold text-on-surface">
           {sector.title}
@@ -294,12 +285,11 @@ export default function SectorsPage() {
               Target region
             </label>
             <div className="relative">
-              <span
-                aria-hidden="true"
-                className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
-              >
-                location_on
-              </span>
+              <Icon
+                name="location_on"
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+              />
               <input
                 id="target-region"
                 type="text"
@@ -312,13 +302,7 @@ export default function SectorsPage() {
             type="button"
             className="font-label-md text-label-md flex w-full items-center justify-center gap-2 rounded bg-primary px-6 py-3 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 md:w-auto"
           >
-            <span
-              aria-hidden="true"
-              className="material-symbols-outlined"
-              style={{ fontSize: 20 }}
-            >
-              cloud_download
-            </span>
+            <Icon name="cloud_download" size={18} />
             Fetch all domains
           </button>
         </div>

@@ -29,13 +29,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Material Symbols Outlined — variable icon font used by Stitch-ported screens */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
-        />
-      </head>
       <body
         className={`${openSans.variable} ${raleway.variable} font-body-md text-on-surface antialiased`}
       >

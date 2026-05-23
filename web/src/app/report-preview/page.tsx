@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReportOutline, type OutlineItem } from "@/components/stitch/ReportOutline";
 import { PrintButton } from "@/components/stitch/PrintButton";
+import { Icon, type IconName } from "@/components/stitch/Icon";
 
 /**
  * Screen 3: Report Generation Preview
@@ -64,7 +65,7 @@ const CONFIDENCE_DOT: Record<LaborRow["confidence"], string> = {
 
 const TREND_ICON: Record<
   LaborRow["trend"],
-  { icon: string; className: string }
+  { icon: IconName; className: string }
 > = {
   up: { icon: "trending_up", className: "text-primary" },
   down: { icon: "trending_down", className: "text-error" },
@@ -84,7 +85,7 @@ export default function ReportPreviewPage() {
               className="flex items-center text-on-surface-variant transition-colors hover:text-primary"
               aria-label="Back to workspace"
             >
-              <span className="material-symbols-outlined">arrow_back</span>
+              <Icon name="arrow_back" size={20} />
             </Link>
             <div className="font-headline-md text-headline-md font-bold text-primary">
               InnoInvest
@@ -121,15 +122,11 @@ export default function ReportPreviewPage() {
               type="button"
               className="font-label-md hidden items-center gap-2 rounded border border-primary px-4 py-2 text-primary-deep transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 sm:flex"
             >
-              <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                share
-              </span>
+              <Icon name="share" size={16} />
               Share report
             </button>
             <PrintButton className="font-label-md flex items-center gap-2 rounded bg-primary px-4 py-2 text-on-primary transition-colors hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2">
-              <span aria-hidden="true" className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                download
-              </span>
+              <Icon name="download" size={16} />
               Download PDF
             </PrintButton>
           </div>
@@ -252,26 +249,20 @@ export default function ReportPreviewPage() {
                 </h4>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[18px] text-primary">
-                      check_circle
-                    </span>
+                    <Icon name="check_circle" size={16} className="mt-1 shrink-0 text-primary" />
                     <span className="font-body-md text-body-md">
                       GDP growth forecasts remain steady at 2.4% annually.
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[18px] text-primary">
-                      check_circle
-                    </span>
+                    <Icon name="check_circle" size={16} className="mt-1 shrink-0 text-primary" />
                     <span className="font-body-md text-body-md">
                       Labor participation rates show unexpected resilience in
                       tech sectors.
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[18px] text-primary">
-                      check_circle
-                    </span>
+                    <Icon name="check_circle" size={16} className="mt-1 shrink-0 text-primary" />
                     <span className="font-body-md text-body-md">
                       Strategic reallocation toward defensive energy assets is
                       recommended.
@@ -376,11 +367,7 @@ export default function ReportPreviewPage() {
                         </span>
                       </td>
                       <td className="p-4 text-right">
-                        <span
-                          className={`material-symbols-outlined ${trend.className}`}
-                        >
-                          {trend.icon}
-                        </span>
+                        <Icon name={trend.icon} size={16} className={`inline ${trend.className}`} />
                       </td>
                     </tr>
                   );
