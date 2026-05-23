@@ -30,8 +30,62 @@ module.exports = {
       name: 'Reports',
       description: 'Generate and retrieve aggregated infrastructure reports',
     },
+    {
+      name: 'Chat',
+      description: 'AI assistant powered by Gemini — answers investment questions using live data from all connected sources',
+    },
   ],
   paths: {
+    '/api/chat': {
+      post: {
+        tags: ['Chat'],
+        summary: 'Ask the AI investment assistant',
+        description:
+          'Sends a message to the Gemini-powered investment research assistant. ' +
+          'The assistant automatically calls the relevant data tools (infrastructure projects, ' +
+          'INNO property listings, geographic data) and returns a synthesized answer. ' +
+          'Supports multi-turn conversation by passing the `history` array back on each request.\n\n' +
+          '**Requires:** `GEMINI_API_KEY` environment variable (free at aistudio.google.com).',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ChatRequest' },
+              examples: {
+                cityQuery: {
+                  summary: 'City infrastructure query',
+                  value: { message: 'What infrastructure is being built in Cluj-Napoca?', history: [] },
+                },
+                propertySearch: {
+                  summary: 'Property search',
+                  value: { message: 'Find industrial land over 5 hectares available for concession in Bihor county', history: [] },
+                },
+                nearbySearch: {
+                  summary: 'Nearby properties',
+                  value: { message: 'What investment land is available within 30 km of Oradea?', history: [] },
+                },
+                reportGeneration: {
+                  summary: 'Report generation',
+                  value: { message: 'Generate a report of all available properties grouped by county', history: [] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'AI response with tool usage trace and updated conversation history',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/ChatResponse' },
+              },
+            },
+          },
+          400: { description: 'Missing or invalid message field' },
+          500: { description: 'Gemini API error or GEMINI_API_KEY not set' },
+        },
+      },
+    },
     '/api/properties/overview': {
       get: {
         tags: ['Properties'],
@@ -752,6 +806,45 @@ module.exports = {
           grouped_by: { type: 'string' },
           breakdown: { type: 'object', additionalProperties: { type: 'integer' } },
           generated_at: { type: 'string', format: 'date-time' },
+        },
+      },
+      ChatRequest: {
+        type: 'object',
+        required: ['message'],
+        properties: {
+          message: {
+            type: 'string',
+            description: 'The user question or instruction',
+            example: 'What industrial land is available near Cluj-Napoca within 30 km?',
+          },
+          history: {
+            type: 'array',
+            description:
+              'Conversation history from the previous response. Omit or pass [] for the first turn. ' +
+              'Pass the history returned by the previous response to continue the conversation.',
+            items: { type: 'object' },
+            default: [],
+          },
+        },
+      },
+      ChatResponse: {
+        type: 'object',
+        properties: {
+          response: {
+            type: 'string',
+            description: 'The AI-generated answer, synthesized from live data tool results',
+          },
+          tools_used: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Names of the data tools called to answer this question',
+            example: ['find_nearby_properties', 'search_property_listings'],
+          },
+          history: {
+            type: 'array',
+            items: { type: 'object' },
+            description: 'Updated conversation history — pass this back as history on the next request for multi-turn conversation',
+          },
         },
       },
     },
