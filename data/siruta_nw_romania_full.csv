@@ -1,0 +1,461 @@
+# Full canonical SIRUTA seed for NW Romania (NUTS RO11), 2025 data.
+# Source: data.gov.ro 'SIRUTA 2025' (XLSX exposed at a .csv URL).
+# IMPORTANT: this uses real INS SIRUTA codes which differ from the
+# placeholder codes in data/siruta_nw_romania.csv (the demo seed).
+# To use this file: update the seed path and the test fixtures that
+# hard-code SIRUTA codes (4324='Floresti' etc.) to the canonical codes.
+siruta_code,name,type,parent_siruta,nuts_code
+RO,Romania,country,,RO
+RO11,North-West,region,RO,RO11
+56,Bihor,county,RO11,RO111
+65,Bistriţa-Năsăud,county,RO11,RO112
+127,Cluj,county,RO11,RO113
+243,Maramureş,county,RO11,RO114
+305,Satu Mare,county,RO11,RO115
+314,Sălaj,county,RO11,RO116
+26699,Aleşd,city,56,RO111
+136848,Ardud,city,305,RO115
+106318,Baia Mare,city,243,RO114
+106684,Baia Sprie,city,243,RO114
+32483,Beclean,city,65,RO112
+26804,Beiuş,city,56,RO111
+32394,Bistriţa,city,65,RO112
+106746,Borşa,city,243,RO114
+136526,Carei,city,305,RO115
+106782,Cavnic,city,243,RO114
+139740,Cehu Silvaniei,city,314,RO116
+54975,Cluj-Napoca,city,127,RO113
+55357,Câmpia Turzii,city,127,RO113
+55008,Dej,city,127,RO113
+108017,Dragomireşti,city,243,RO114
+55384,Gherla,city,127,RO113
+55446,Huedin,city,127,RO113
+139811,Jibou,city,314,RO116
+138039,Livada,city,305,RO115
+26877,Marghita,city,56,RO111
+136599,Negreşti-Oaş,city,305,RO115
+26920,Nucet,city,56,RO111
+32544,Năsăud,city,65,RO112
+26564,Oradea,city,56,RO111
+26975,Salonta,city,56,RO111
+136483,Satu Mare,city,305,RO115
+108963,Seini,city,243,RO114
+106559,Sighetu Marmaţiei,city,243,RO114
+32599,Sângeorz-Băi,city,65,RO112
+30915,Săcueni,city,56,RO111
+108892,Săliştea De Sus,city,243,RO114
+55259,Turda,city,127,RO113
+106817,Târgu Lăpuş,city,243,RO114
+106461,Tăuţii-Măgherăuş,city,243,RO114
+136642,Tăşnad,city,305,RO115
+109265,Ulmeni,city,243,RO114
+32027,Valea Lui Mihai,city,56,RO111
+27007,Vaşcău,city,56,RO111
+106979,Vişeu De Sus,city,243,RO114
+139704,Zalău,city,314,RO116
+139884,Şimleu Silvaniei,city,314,RO116
+109176,Şomcuta Mare,city,243,RO114
+26840,Ştei,city,56,RO111
+27070,Abram,commune,56,RO111
+136713,Acâş,commune,305,RO115
+55473,Aghireşu,commune,127,RO113
+139937,Agrij,commune,314,RO116
+179873,Agriş,commune,305,RO115
+55598,Aiton,commune,127,RO113
+139982,Almaşu,commune,314,RO116
+55623,Aluniş,commune,127,RO113
+136768,Andrid,commune,305,RO115
+136802,Apa,commune,305,RO115
+55687,Apahida,commune,127,RO113
+107001,Ardusat,commune,243,RO114
+107047,Ariniş,commune,243,RO114
+107083,Asuaju De Sus,commune,243,RO114
+27212,Auşeu,commune,56,RO111
+27285,Avram Iancu,commune,56,RO111
+55776,Aşchileu,commune,127,RO113
+26742,Aştileu,commune,56,RO111
+55838,Baciu,commune,127,RO113
+27329,Balc,commune,56,RO111
+27383,Batăr,commune,56,RO111
+56014,Beliş,commune,127,RO113
+136964,Beltiug,commune,305,RO115
+140244,Benesat,commune,314,RO116
+137032,Berveni,commune,305,RO115
+107234,Bicaz,commune,243,RO114
+27436,Biharia,commune,56,RO111
+107270,Bistra,commune,243,RO114
+32633,Bistriţa Bârgăului,commune,65,RO112
+137069,Bixad,commune,305,RO115
+140280,Bobota,commune,314,RO116
+56096,Bobâlna,commune,127,RO113
+107350,Bocicoiu Mare,commune,243,RO114
+140324,Bocşa,commune,314,RO116
+107403,Bogdan Vodă,commune,243,RO114
+137130,Bogdand,commune,305,RO115
+180037,Boghiş,commune,314,RO116
+27506,Boianu Mare,commune,56,RO111
+107430,Boiu Mare,commune,243,RO114
+56210,Bonţida,commune,127,RO113
+27560,Borod,commune,56,RO111
+27631,Borş,commune,56,RO111
+56265,Borşa,commune,127,RO113
+137185,Botiz,commune,305,RO115
+107485,Botiza,commune,243,RO114
+32660,Braniştea,commune,65,RO112
+27686,Bratca,commune,56,RO111
+27757,Brusturi,commune,56,RO111
+140379,Buciumi,commune,314,RO116
+32704,Budacu De Jos,commune,65,RO112
+32768,Budeşti,commune,65,RO112
+107519,Budeşti,commune,243,RO114
+27846,Budureasa,commune,56,RO111
+27908,Buduslău,commune,56,RO111
+27935,Bulz,commune,56,RO111
+27971,Bunteşti,commune,56,RO111
+56327,Buza,commune,127,RO113
+107314,Bârsana,commune,243,RO114
+137103,Bârsău,commune,305,RO115
+140084,Băbeni,commune,314,RO116
+107154,Băiuţ,commune,243,RO114
+55918,Băişoara,commune,127,RO113
+107118,Băiţa De Sub Codru,commune,243,RO114
+140146,Bălan,commune,314,RO116
+140208,Bănişor,commune,314,RO116
+107190,Băseşti,commune,243,RO114
+136919,Bătarci,commune,305,RO115
+140440,Camăr,commune,314,RO116
+140477,Carastelec,commune,314,RO116
+56844,Ceanu Mare,commune,127,RO113
+28246,Cefa,commune,56,RO111
+137363,Cehal,commune,305,RO115
+28335,Ceica,commune,56,RO111
+107582,Cerneşti,commune,243,RO114
+137407,Certeze,commune,305,RO115
+28415,Cetariu,commune,56,RO111
+32884,Cetate,commune,65,RO112
+28497,Cherechiu,commune,56,RO111
+140501,Chieşd,commune,314,RO116
+56988,Chinteni,commune,127,RO113
+33015,Chiochiş,commune,65,RO112
+57083,Chiuieşti,commune,127,RO113
+33122,Chiuza,commune,65,RO112
+28530,Chişlaz,commune,56,RO111
+32955,Ciceu-Giurgeşti,commune,65,RO112
+179953,Ciceu-Mihăieşti,commune,65,RO112
+107662,Cicârlău,commune,243,RO114
+57163,Ciucea,commune,127,RO113
+28665,Ciumeghiu,commune,56,RO111
+179882,Ciumeşti,commune,305,RO115
+57225,Ciurila,commune,127,RO113
+140547,Cizer,commune,314,RO116
+179837,Coaş,commune,243,RO114
+28763,Cociuba Mare,commune,56,RO111
+57350,Cojocna,commune,127,RO113
+179846,Coltău,commune,243,RO114
+107733,Copalnic-Mănăştur,commune,243,RO114
+28816,Copăcel,commune,56,RO111
+57449,Corneşti,commune,127,RO113
+107868,Coroieni,commune,243,RO114
+33177,Coşbuc,commune,65,RO112
+140583,Coşeiu,commune,314,RO116
+137443,Craidorolţ,commune,305,RO115
+140627,Crasna,commune,314,RO116
+140672,Creaca,commune,314,RO116
+140770,Cristolţ,commune,314,RO116
+140823,Crişeni,commune,314,RO116
+28889,Criştioru De Jos,commune,56,RO111
+137504,Crucişor,commune,305,RO115
+137540,Culciu,commune,305,RO115
+107920,Cupşeni,commune,243,RO114
+29001,Curtuişeni,commune,56,RO111
+28941,Curăţele,commune,56,RO111
+55062,Cuzdrioara,commune,127,RO113
+140869,Cuzăplac,commune,314,RO116
+28709,Câmpani,commune,56,RO111
+107715,Câmpulung La Tisa,commune,243,RO114
+57314,Câţcău,commune,127,RO113
+28077,Căbeşti,commune,56,RO111
+56354,Căianu,commune,127,RO113
+32811,Căianu Mic,commune,65,RO112
+107546,Călineşti,commune,243,RO114
+137229,Călineşti-Oaş,commune,305,RO115
+56425,Călăraşi,commune,127,RO113
+56461,Călăţele,commune,127,RO113
+179677,Cămin,commune,305,RO115
+56522,Cămăraşu,commune,127,RO113
+137274,Cămărzana,commune,305,RO115
+136553,Căpleni,commune,305,RO115
+56568,Căpuşu Mare,commune,127,RO113
+28139,Căpâlna,commune,56,RO111
+28193,Cărpinet,commune,56,RO111
+56773,Cătina,commune,127,RO113
+137292,Căuaş,commune,305,RO115
+56666,Căşeiu,commune,127,RO113
+29038,Derna,commune,56,RO111
+107975,Deseşti,commune,243,RO114
+29092,Diosig,commune,56,RO111
+137611,Doba,commune,305,RO115
+29154,Dobreşti,commune,56,RO111
+140958,Dobrin,commune,314,RO116
+137675,Dorolţ,commune,305,RO115
+141027,Dragu,commune,314,RO116
+29341,Drăgeşti,commune,56,RO111
+29243,Drăgăneşti,commune,56,RO111
+108035,Dumbrăviţa,commune,243,RO114
+33202,Dumitra,commune,65,RO112
+179686,Dumitriţa,commune,65,RO112
+57546,Dăbâca,commune,127,RO113
+33248,Feldru,commune,65,RO112
+57582,Feleacu,commune,127,RO113
+141081,Fildu De Jos,commune,314,RO116
+29403,Finiş,commune,56,RO111
+57644,Fizeşu Gherlii,commune,127,RO113
+57706,Floreşti,commune,127,RO113
+137728,Foieni,commune,305,RO115
+57742,Frata,commune,127,RO113
+108106,Fărcaşa,commune,243,RO114
+33275,Galaţii Bistriţei,commune,65,RO112
+57831,Geaca,commune,127,RO113
+32195,Gepiu,commune,56,RO111
+137746,Gherţa Mică,commune,305,RO115
+57902,Gilău,commune,127,RO113
+29467,Girişu De Criş,commune,56,RO111
+108151,Giuleşti,commune,243,RO114
+106363,Groşi,commune,243,RO114
+179622,Groşii Ţibleşului,commune,243,RO114
+141134,Gâlgău,commune,314,RO116
+141232,Gârbou,commune,314,RO116
+57948,Gârbău,commune,127,RO113
+179855,Gârdani,commune,243,RO114
+137764,Halmeu,commune,305,RO115
+141312,Halmăşd,commune,314,RO116
+141376,Hereclean,commune,314,RO116
+141447,Hida,commune,314,RO116
+29519,Hidişelu De Sus,commune,56,RO111
+137844,Hodod,commune,305,RO115
+29573,Holod,commune,56,RO111
+137899,Homoroade,commune,305,RO115
+141535,Horoatu Crasnei,commune,314,RO116
+29662,Husasău De Tinca,commune,56,RO111
+58008,Iara,commune,127,RO113
+58142,Iclod,commune,127,RO113
+108204,Ieud,commune,243,RO114
+141580,Ileanda,commune,314,RO116
+33337,Ilva Mare,commune,65,RO112
+33364,Ilva Mica,commune,65,RO112
+29724,Ineu,commune,56,RO111
+141722,Ip,commune,314,RO116
+58204,Izvoru Crişului,commune,127,RO113
+55106,Jichişu De Jos,commune,127,RO113
+33382,Josenii Bârgăului,commune,65,RO112
+58259,Jucu,commune,127,RO113
+137960,Lazuri,commune,305,RO115
+29760,Lazuri De Beiuş,commune,56,RO111
+33435,Lechinţa,commune,65,RO112
+108240,Leordina,commune,243,RO114
+141786,Letca,commune,314,RO116
+33514,Leşu,commune,65,RO112
+33541,Livezile,commune,65,RO112
+141884,Lozna,commune,314,RO116
+29902,Lugaşu De Jos,commune,56,RO111
+58311,Luna,commune,127,RO113
+29948,Lunca,commune,56,RO111
+33603,Lunca Ilvei,commune,65,RO112
+108222,Lăpuş,commune,243,RO114
+29813,Lăzăreni,commune,56,RO111
+33621,Maieru,commune,65,RO112
+141946,Marca,commune,314,RO116
+33658,Matei,commune,65,RO112
+138084,Medieşu Aurit,commune,305,RO115
+142079,Meseşenii De Jos,commune,314,RO116
+55160,Mica,commune,127,RO113
+33845,Miceştii De Câmpie,commune,65,RO112
+138164,Micula,commune,305,RO115
+55277,Mihai Viteazu,commune,127,RO113
+33881,Milaş,commune,65,RO112
+58552,Mintiu Gherlii,commune,127,RO113
+108268,Mireşu Mare,commune,243,RO114
+142122,Mirşid,commune,314,RO116
+58623,Mociu,commune,127,RO113
+138208,Moftin,commune,305,RO115
+108348,Moisei,commune,243,RO114
+58721,Moldoveneşti,commune,127,RO113
+33952,Monor,commune,65,RO112
+30014,Mădăras,commune,56,RO111
+142006,Măerişte,commune,314,RO116
+30069,Măgeşti,commune,56,RO111
+33729,Măgura Ilvei,commune,65,RO112
+58357,Măguri-Răcătău,commune,127,RO113
+58393,Mănăstireni,commune,127,RO113
+58464,Mărgău,commune,127,RO113
+58534,Mărişel,commune,127,RO113
+33765,Mărişelu,commune,65,RO112
+60169,Negreni,commune,127,RO113
+179659,Negrileşti,commune,65,RO112
+33989,Nimigea,commune,65,RO112
+30149,Nojorid,commune,56,RO111
+34075,Nuşeni,commune,65,RO112
+142239,Nuşfalău,commune,314,RO116
+142177,Năpradea,commune,314,RO116
+108366,Oarţa De Jos,commune,243,RO114
+108400,Ocna Şugatag,commune,243,RO114
+138280,Odoreu,commune,305,RO115
+30229,Olcea,commune,56,RO111
+179864,Onceşti,commune,243,RO114
+138351,Oraşu Nou,commune,305,RO115
+30274,Oşorhei,commune,56,RO111
+32161,Paleu,commune,56,RO111
+58856,Panticeu,commune,127,RO113
+34155,Parva,commune,65,RO112
+142284,Pericei,commune,314,RO116
+27169,Petreu,commune,56,RO111
+138501,Petreşti,commune,305,RO115
+58918,Petreştii De Jos,commune,127,RO113
+108455,Petrova,commune,243,RO114
+34173,Petru Rareş,commune,65,RO112
+30336,Pietroasa,commune,56,RO111
+138538,Pir,commune,305,RO115
+138574,Pişcolt,commune,305,RO115
+142337,Plopiş,commune,314,RO116
+58990,Ploscoş,commune,127,RO113
+30416,Pocola,commune,56,RO111
+142373,Poiana Blenchii,commune,314,RO116
+179720,Poiana Ilvei,commune,65,RO112
+59041,Poieni,commune,127,RO113
+108473,Poienile De Sub Munte,commune,243,RO114
+179604,Poienile Izei,commune,243,RO114
+30470,Pomezeu,commune,56,RO111
+138618,Pomi,commune,305,RO115
+30568,Popeşti,commune,56,RO111
+180028,Porumbeşti,commune,305,RO115
+34235,Prundu Bârgăului,commune,65,RO112
+58794,Pălatca,commune,127,RO113
+138431,Păuleşti,commune,305,RO115
+180091,Racşa,commune,305,RO115
+34262,Rebra,commune,65,RO112
+34280,Rebrişoara,commune,65,RO112
+106407,Recea,commune,243,RO114
+59130,Recea-Cristur,commune,127,RO113
+30719,Remetea,commune,56,RO111
+108491,Remetea Chioarului,commune,243,RO114
+108552,Remeţi,commune,243,RO114
+108598,Repedea,commune,243,RO114
+30773,Rieni,commune,56,RO111
+59238,Rişca,commune,127,RO113
+34333,Rodna,commune,65,RO112
+34360,Romuli,commune,65,RO112
+142426,Românaşi,commune,314,RO116
+108614,Rona De Jos,commune,243,RO114
+108632,Rona De Sus,commune,243,RO114
+108669,Rozavlea,commune,243,RO114
+30844,Roşia,commune,56,RO111
+32187,Roşiori,commune,56,RO111
+179944,Runcu Salvei,commune,65,RO112
+142499,Rus,commune,314,RO116
+108696,Ruscova,commune,243,RO114
+30648,Răbăgani,commune,56,RO111
+34397,Salva,commune,65,RO112
+138663,Sanislău,commune,305,RO115
+138734,Santău,commune,305,RO115
+106620,Sarasău,commune,243,RO114
+108712,Satulung,commune,243,RO114
+59416,Sic,commune,127,RO113
+34422,Silivaşu De Câmpie,commune,65,RO112
+138869,Socond,commune,305,RO115
+142710,Someş-Odorhei,commune,314,RO116
+34547,Spermezeu,commune,65,RO112
+31208,Spinuş,commune,56,RO111
+109005,Strâmtura,commune,243,RO114
+59657,Suatu,commune,127,RO113
+109041,Suciu De Sus,commune,243,RO114
+31262,Suplacu De Barcău,commune,56,RO111
+138921,Supur,commune,305,RO115
+142774,Surduc,commune,314,RO116
+142612,Sâg,commune,314,RO116
+31057,Sâmbăta,commune,56,RO111
+59434,Sâncraiu,commune,127,RO113
+28610,Sâniob,commune,56,RO111
+26582,Sânmartin,commune,56,RO111
+142676,Sânmihaiu Almaşului,commune,314,RO116
+34477,Sânmihaiu De Câmpie,commune,65,RO112
+59498,Sânmărtin,commune,127,RO113
+32179,Sânnicolau Român,commune,56,RO111
+59586,Sânpaul,commune,127,RO113
+26653,Sântandrei,commune,56,RO111
+31128,Sârbi,commune,56,RO111
+108874,Săcel,commune,243,RO114
+59283,Săcuieu,commune,127,RO113
+30871,Săcădat,commune,56,RO111
+108794,Săcălăşeni,commune,243,RO114
+138770,Săcăşeni,commune,305,RO115
+30988,Sălacea,commune,56,RO111
+31011,Sălard,commune,56,RO111
+108918,Sălsig,commune,243,RO114
+142550,Sălăţig,commune,314,RO116
+55311,Sănduleşti,commune,127,RO113
+108945,Săpânţa,commune,243,RO114
+138805,Săuca,commune,305,RO115
+59327,Săvădisla,commune,127,RO113
+31565,Tarcea,commune,56,RO111
+139009,Tarna Mare,commune,305,RO115
+34985,Teaca,commune,65,RO112
+35054,Telciu,commune,65,RO112
+139054,Terebeşti,commune,305,RO115
+35090,Tiha Bârgăului,commune,65,RO112
+31716,Tileagd,commune,56,RO111
+31789,Tinca,commune,56,RO111
+139107,Tiream,commune,305,RO115
+32201,Toboliu,commune,56,RO111
+179631,Treznea,commune,314,RO116
+59693,Tritenii De Jos,commune,127,RO113
+31841,Tulca,commune,56,RO111
+59764,Tureni,commune,127,RO113
+139214,Turulung,commune,305,RO115
+139170,Turţ,commune,305,RO115
+35152,Târlişua,commune,65,RO112
+139143,Târşolţ,commune,305,RO115
+32153,Tămăşeu,commune,56,RO111
+31609,Tărcaia,commune,56,RO111
+31654,Tăuteu,commune,56,RO111
+31921,Uileacu De Beiuş,commune,56,RO111
+59880,Unguraş,commune,127,RO113
+35269,Uriu,commune,65,RO112
+35312,Urmeniş,commune,65,RO112
+139250,Urziceni,commune,305,RO115
+59942,Vad,commune,127,RO113
+31976,Vadu Crişului,commune,56,RO111
+106648,Vadu Izei,commune,243,RO114
+142952,Valcău De Jos,commune,314,RO116
+109354,Valea Chioarului,commune,243,RO114
+60026,Valea Ierii,commune,127,RO113
+139287,Valea Vinului,commune,305,RO115
+139330,Vama,commune,305,RO115
+139358,Vetiş,commune,305,RO115
+139394,Viile Satu Mare,commune,305,RO115
+32045,Viişoara,commune,56,RO111
+60062,Viişoara,commune,127,RO113
+109425,Vima Mică,commune,243,RO114
+109504,Vişeu De Jos,commune,243,RO114
+60099,Vultureni,commune,127,RO113
+32090,Vârciorog,commune,56,RO111
+143021,Vârşolţ,commune,314,RO116
+35429,Zagra,commune,65,RO112
+143067,Zalha,commune,314,RO116
+143147,Zimbor,commune,314,RO116
+142854,Şamşud,commune,314,RO116
+34618,Şanţ,commune,65,RO112
+34645,Şieu,commune,65,RO112
+179613,Şieu,commune,243,RO114
+34690,Şieu-Măgheruş,commune,65,RO112
+34770,Şieu-Odorhei,commune,65,RO112
+34850,Şieuţ,commune,65,RO112
+31333,Şimian,commune,56,RO111
+179695,Şimişna,commune,314,RO116
+34903,Şintereag,commune,65,RO112
+31379,Şinteu,commune,56,RO111
+109096,Şişeşti,commune,243,RO114
+31422,Şoimi,commune,56,RO111
+31510,Şuncuiuş,commune,56,RO111
+142881,Şărmăşag,commune,314,RO116
+59826,Ţaga,commune,127,RO113
+31878,Ţeţchea,commune,56,RO111

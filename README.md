@@ -27,7 +27,8 @@ Try typing **Floresti** in the picker.
 - `src/innoinvest/ingest/` — Eurostat + INS Tempo clients + runner
 - `src/innoinvest/export/` — CSV + Word writers
 - `config/kpis.yaml` — declarative KPI catalog (add KPIs without code changes)
-- `data/siruta_nw_romania.csv` — seeded SIRUTA codes
+- `data/siruta_nw_romania.csv` — **demo seed** (16 rows: 6 counties + 9 cities/communes including Florești) with placeholder SIRUTA codes the test fixtures depend on
+- `data/siruta_nw_romania_full.csv` — **canonical full seed** (452 rows: 6 counties + 43 cities + 403 communes) using real INS SIRUTA codes from data.gov.ro 2025. To use this in production: point `innoinvest seed` at it AND update the test fixtures that hard-code SIRUTA codes (e.g. `4324` → `57706` for Florești)
 - `web/` — Next.js frontend
 
 ## Dev setup (without Docker for backend/frontend)
