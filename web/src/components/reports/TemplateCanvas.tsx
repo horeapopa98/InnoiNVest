@@ -1,20 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  DndContext,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { SectionBlock } from "./SectionBlock";
 import { LocationPicker } from "./LocationPicker";
 import { GenerateOverlay } from "./GenerateOverlay";
 import { ReportPreview } from "./ReportPreview";
-import { type Kpi } from "@/lib/mock/kpis";
 import { getLocation } from "@/lib/mock/locations";
 import { writeStorage, readStorage } from "@/lib/persistence/storage";
 import { STORAGE_KEYS } from "@/lib/persistence/keys";
@@ -25,56 +15,26 @@ import {
   type ReportTemplate,
 } from "@/lib/mock/templates";
 
+/**
+ * The middle column of the /reports workspace: renders the editable
+ * template (Section blocks with SlotDropZones), the location picker,
+ * and the Generate button. Switches to <ReportPreview> after a
+ * successful generation.
+ *
+ * The drag-and-drop wiring (DndContext, sensors, onDragEnd) lives in
+ * the parent page so the right-sidebar VariablesPicker can also see it.
+ */
+
 type Props = {
   template: ReportTemplate;
   onChange: (next: ReportTemplate) => void;
 };
 
 export function TemplateCanvas({ template, onChange }: Props) {
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
   const [locationSiruta, setLocationSiruta] = useState<string>("");
   const [generating, setGenerating] = useState(false);
   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over) return;
-    if (active.data.current?.kind !== "kpi" || over.data.current?.kind !== "slot") return;
-
-    const kpi: Kpi = active.data.current.kpi;
-    const slotId: string = over.data.current.slot.id;
-
-    // Validate category fit (defence in depth — SlotDropZone already shows red)
-    const targetSlot = template.sections
-      .flatMap((s) => s.slots)
-      .find((s) => s.id === slotId);
-    if (!targetSlot) return;
-    if (targetSlot.acceptsCategory && targetSlot.acceptsCategory !== kpi.category) return;
-
-    const next: ReportTemplate = {
-      ...template,
-      updatedAt: Date.now(),
-      sections: template.sections.map((s) => ({
-        ...s,
-        slots: s.slots.map((slot) =>
-          slot.id === slotId
-            ? {
-                ...slot,
-                kpiCodes:
-                  slot.kind === "table"
-                    ? Array.from(new Set([...slot.kpiCodes, kpi.code])).slice(0, 4)
-                    : [kpi.code],
-              }
-            : slot
-        ),
-      })),
-    };
-    onChange(next);
-  }
 
   function handleClearSlot(slotId: string) {
     const next: ReportTemplate = {
@@ -146,7 +106,7 @@ export function TemplateCanvas({ template, onChange }: Props) {
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <>
       <div className="mx-auto max-w-[880px] space-y-6">
         <header className="flex items-baseline justify-between">
           <div>
@@ -202,6 +162,6 @@ export function TemplateCanvas({ template, onChange }: Props) {
         </footer>
       </div>
       <GenerateOverlay visible={generating} />
-    </DndContext>
+    </>
   );
 }
