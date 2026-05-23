@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import (
-    BigInteger, ForeignKey, Integer, Numeric, String, TIMESTAMP, UniqueConstraint
+    BigInteger, ForeignKey, Integer, Numeric, String, TIMESTAMP, UniqueConstraint, func
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -61,14 +61,18 @@ class KpiValue(Base):
     source_code: Mapped[str] = mapped_column(String, ForeignKey("source.source_code"))
     source_dataset_id: Mapped[str | None] = mapped_column(String)
     source_url: Mapped[str | None] = mapped_column(String)
-    fetched_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    fetched_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
     raw_payload: Mapped[Any | None] = mapped_column(JSONB)
 
 
 class RunLog(Base):
     __tablename__ = "run_log"
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    started_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    started_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.now()
+    )
     finished_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
     source_code: Mapped[str | None] = mapped_column(String, ForeignKey("source.source_code"))
     kpis_fetched: Mapped[int] = mapped_column(Integer, default=0)
