@@ -10,13 +10,26 @@ import {
   messageToCopyText,
   type AssistantBlock,
 } from "@/lib/mock/chat";
+import dynamic from "next/dynamic";
 import { MetricCardBlock } from "./blocks/MetricCardBlock";
 import { RankingTableBlock } from "./blocks/RankingTableBlock";
 import { LineChartBlock } from "./blocks/LineChartBlock";
 import { MapBlock } from "./blocks/MapBlock";
 import { ScorecardBlock } from "./blocks/ScorecardBlock";
 import { InteractiveRecommendationBlock } from "./blocks/InteractiveRecommendationBlock";
-import { ParcelMapBlock } from "./blocks/ParcelMapBlock";
+// ParcelMapBlock pulls in Leaflet, which touches `window` at import time;
+// load it client-only to keep SSR happy.
+const ParcelMapBlock = dynamic(
+  () => import("./blocks/ParcelMapBlock").then((m) => m.ParcelMapBlock),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[320px] w-full items-center justify-center rounded-lg border border-border-subtle bg-surface-muted text-on-surface-variant">
+        Loading map…
+      </div>
+    ),
+  }
+);
 
 type Props = {
   blocks: AssistantBlock[];
