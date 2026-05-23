@@ -29,9 +29,17 @@ export type KpiDto = {
   history: KpiValueDto[];
 };
 
+export type Institution = {
+  name: string;
+  type: "university" | "high_school" | "research_institute";
+  url: string | null;
+  for_siruta: string;
+};
+
 export type GroupedReport = {
   location: LocationSummary;
   categories: { category: string; kpis: KpiDto[] }[];
+  institutions: Institution[];
 };
 
 export type FlatRow = {

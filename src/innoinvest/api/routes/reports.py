@@ -1,7 +1,10 @@
 from collections import defaultdict
+from functools import lru_cache
 from io import StringIO
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+import yaml
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
@@ -12,6 +15,24 @@ from ...export.csv import write_csv as write_csv_file
 from ...export.docx import write_docx
 
 router = APIRouter()
+
+
+@lru_cache(maxsize=1)
+def _load_institutions() -> dict[str, list[dict]]:
+    """Load institutions catalog from config/institutions.yaml, grouped by siruta_code."""
+    path = Path(__file__).resolve().parents[4] / "config" / "institutions.yaml"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as fh:
+        raw = yaml.safe_load(fh) or []
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for entry in raw:
+        grouped[entry["siruta_code"]].append({
+            "name": entry["name"],
+            "type": entry["type"],
+            "url": entry.get("url"),
+        })
+    return dict(grouped)
 
 
 @router.get("/report/{siruta_code}")
@@ -79,11 +100,19 @@ def get_report(
             "history": history,
         })
 
+    # Pull institutions from any siruta in the hierarchy walk (typically the county).
+    inst_catalog = _load_institutions()
+    institutions: list[dict] = []
+    for sc in candidate_siruta:
+        for inst in inst_catalog.get(sc, []):
+            institutions.append({**inst, "for_siruta": sc})
+
     return {
         "location": _serialize_loc(loc),
         "categories": [
             {"category": cat, "kpis": kpis} for cat, kpis in grouped.items()
         ],
+        "institutions": institutions,
     }
 
 

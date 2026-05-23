@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CategorySection } from "./CategorySection";
 import { FlatTable } from "./FlatTable";
 import { ExportButtons } from "./ExportButtons";
+import { InstitutionsSection } from "./InstitutionsSection";
 import type { GroupedReport, FlatReport } from "@/lib/api";
 
 export function ReportView({ grouped, flat }: { grouped: GroupedReport; flat: FlatReport }) {
@@ -28,6 +29,7 @@ export function ReportView({ grouped, flat }: { grouped: GroupedReport; flat: Fl
           {grouped.categories.map((c) => (
             <CategorySection key={c.category} category={c.category} kpis={c.kpis} />
           ))}
+          <InstitutionsSection institutions={grouped.institutions ?? []} />
         </TabsContent>
         <TabsContent value="flat">
           <FlatTable rows={flat.rows} />

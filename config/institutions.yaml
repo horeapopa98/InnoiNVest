@@ -1,0 +1,139 @@
+# Universities, research institutes, and top high schools in NW Romania.
+# Sourced from team's Idei.xlsx (Useful links sheet), keyed by county SIRUTA.
+# The /report endpoint joins these via the location's hierarchy walk.
+
+# ----- Cluj (county SIRUTA 4017) -----
+- siruta_code: "4017"
+  name: Babeș-Bolyai University (UBB)
+  type: university
+  url: https://ubbcluj.ro
+- siruta_code: "4017"
+  name: Technical University of Cluj-Napoca (UTCN)
+  type: university
+  url: https://utcluj.ro
+- siruta_code: "4017"
+  name: Iuliu Hațieganu University of Medicine and Pharmacy (UMF)
+  type: university
+  url: https://umfcluj.ro
+- siruta_code: "4017"
+  name: University of Agricultural Sciences and Veterinary Medicine (USAMV)
+  type: university
+  url: https://usamvcluj.ro
+- siruta_code: "4017"
+  name: Gheorghe Dima National Academy of Music
+  type: university
+  url: https://anmgd.ro
+- siruta_code: "4017"
+  name: University of Art and Design (UAD)
+  type: university
+  url: https://uad.ro
+- siruta_code: "4017"
+  name: National Institute for R&D of Isotopic and Molecular Technologies (INCDTIM)
+  type: research_institute
+  url: https://incdtim.ro
+- siruta_code: "4017"
+  name: Romanian Academy – Cluj-Napoca Branch
+  type: research_institute
+  url: https://acad-cluj.ro
+- siruta_code: "4017"
+  name: Colegiul Național „Emil Racoviță"
+  type: high_school
+  url: https://racovita.ro
+- siruta_code: "4017"
+  name: Colegiul Național „George Barițiu"
+  type: high_school
+  url: https://colegiulbaritiu.ro
+- siruta_code: "4017"
+  name: Liceul Teoretic „Avram Iancu"
+  type: high_school
+  url: https://liceulavramiancu.ro
+
+# ----- Bihor (county SIRUTA 1026) -----
+- siruta_code: "1026"
+  name: University of Oradea
+  type: university
+  url: https://uoradea.ro
+- siruta_code: "1026"
+  name: Partium Christian University
+  type: university
+  url: https://partium.ro
+- siruta_code: "1026"
+  name: Emanuel University of Oradea
+  type: university
+  url: https://emanuel.ro
+- siruta_code: "1026"
+  name: Colegiul Național „Emanuil Gojdu"
+  type: high_school
+  url: https://ego.ro
+- siruta_code: "1026"
+  name: Colegiul Național „Mihai Eminescu" (Oradea)
+  type: high_school
+  url: https://cneminescuoradea.ro
+
+# ----- Maramureș (county SIRUTA 11724) -----
+- siruta_code: "11724"
+  name: UTCN – Northern University Center Baia Mare (CUNBM)
+  type: university
+  url: https://cunbm.utcluj.ro
+- siruta_code: "11724"
+  name: Colegiul Național „Gheorghe Șincai"
+  type: high_school
+  url: https://sincai.ro
+- siruta_code: "11724"
+  name: Colegiul Național „Vasile Lucaciu"
+  type: high_school
+  url: https://lucaciu.ro
+- siruta_code: "11724"
+  name: Colegiul Național „Dragoș Vodă" (Sighetu Marmației)
+  type: high_school
+  url: https://cndv.ro
+
+# ----- Satu Mare (county SIRUTA 14492) -----
+- siruta_code: "14492"
+  name: UTCN – Satu Mare Extension
+  type: university
+  url: https://satumare.utcluj.ro
+- siruta_code: "14492"
+  name: Colegiul Național „Mihai Eminescu" (Satu Mare)
+  type: high_school
+  url: https://eminescusm.ro
+- siruta_code: "14492"
+  name: Colegiul Național „Ioan Slavici"
+  type: high_school
+  url: https://cnis.ro
+- siruta_code: "14492"
+  name: Liceul Teoretic „Kölcsey Ferenc"
+  type: high_school
+  url: https://kolcsey.ro
+
+# ----- Bistrița-Năsăud (county SIRUTA 2719) -----
+- siruta_code: "2719"
+  name: Babeș-Bolyai University – Bistrița Extension
+  type: university
+  url: https://bistrita.extensii.ubbcluj.ro
+- siruta_code: "2719"
+  name: UTCN – Bistrița Extension
+  type: university
+  url: https://bistrita.utcluj.ro
+- siruta_code: "2719"
+  name: Colegiul Național „Liviu Rebreanu"
+  type: high_school
+  url: https://cnlr.ro
+- siruta_code: "2719"
+  name: Colegiul Național „Andrei Mureșanu"
+  type: high_school
+  url: https://cnam.ro
+
+# ----- Sălaj (county SIRUTA 17387) -----
+- siruta_code: "17387"
+  name: UTCN – Zalău Extension
+  type: university
+  url: https://zalau.utcluj.ro
+- siruta_code: "17387"
+  name: Colegiul Național „Silvania" (Zalău)
+  type: high_school
+  url: https://cnsilvania.ro
+- siruta_code: "17387"
+  name: Colegiul Național „Simion Bărnuțiu" (Șimleu Silvaniei)
+  type: high_school
+  url: https://cnsb.ro
