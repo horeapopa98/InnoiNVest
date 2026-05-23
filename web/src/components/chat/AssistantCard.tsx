@@ -10,13 +10,18 @@ import {
   messageToCopyText,
   type AssistantBlock,
 } from "@/lib/mock/chat";
+import { MetricCardBlock } from "./blocks/MetricCardBlock";
+import { RankingTableBlock } from "./blocks/RankingTableBlock";
+import { LineChartBlock } from "./blocks/LineChartBlock";
+import { MapBlock } from "./blocks/MapBlock";
+import { ScorecardBlock } from "./blocks/ScorecardBlock";
 
 type Props = {
   blocks: AssistantBlock[];
   /**
    * Word-reveal progress, 0..1. When < 1, text blocks are sliced and
-   * non-text blocks (chart/citation) stay hidden. When undefined or 1,
-   * everything renders in full and the action row appears.
+   * non-text blocks (chart/map/etc.) stay hidden. When undefined or 1,
+   * everything renders and the action row appears.
    */
   progress?: number;
   /** Context-aware follow-up suggestions to render under the response. */
@@ -25,25 +30,16 @@ type Props = {
   onPickFollowUp?: (prompt: string) => void;
 };
 
-/**
- * One assistant turn — composed of typed blocks (text, sparkline,
- * comparison, citation). Text blocks reveal word-by-word during
- * streaming for a real-LLM feel; everything else snaps in once the
- * text is fully revealed.
- */
 export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: Props) {
   const streaming = progress !== undefined && progress < 1;
   const done = !streaming;
   const [copied, setCopied] = useState(false);
 
-  // Pre-tokenise text blocks so the slice computation is cheap.
-  const textTokens = useMemo(() => {
-    return blocks.map((b) =>
-      b.kind === "text" ? b.text.split(/(\s+)/) : null
-    );
-  }, [blocks]);
+  const textTokens = useMemo(
+    () => blocks.map((b) => (b.kind === "text" ? b.text.split(/(\s+)/) : null)),
+    [blocks]
+  );
 
-  // Total words across all text blocks.
   const totalWords = useMemo(
     () =>
       textTokens.reduce<number>(
@@ -53,7 +49,6 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
     [textTokens]
   );
 
-  // How many words to reveal globally given the progress.
   const wordsToReveal = streaming ? Math.floor((progress ?? 1) * totalWords) : totalWords;
 
   async function handleCopy() {
@@ -62,16 +57,14 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard API can fail on insecure contexts — fall back silently.
+      // Clipboard API unavailable on insecure contexts — fall back silently.
     }
   }
 
-  // Track words consumed so each block knows where in the global stream it sits.
   let consumed = 0;
 
   return (
-    <article className="flex max-w-[88%] gap-3">
-      {/* Brand-tinted assistant avatar */}
+    <article className="flex max-w-[92%] gap-3">
       <div
         aria-hidden="true"
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-deep ring-1 ring-primary/20"
@@ -89,7 +82,6 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                 const blockStart = consumed;
                 consumed += wordsInBlock;
 
-                // Build the visible substring up to the current global word index.
                 let displayed = "";
                 let wordCount = 0;
                 for (const tok of tokens) {
@@ -102,7 +94,9 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                 }
 
                 const isCurrentBlock =
-                  streaming && wordsToReveal > blockStart && wordsToReveal < blockStart + wordsInBlock;
+                  streaming &&
+                  wordsToReveal > blockStart &&
+                  wordsToReveal < blockStart + wordsInBlock;
 
                 return (
                   <p
@@ -120,58 +114,104 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                 );
               }
 
-              // Non-text blocks only appear once the text stream is complete.
+              // Non-text blocks only appear once the text stream completes.
               if (!done) return null;
 
-              if (b.kind === "sparkline") {
-                const kpi = getKpi(b.kpiCode);
-                const loc = getLocation(b.locationSiruta);
-                return (
-                  <div key={i} className="rounded-md border border-border-subtle/60 bg-surface p-3">
-                    <p className="font-label-md text-label-md mb-1 uppercase tracking-wider text-on-surface-variant">
-                      {kpi?.nameEn} · {loc?.name}
-                    </p>
-                    <Sparkline values={b.values} width={420} height={56} />
-                  </div>
-                );
+              switch (b.kind) {
+                case "sparkline": {
+                  const kpi = getKpi(b.kpiCode);
+                  const loc = getLocation(b.locationSiruta);
+                  return (
+                    <div key={i} className="rounded-md border border-border-subtle/60 bg-surface p-3">
+                      <p className="font-label-md text-label-md mb-1 uppercase tracking-wider text-on-surface-variant">
+                        {kpi?.nameEn} · {loc?.name}
+                      </p>
+                      <Sparkline values={b.values} width={420} height={56} />
+                    </div>
+                  );
+                }
+                case "comparison": {
+                  const kpi = getKpi(b.kpiCode);
+                  const bars = b.series.map((s) => {
+                    const loc = getLocation(s.locationSiruta);
+                    const latest = s.values[s.values.length - 1];
+                    return {
+                      label: loc?.name ?? s.locationSiruta,
+                      value: latest?.value ?? 0,
+                    };
+                  });
+                  return (
+                    <div key={i} className="rounded-md border border-border-subtle/60 bg-surface p-3">
+                      <p className="font-label-md text-label-md mb-2 uppercase tracking-wider text-on-surface-variant">
+                        {kpi?.nameEn}
+                      </p>
+                      <MiniBarChart bars={bars} width={420} height={140} />
+                    </div>
+                  );
+                }
+                case "metricCard":
+                  return (
+                    <MetricCardBlock
+                      key={i}
+                      locationSiruta={b.locationSiruta}
+                      kpiCode={b.kpiCode}
+                      year={b.year}
+                      value={b.value}
+                      regionAvg={b.regionAvg}
+                      series={b.series}
+                    />
+                  );
+                case "rankingTable":
+                  return <RankingTableBlock key={i} kpiCode={b.kpiCode} year={b.year} rows={b.rows} />;
+                case "lineChart":
+                  return (
+                    <LineChartBlock
+                      key={i}
+                      kpiCode={b.kpiCode}
+                      yearRange={b.yearRange}
+                      series={b.series}
+                    />
+                  );
+                case "map":
+                  return (
+                    <MapBlock
+                      key={i}
+                      kpiCode={b.kpiCode}
+                      year={b.year}
+                      valuesByCounty={b.valuesByCounty}
+                    />
+                  );
+                case "scorecard":
+                  return (
+                    <ScorecardBlock
+                      key={i}
+                      locationSiruta={b.locationSiruta}
+                      year={b.year}
+                      tiles={b.tiles}
+                    />
+                  );
+                case "citation":
+                  return (
+                    <div key={i} className="border-t border-border-subtle/60 pt-3">
+                      <p className="font-label-md text-label-md mb-1 uppercase tracking-wider text-on-surface-variant">
+                        Sources
+                      </p>
+                      <ol className="font-body-sm text-body-sm list-decimal space-y-0.5 pl-5 text-on-surface-variant">
+                        {b.sources.map((s) => (
+                          <li key={s.id}>{s.label}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  );
+                default: {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const _exhaustive: never = b;
+                  return null;
+                }
               }
-              if (b.kind === "comparison") {
-                const kpi = getKpi(b.kpiCode);
-                const bars = b.series.map((s) => {
-                  const loc = getLocation(s.locationSiruta);
-                  const latest = s.values[s.values.length - 1];
-                  return { label: loc?.name ?? s.locationSiruta, value: latest?.value ?? 0 };
-                });
-                return (
-                  <div key={i} className="rounded-md border border-border-subtle/60 bg-surface p-3">
-                    <p className="font-label-md text-label-md mb-2 uppercase tracking-wider text-on-surface-variant">
-                      {kpi?.nameEn}
-                    </p>
-                    <MiniBarChart bars={bars} width={420} height={140} />
-                  </div>
-                );
-              }
-              if (b.kind === "citation") {
-                return (
-                  <div key={i} className="border-t border-border-subtle/60 pt-3">
-                    <p className="font-label-md text-label-md mb-1 uppercase tracking-wider text-on-surface-variant">
-                      Sources
-                    </p>
-                    <ol className="font-body-sm text-body-sm list-decimal space-y-0.5 pl-5 text-on-surface-variant">
-                      {b.sources.map((s) => (
-                        <li key={s.id}>{s.label}</li>
-                      ))}
-                    </ol>
-                  </div>
-                );
-              }
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              const _exhaustive: never = b;
-              return null;
             })}
           </div>
 
-          {/* Hover-revealed action row — only when response is complete */}
           {done && (
             <div className="mt-3 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               <button
@@ -193,7 +233,6 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
           )}
         </div>
 
-        {/* Follow-up chips */}
         {done && followUps && followUps.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {followUps.map((f) => (
@@ -213,7 +252,6 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
   );
 }
 
-/** Wrap with a `group` so the hover-action row reveals on hover. */
 export function AssistantTurn(props: Props) {
   return (
     <div className="group">

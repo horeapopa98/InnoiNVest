@@ -3,7 +3,9 @@
 import {
   ArrowRight,
   ArrowLeftRight,
+  Compass,
   FileText,
+  LayoutDashboard,
   Trophy,
   TrendingUp,
 } from "lucide-react";
@@ -18,6 +20,8 @@ const ICON_FOR: Record<CapabilityCard["icon"], React.ReactNode> = {
   compare: <ArrowLeftRight size={16} />,
   trophy: <Trophy size={16} />,
   document: <FileText size={16} />,
+  snapshot: <LayoutDashboard size={16} />,
+  recommend: <Compass size={16} />,
 };
 
 export function SuggestedPrompts({ onPick }: Props) {

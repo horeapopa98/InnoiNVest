@@ -120,7 +120,10 @@ export default function ChatPage() {
         blocks,
         timestamp: Date.now(),
       };
-      const follow = followUpsFor(text);
+      // Pass blocks so ranking/recommendation follow-ups can reference the
+      // actual top location by name (otherwise the chip text is too vague
+      // for the intent classifier to route correctly).
+      const follow = followUpsFor(text, blocks);
       setFollowUps((prev) => ({ ...prev, [assistantId]: follow }));
       persist(
         (prev) =>
