@@ -106,13 +106,17 @@ export default function ChatPage() {
     };
     persist((prev) => prev.map((c) => (c.id === active.id ? withUser : c)), active.id);
 
+    // Conversation history BEFORE this user message — used for
+    // multi-turn referential resolution ("what about Maramureș?").
+    const historyForClassifier = active.messages;
+
     // 2. Show the smart "thinking" indicator with the classified intent.
-    setPendingIntent(summarizeIntent(text));
+    setPendingIntent(summarizeIntent(text, historyForClassifier));
 
     // 3. After the "thinking" delay, append the assistant message and
     //    animate its reveal word-by-word over STREAM_MS.
     setTimeout(() => {
-      const blocks = respondTo(text);
+      const blocks = respondTo(text, historyForClassifier);
       const assistantId = `m-${crypto.randomUUID()}`;
       const assistantMsg: Message = {
         id: assistantId,
@@ -122,8 +126,9 @@ export default function ChatPage() {
       };
       // Pass blocks so ranking/recommendation follow-ups can reference the
       // actual top location by name (otherwise the chip text is too vague
-      // for the intent classifier to route correctly).
-      const follow = followUpsFor(text, blocks);
+      // for the intent classifier to route correctly). Pass history so
+      // referential follow-ups inherit context.
+      const follow = followUpsFor(text, blocks, historyForClassifier);
       setFollowUps((prev) => ({ ...prev, [assistantId]: follow }));
       persist(
         (prev) =>

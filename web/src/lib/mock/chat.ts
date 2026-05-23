@@ -8,8 +8,10 @@
 
 import { getKpi, KPIS, type Kpi, type KpiCategory } from "./kpis";
 import { LOCATIONS, type Location } from "./locations";
-import { getSeries, getObservation } from "./observations";
+import { getSeries, getObservation, YEARS_AVAILABLE } from "./observations";
+import { PARCELS, parcelsByType, parcelsInCounty, type ParcelType } from "./parcels";
 import { getSystemYear } from "@/lib/system-clock";
+import { type Sector } from "./composite";
 
 // ---------------------------------------------------------------------
 // Block kinds the assistant can emit. The renderer in AssistantCard.tsx
@@ -25,7 +27,15 @@ export type AssistantBlock =
       kpiCode: string;
       series: Array<{ locationSiruta: string; values: Array<{ year: number; value: number }> }>;
     }
-  | { kind: "citation"; sources: Array<{ id: number; label: string }> }
+  | {
+      kind: "citation";
+      sources: Array<{
+        id: number;
+        label: string;
+        /** Optional deep-link into /data with filters pre-applied. */
+        href?: string;
+      }>;
+    }
   /** Hero number with delta vs region average + a small trend chart. */
   | {
       kind: "metricCard";
@@ -68,6 +78,22 @@ export type AssistantBlock =
         delta: number | null;
         category: KpiCategory;
       }>;
+    }
+  /**
+   * Interactive composite-score recommendation. The renderer owns
+   * the live weight sliders and re-runs the scoring on every change,
+   * so this block carries only the initial state.
+   */
+  | {
+      kind: "interactiveRecommendation";
+      sector: Sector;
+      year: number;
+    }
+  /** Real(-ish) NW Romania map showing investable parcels. */
+  | {
+      kind: "parcelMap";
+      filterType: ParcelType | "all";
+      parcelIds: string[];
     };
 
 export type Message =
@@ -87,13 +113,14 @@ export type Conversation = {
 // ---------------------------------------------------------------------
 
 type Intent =
-  | { kind: "trend"; kpi: Kpi; location: Location }
+  | { kind: "trend"; kpi: Kpi; location: Location; year?: number }
   | { kind: "compare"; kpi: Kpi; locations: Location[] }
-  | { kind: "lookup"; kpi: Kpi; location: Location }
-  | { kind: "ranking"; kpi: Kpi }
+  | { kind: "lookup"; kpi: Kpi; location: Location; year?: number }
+  | { kind: "ranking"; kpi: Kpi; year?: number }
   | { kind: "snapshot"; location: Location }
-  | { kind: "recommendation"; sector: "tech" | "manufacturing" | "general" }
+  | { kind: "recommendation"; sector: Sector }
   | { kind: "dossier"; location: Location }
+  | { kind: "parcels"; type: ParcelType | "all"; location: Location | null }
   | { kind: "fallback" };
 
 const KPI_ALIAS_MAP: Record<string, string> = {
@@ -139,14 +166,71 @@ function findLocations(text: string): Location[] {
   );
 }
 
-function classifyIntent(text: string): Intent {
+/** Detect a 4-digit year in the supported range. */
+function findYear(text: string): number | undefined {
+  const match = text.match(/\b(20\d{2})\b/);
+  if (!match) return undefined;
+  const y = Number(match[1]);
+  return YEARS_AVAILABLE.includes(y) ? y : undefined;
+}
+
+/**
+ * Extract the most recent (location, kpi) context from prior messages.
+ * Used to resolve referential queries like "what about Maramureș?" or
+ * "show me 2024 instead" — they don't fully specify what they refer to.
+ */
+function lastContext(history: Message[]): { kpi: Kpi | null; location: Location | null } {
+  let kpi: Kpi | null = null;
+  let location: Location | null = null;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const m = history[i];
+    if (m.role !== "user") continue;
+    if (!kpi) kpi = findKpi(m.text);
+    if (!location) {
+      const locs = findLocations(m.text);
+      if (locs[0]) location = locs[0];
+    }
+    if (kpi && location) break;
+  }
+  return { kpi, location };
+}
+
+function findParcelType(text: string): ParcelType | "all" {
+  const h = text.toLowerCase();
+  if (/factor|manufactur|industrial site|industrial park/.test(h)) return "industrial";
+  if (/tech park|innovation|software|it park/.test(h)) return "tech";
+  if (/warehous|logistics|distribution/.test(h)) return "logistics";
+  if (/agri|farm|food/.test(h)) return "agricultural";
+  return "all";
+}
+
+function classifyIntent(text: string, history: Message[] = []): Intent {
   const haystack = text.toLowerCase();
-  const kpi = findKpi(text);
-  const locs = findLocations(text);
+  let kpi = findKpi(text);
+  let locs = findLocations(text);
+  const year = findYear(text);
+
+  // Referential resolution — when the user doesn't repeat themselves.
+  const ctx = lastContext(history);
+  const isReferential =
+    /^(what about|and|now|instead|then|how about|^show me)\b/.test(haystack) ||
+    (kpi === null && locs.length === 0);
+  if (isReferential) {
+    if (!kpi && ctx.kpi) kpi = ctx.kpi;
+    if (locs.length === 0 && ctx.location) locs = [ctx.location];
+  }
+
+  // Parcels intent — broad match: any factory/parcel/site/land question.
+  if (
+    /parcel|industrial site|industrial park|tech park|factory|where can i build|where to build|where (can|to|should)? ?i? ?(put|locate|set up)|available site|investable land|greenfield|brownfield|land for|plot for|site for/.test(haystack) ||
+    /\b(industrial|tech|logistics|agricultural)\s+(parcels?|sites?|land|plots?)\b/.test(haystack)
+  ) {
+    return { kind: "parcels", type: findParcelType(text), location: locs[0] ?? null };
+  }
 
   // Recommendation: "where should I invest" / "best for tech" / etc.
   if (/where (should|to) (i )?invest|recommend|best (for|county|location)|most attractive|attractive for/.test(haystack)) {
-    const sector = /tech|software|it|digital/.test(haystack)
+    const sector: Sector = /tech|software|it|digital/.test(haystack)
       ? "tech"
       : /manufactur|industr|factor/.test(haystack)
         ? "manufacturing"
@@ -154,7 +238,7 @@ function classifyIntent(text: string): Intent {
     return { kind: "recommendation", sector };
   }
 
-  // Snapshot: "tell me about X" / "overview of X" / "profile of X" / "about X"
+  // Snapshot
   if (
     /tell me about|overview of|profile of|snapshot of|brief on|^about /.test(haystack) ||
     (locs[0] && /what about|what's in|stats for/.test(haystack))
@@ -169,12 +253,12 @@ function classifyIntent(text: string): Intent {
     return { kind: "compare", kpi, locations: locs.slice(0, 4) };
   }
   if (kpi && /trend|over time|history|past|years|since|evolution/.test(haystack)) {
-    if (locs[0]) return { kind: "trend", kpi, location: locs[0] };
+    if (locs[0]) return { kind: "trend", kpi, location: locs[0], year };
   }
   if (kpi && /highest|lowest|top|best|worst|ranking|rank|which/.test(haystack)) {
-    return { kind: "ranking", kpi };
+    return { kind: "ranking", kpi, year };
   }
-  if (kpi && locs[0]) return { kind: "lookup", kpi, location: locs[0] };
+  if (kpi && locs[0]) return { kind: "lookup", kpi, location: locs[0], year };
   return { kind: "fallback" };
 }
 
@@ -182,14 +266,30 @@ function classifyIntent(text: string): Intent {
 // Helpers shared by response builders
 // ---------------------------------------------------------------------
 
-function citeSources(kpis: Kpi[]): AssistantBlock {
+/**
+ * Build a citation block. If a context (location, year) is provided, each
+ * source gets an href deep-linking to /data with filters pre-applied so
+ * the analyst can verify the underlying observation in one click.
+ */
+function citeSources(
+  kpis: Kpi[],
+  ctx?: { location?: Location | null; year?: number | null }
+): AssistantBlock {
   const unique = Array.from(new Map(kpis.map((k) => [k.source + k.code, k])).values());
   return {
     kind: "citation",
-    sources: unique.map((k, i) => ({
-      id: i + 1,
-      label: `${k.source} — ${k.nameEn}`,
-    })),
+    sources: unique.map((k, i) => {
+      const params = new URLSearchParams();
+      if (ctx?.location) params.set("location", ctx.location.sirutaCode);
+      if (ctx?.year !== undefined && ctx?.year !== null) params.set("year", String(ctx.year));
+      params.set("search", k.nameEn);
+      const href = `/data?${params.toString()}`;
+      return {
+        id: i + 1,
+        label: `${k.source} — ${k.nameEn}`,
+        href,
+      };
+    }),
   };
 }
 
@@ -282,7 +382,7 @@ function compareResponse(intent: Extract<Intent, { kind: "compare" }>): Assistan
 }
 
 function lookupResponse(intent: Extract<Intent, { kind: "lookup" }>): AssistantBlock[] {
-  const year = getSystemYear();
+  const year = intent.year ?? getSystemYear();
   const obs = getObservation(intent.location.sirutaCode, intent.kpi.code, year);
   if (!obs) return fallbackResponse();
   const series = getSeries(intent.location.sirutaCode, intent.kpi.code).map((o) => o.value);
@@ -301,12 +401,12 @@ function lookupResponse(intent: Extract<Intent, { kind: "lookup" }>): AssistantB
       regionAvg,
       series,
     },
-    citeSources([intent.kpi]),
+    citeSources([intent.kpi], { location: intent.location, year }),
   ];
 }
 
 function rankingResponse(intent: Extract<Intent, { kind: "ranking" }>): AssistantBlock[] {
-  const year = getSystemYear();
+  const year = intent.year ?? getSystemYear();
   const eligible = LOCATIONS.filter((l) => getObservation(l.sirutaCode, intent.kpi.code, year));
   const rows = eligible
     .map((l) => ({ locationSiruta: l.sirutaCode, value: getObservation(l.sirutaCode, intent.kpi.code, year)!.value }))
@@ -383,103 +483,72 @@ function snapshotResponse(intent: Extract<Intent, { kind: "snapshot" }>): Assist
 }
 
 /**
- * Recommendation intent — "where should I invest in tech?".
- * Builds a simple composite score (sector-weighted) across counties,
- * shows the ranking + map.
+ * Recommendation intent — "where should I invest in tech?". Emits an
+ * interactiveRecommendation block; the renderer owns the live weight
+ * sliders + recomputed ranking + map + collapsible methodology.
  */
 function recommendationResponse(
   intent: Extract<Intent, { kind: "recommendation" }>
 ): AssistantBlock[] {
   const year = getSystemYear();
-  // Sector weighting: which KPIs matter and how much (sum = 1).
-  const weights: Record<string, number> =
-    intent.sector === "tech"
-      ? {
-          tertiary_attainment: 0.35,
-          fiber_coverage: 0.25,
-          employment_rate: 0.15,
-          gdp_per_capita: 0.15,
-          gdp_growth: 0.1,
-        }
-      : intent.sector === "manufacturing"
-        ? {
-            wage_avg: 0.3,
-            employment_rate: 0.25,
-            gdp_per_capita: 0.2,
-            highway_access_km: 0.15, // lower is better — handled below
-            unemployment: 0.1, // lower is better — handled below
-          }
-        : {
-            gdp_per_capita: 0.3,
-            gdp_growth: 0.2,
-            employment_rate: 0.15,
-            tertiary_attainment: 0.15,
-            unemployment: 0.1, // lower is better
-            fiber_coverage: 0.1,
-          };
-
-  // For each county, compute weighted normalised score.
-  const counties = LOCATIONS.filter((l) => l.type === "county");
-  // First gather min/max per KPI for normalisation.
-  const kpiRange: Record<string, { min: number; max: number; lowerBetter: boolean }> = {};
-  for (const code of Object.keys(weights)) {
-    const values: number[] = [];
-    for (const c of counties) {
-      const o = getObservation(c.sirutaCode, code, year);
-      if (o) values.push(o.value);
-    }
-    if (values.length === 0) continue;
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const lowerBetter = code === "unemployment" || code === "highway_access_km" || code === "flood_risk_index";
-    kpiRange[code] = { min, max, lowerBetter };
-  }
-
-  const scored = counties.map((c) => {
-    let score = 0;
-    let weightSum = 0;
-    for (const [code, w] of Object.entries(weights)) {
-      const range = kpiRange[code];
-      if (!range) continue;
-      const o = getObservation(c.sirutaCode, code, year);
-      if (!o) continue;
-      const norm = range.max === range.min ? 0.5 : (o.value - range.min) / (range.max - range.min);
-      const adjusted = range.lowerBetter ? 1 - norm : norm;
-      score += adjusted * w;
-      weightSum += w;
-    }
-    return { locationSiruta: c.sirutaCode, value: weightSum === 0 ? 0 : (score / weightSum) * 100 };
-  });
-  scored.sort((a, b) => b.value - a.value);
-
   const sectorLabel =
     intent.sector === "tech"
-      ? "tech investment"
+      ? "tech"
       : intent.sector === "manufacturing"
-        ? "manufacturing investment"
-        : "general investment";
-
-  const usedKpis = Object.keys(weights)
-    .map((code) => getKpi(code))
-    .filter((k): k is Kpi => k !== undefined);
-
+        ? "manufacturing"
+        : "general";
   return [
     {
       kind: "text",
-      text: `Composite score for ${sectorLabel} across NW Romania counties, ${year}. The score is normalised 0–100 across the chosen indicators (${usedKpis.map((k) => k.nameEn.toLowerCase()).join(", ")}).`,
+      text: `Composite ${sectorLabel}-investment score across NW Romania's six counties for ${year}. Adjust the weights or switch sector to pressure-test the model — the ranking and map update live. Open the methodology drawer to see per-KPI scores.`,
     },
-    { kind: "rankingTable", kpiCode: "composite_score", year, rows: scored },
+    { kind: "interactiveRecommendation", sector: intent.sector, year },
+  ];
+}
+
+/**
+ * Parcels intent — "where can I build a factory?" / "industrial sites
+ * in Cluj". Lists matching parcels on a real-ish NW Romania map with
+ * pin colour by type, then a top-5 by composite desirability score.
+ */
+function parcelsResponse(intent: Extract<Intent, { kind: "parcels" }>): AssistantBlock[] {
+  // Resolve the visible parcel set
+  let pool = intent.type === "all" ? [...PARCELS] : parcelsByType(intent.type);
+  if (intent.location) {
+    const countyCode = intent.location.type === "county"
+      ? intent.location.sirutaCode
+      : intent.location.countyCode;
+    const inCounty = parcelsInCounty(countyCode).filter((p) => pool.some((q) => q.id === p.id));
+    if (inCounty.length > 0) pool = inCounty;
+  }
+  if (pool.length === 0) {
+    return [
+      {
+        kind: "text",
+        text: `No parcels matched the filter. Try a broader query, e.g. "show me industrial parcels".`,
+      },
+    ];
+  }
+  const typeLabel = intent.type === "all" ? "investable" : intent.type;
+  const locScope = intent.location
+    ? intent.location.type === "county"
+      ? ` in ${intent.location.name} county`
+      : ` around ${intent.location.name}`
+    : "";
+  return [
     {
-      kind: "map",
-      kpiCode: "composite_score",
-      year,
-      valuesByCounty: Object.fromEntries(scored.map((s) => [s.locationSiruta, s.value])),
+      kind: "text",
+      text: `Found ${pool.length} ${typeLabel} ${pool.length === 1 ? "parcel" : "parcels"}${locScope}. Pin colour encodes type; pin size scales with parcel area. The composite score below weights availability, price, size, and infrastructure (highway / rail / utilities).`,
+    },
+    {
+      kind: "parcelMap",
+      filterType: intent.type,
+      parcelIds: pool.map((p) => p.id),
     },
     {
       kind: "text",
-      text: `Leader: ${LOCATIONS.find((l) => l.sirutaCode === scored[0].locationSiruta)?.name} (${scored[0].value.toFixed(1)} / 100). Adjust the weights or sector to test other scenarios.`,
+      text: `Click any pin for full parcel details — exact area, price, infrastructure scoring, and a description of what's on the ground. Click "Use in report" to drop a parcel summary into a dossier.`,
     },
-    citeSources(usedKpis),
   ];
 }
 
@@ -506,8 +575,9 @@ function fallbackResponse(): AssistantBlock[] {
 // ---------------------------------------------------------------------
 
 export function respondTo(text: string, history: Message[] = []): AssistantBlock[] {
-  void history; // mock doesn't use multi-turn; signature matches future LLM call
-  const intent = classifyIntent(text);
+  // history is consumed for referential resolution ("what about
+  // Maramureș?" inherits the previous query's KPI).
+  const intent = classifyIntent(text, history);
   switch (intent.kind) {
     case "trend":
       return trendResponse(intent);
@@ -521,6 +591,8 @@ export function respondTo(text: string, history: Message[] = []): AssistantBlock
       return snapshotResponse(intent);
     case "recommendation":
       return recommendationResponse(intent);
+    case "parcels":
+      return parcelsResponse(intent);
     case "dossier":
       return dossierResponse(intent);
     case "fallback":
@@ -528,21 +600,23 @@ export function respondTo(text: string, history: Message[] = []): AssistantBlock
   }
 }
 
-export function summarizeIntent(text: string): string {
-  const intent = classifyIntent(text);
+export function summarizeIntent(text: string, history: Message[] = []): string {
+  const intent = classifyIntent(text, history);
   switch (intent.kind) {
     case "trend":
       return `Analysing ${intent.kpi.nameEn.toLowerCase()} trend in ${intent.location.name}`;
     case "compare":
       return `Comparing ${intent.kpi.nameEn.toLowerCase()} across ${intent.locations.map((l) => l.name).join(", ")}`;
     case "lookup":
-      return `Looking up ${intent.kpi.nameEn.toLowerCase()} for ${intent.location.name}`;
+      return `Looking up ${intent.kpi.nameEn.toLowerCase()} for ${intent.location.name}${intent.year ? ` in ${intent.year}` : ""}`;
     case "ranking":
       return `Ranking locations by ${intent.kpi.nameEn.toLowerCase()}`;
     case "snapshot":
       return `Building snapshot for ${intent.location.name}`;
     case "recommendation":
       return `Scoring counties for ${intent.sector === "general" ? "investment" : `${intent.sector} investment`}`;
+    case "parcels":
+      return `Mapping ${intent.type === "all" ? "investable" : intent.type} parcels${intent.location ? ` in ${intent.location.name}` : ""}`;
     case "dossier":
       return `Preparing a ${intent.location.name} dossier`;
     case "fallback":
@@ -556,8 +630,12 @@ export function summarizeIntent(text: string): string {
  * top location instead of a vague "the top-ranked county", which
  * keeps the chip clickable through the intent classifier.
  */
-export function followUpsFor(text: string, blocks?: AssistantBlock[]): string[] {
-  const intent = classifyIntent(text);
+export function followUpsFor(
+  text: string,
+  blocks?: AssistantBlock[],
+  history: Message[] = []
+): string[] {
+  const intent = classifyIntent(text, history);
 
   // Extract the top location from a ranking-table block if present.
   // Useful for ranking + recommendation responses.
@@ -602,8 +680,18 @@ export function followUpsFor(text: string, blocks?: AssistantBlock[]): string[] 
     case "recommendation":
       return [
         topLocName ? `Tell me about ${topLocName}` : `Tell me about Cluj`,
+        `Show me industrial parcels${topLocName ? ` in ${topLocName}` : ""}`,
         `Where should I invest in manufacturing?`,
-        `Which county has the highest education attainment?`,
+      ];
+    case "parcels":
+      return [
+        intent.location
+          ? `Tell me about ${intent.location.name}`
+          : `Where should I invest in manufacturing?`,
+        intent.type === "tech"
+          ? `Show me industrial parcels`
+          : `Show me tech parks`,
+        `Which county has the highest wage?`,
       ];
     case "dossier":
       return [
@@ -663,7 +751,15 @@ export function messageToCopyText(blocks: AssistantBlock[]): string {
             })
             .join("\n")
       );
-    } else if (b.kind === "citation")
+    } else if (b.kind === "interactiveRecommendation")
+      parts.push(
+        `[Interactive recommendation: ${b.sector} sector, ${b.year}. Adjust weights in the chat to refine.]`
+      );
+    else if (b.kind === "parcelMap")
+      parts.push(
+        `[Map of ${b.parcelIds.length} ${b.filterType === "all" ? "investable" : b.filterType} parcels — see chat for details]`
+      );
+    else if (b.kind === "citation")
       parts.push("Sources:\n" + b.sources.map((s, i) => `[${i + 1}] ${s.label}`).join("\n"));
   }
   return parts.join("\n\n");
@@ -675,7 +771,7 @@ export function messageToCopyText(blocks: AssistantBlock[]): string {
 
 export type CapabilityCard = {
   id: string;
-  icon: "trending_up" | "compare" | "trophy" | "document" | "snapshot" | "recommend";
+  icon: "trending_up" | "compare" | "trophy" | "document" | "snapshot" | "recommend" | "parcels";
   title: string;
   description: string;
   example: string;
@@ -683,18 +779,25 @@ export type CapabilityCard = {
 
 export const CAPABILITIES: readonly CapabilityCard[] = [
   {
+    id: "recommendation",
+    icon: "recommend",
+    title: "Where to invest",
+    description: "Tunable composite-score across NW counties for your sector.",
+    example: "Where should I invest in tech?",
+  },
+  {
+    id: "parcels",
+    icon: "parcels",
+    title: "Find a parcel",
+    description: "Map of investable industrial, tech, and logistics sites.",
+    example: "Where can I build a factory?",
+  },
+  {
     id: "snapshot",
     icon: "snapshot",
     title: "Location snapshot",
     description: "One-glance multi-indicator profile with map context.",
     example: "Tell me about Cluj-Napoca",
-  },
-  {
-    id: "recommendation",
-    icon: "recommend",
-    title: "Where to invest",
-    description: "Composite-score ranking across NW counties for your sector.",
-    example: "Where should I invest in tech?",
   },
   {
     id: "ranking",
@@ -716,13 +819,6 @@ export const CAPABILITIES: readonly CapabilityCard[] = [
     title: "Trend over time",
     description: "Multi-year evolution of any indicator for a location.",
     example: "Show me unemployment trends in Cluj county",
-  },
-  {
-    id: "dossier",
-    icon: "document",
-    title: "Open in Report Builder",
-    description: "Hand off the snapshot to a structured printable dossier.",
-    example: "Generate a Florești dossier",
   },
 ];
 

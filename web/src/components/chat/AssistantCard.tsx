@@ -15,6 +15,8 @@ import { RankingTableBlock } from "./blocks/RankingTableBlock";
 import { LineChartBlock } from "./blocks/LineChartBlock";
 import { MapBlock } from "./blocks/MapBlock";
 import { ScorecardBlock } from "./blocks/ScorecardBlock";
+import { InteractiveRecommendationBlock } from "./blocks/InteractiveRecommendationBlock";
+import { ParcelMapBlock } from "./blocks/ParcelMapBlock";
 
 type Props = {
   blocks: AssistantBlock[];
@@ -190,6 +192,22 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                       tiles={b.tiles}
                     />
                   );
+                case "interactiveRecommendation":
+                  return (
+                    <InteractiveRecommendationBlock
+                      key={i}
+                      initialSector={b.sector}
+                      year={b.year}
+                    />
+                  );
+                case "parcelMap":
+                  return (
+                    <ParcelMapBlock
+                      key={i}
+                      parcelIds={b.parcelIds}
+                      filterType={b.filterType}
+                    />
+                  );
                 case "citation":
                   return (
                     <div key={i} className="border-t border-border-subtle/60 pt-3">
@@ -197,9 +215,21 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                         Sources
                       </p>
                       <ol className="font-body-sm text-body-sm list-decimal space-y-0.5 pl-5 text-on-surface-variant">
-                        {b.sources.map((s) => (
-                          <li key={s.id}>{s.label}</li>
-                        ))}
+                        {b.sources.map((s) =>
+                          s.href ? (
+                            <li key={s.id}>
+                              <a
+                                href={s.href}
+                                className="text-primary-deep underline-offset-2 transition-colors hover:underline"
+                                title="Open this observation in the Data Browser"
+                              >
+                                {s.label}
+                              </a>
+                            </li>
+                          ) : (
+                            <li key={s.id}>{s.label}</li>
+                          )
+                        )}
                       </ol>
                     </div>
                   );

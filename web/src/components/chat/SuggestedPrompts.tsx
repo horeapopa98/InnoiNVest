@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ArrowLeftRight,
   Compass,
+  Factory,
   FileText,
   LayoutDashboard,
   Trophy,
@@ -22,6 +23,7 @@ const ICON_FOR: Record<CapabilityCard["icon"], React.ReactNode> = {
   document: <FileText size={16} />,
   snapshot: <LayoutDashboard size={16} />,
   recommend: <Compass size={16} />,
+  parcels: <Factory size={16} />,
 };
 
 export function SuggestedPrompts({ onPick }: Props) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Download, Rows3, LayoutGrid, FolderTree, X } from "lucide-react";
 import { TopNav } from "@/components/stitch/TopNav";
 import {
@@ -23,9 +24,54 @@ const VIEW_MODES: Array<{ id: ViewMode; label: string; icon: React.ReactNode }> 
 ];
 
 export default function DataPage() {
+  // Next requires useSearchParams to live inside a Suspense boundary;
+  // wrapping the body keeps the route's static-prerender pathway happy.
+  return (
+    <Suspense fallback={null}>
+      <DataPageInner />
+    </Suspense>
+  );
+}
+
+function DataPageInner() {
+  const searchParams = useSearchParams();
   const [filters, setFilters] = useState<DataFilters>(EMPTY_FILTERS);
   const [viewMode, setViewMode] = useState<ViewMode>("flat");
   const [active, setActive] = useState<Observation | null>(null);
+
+  // Citation deep-links from /chat: ?location=120&year=2024&search=...
+  // Apply on mount. Subsequent param changes are ignored — once the
+  // user starts using the filters, their state is the source of truth.
+  useEffect(() => {
+    if (!searchParams) return;
+    const next: DataFilters = { ...EMPTY_FILTERS };
+    const loc = searchParams.get("location");
+    const year = searchParams.get("year");
+    const search = searchParams.get("search");
+    const category = searchParams.get("category");
+    let dirty = false;
+    if (loc) {
+      next.locationCodes = [loc];
+      dirty = true;
+    }
+    if (year) {
+      const y = Number(year);
+      if (!Number.isNaN(y)) {
+        next.years = [y];
+        dirty = true;
+      }
+    }
+    if (search) {
+      next.search = search;
+      dirty = true;
+    }
+    if (category) {
+      next.categories = [category as DataFilters["categories"][number]];
+      dirty = true;
+    }
+    if (dirty) setFilters(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const rows = useMemo(() => {
     const needle = filters.search.toLowerCase();
