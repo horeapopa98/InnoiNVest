@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { X } from "lucide-react";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { getKpi, formatKpiValue } from "@/lib/mock/kpis";
@@ -12,6 +14,32 @@ type Props = {
 };
 
 export function DataRowDrawer({ observation, onClose }: Props) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousActiveElement = useRef<Element | null>(null);
+
+  // Focus management + Escape handler — only active while drawer is open
+  useEffect(() => {
+    if (!observation) return;
+
+    // Capture the element that had focus before the drawer opened
+    previousActiveElement.current = document.activeElement;
+
+    // Move focus into the drawer
+    closeButtonRef.current?.focus();
+
+    // Escape key closes the drawer
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      // Restore focus to the element that was active before the drawer opened
+      (previousActiveElement.current as HTMLElement | null)?.focus?.();
+    };
+  }, [observation, onClose]);
+
   if (!observation) return null;
   const kpi = getKpi(observation.kpiCode);
   const loc = getLocation(observation.locationSiruta);
@@ -30,6 +58,7 @@ export function DataRowDrawer({ observation, onClose }: Props) {
       <aside
         className="fixed inset-y-0 right-0 z-50 flex w-[32rem] max-w-full flex-col overflow-y-auto border-l border-border-subtle bg-surface p-6 shadow-xl"
         role="dialog"
+        aria-modal="true"
         aria-labelledby="drawer-title"
       >
         <header className="mb-6 flex items-start justify-between">
@@ -45,6 +74,7 @@ export function DataRowDrawer({ observation, onClose }: Props) {
             </p>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
@@ -81,12 +111,12 @@ export function DataRowDrawer({ observation, onClose }: Props) {
         </section>
 
         <footer className="mt-auto flex gap-2">
-          <a
+          <Link
             href={`/reports?prefillKpi=${kpi.code}&prefillLocation=${loc.sirutaCode}`}
             className="font-label-md text-label-md flex-1 rounded bg-primary px-3 py-2 text-center text-on-primary hover:bg-primary-deep"
           >
             Use in report
-          </a>
+          </Link>
         </footer>
       </aside>
     </>

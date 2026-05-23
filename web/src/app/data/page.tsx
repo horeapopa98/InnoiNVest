@@ -29,7 +29,7 @@ export default function DataPage() {
       const loc = getLocation(o.locationSiruta);
       if (!kpi || !loc) return false;
       if (
-        needle.length > 1 &&
+        needle.length >= 1 &&
         !kpi.nameEn.toLowerCase().includes(needle) &&
         !loc.name.toLowerCase().includes(needle) &&
         !loc.countyName.toLowerCase().includes(needle)

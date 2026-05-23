@@ -46,13 +46,8 @@ export function DataFiltersBar({ value, onChange, resultCount }: Props) {
       </label>
 
       <select
-        multiple
-        size={1}
-        value={value.locationCodes}
-        onChange={(e) => {
-          const codes = Array.from(e.target.selectedOptions).map((o) => o.value);
-          onChange({ ...value, locationCodes: codes });
-        }}
+        value={value.locationCodes[0] ?? ""}
+        onChange={(e) => onChange({ ...value, locationCodes: e.target.value ? [e.target.value] : [] })}
         className="font-body-sm rounded border border-border-subtle bg-surface px-2 py-2 text-sm focus:border-primary focus:outline-none"
         aria-label="Filter by location"
       >
@@ -65,13 +60,8 @@ export function DataFiltersBar({ value, onChange, resultCount }: Props) {
       </select>
 
       <select
-        multiple
-        size={1}
-        value={value.categories}
-        onChange={(e) => {
-          const cats = Array.from(e.target.selectedOptions).map((o) => o.value);
-          onChange({ ...value, categories: cats });
-        }}
+        value={value.categories[0] ?? ""}
+        onChange={(e) => onChange({ ...value, categories: e.target.value ? [e.target.value] : [] })}
         className="font-body-sm rounded border border-border-subtle bg-surface px-2 py-2 text-sm focus:border-primary focus:outline-none"
         aria-label="Filter by category"
       >
