@@ -15,6 +15,7 @@ const connectorRegistry = require('../repositories/connectors/registry');
 const { haversineKm, boundsFromCenter } = require('../utils/geo');
 const { geocodeCity } = require('../utils/geocoder');
 const populationService = require('./population.service');
+const universityService = require('./university.service');
 
 const DEFAULT_RADIUS_KM = 30;
 
@@ -259,6 +260,12 @@ function _connectivityScore(nearby) {
 
   if (nearby.border_crossings.some((b) => b.distance_km <= 30)) { score += 5; reasons.push('Border crossing within 30 km'); }
 
+  if (nearby.universities.some((u) => u.distance_km <= 30)) {
+    score += 10;
+    const closest = nearby.universities[0];
+    reasons.push(`University within ${closest.distance_km} km (${closest.name})`);
+  }
+
   if (nearby.properties.length >= 3) { score += 10; reasons.push(`${nearby.properties.length} other investment properties nearby`); }
 
   return { score: Math.min(score, 100), reasons };
@@ -348,13 +355,14 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
     target = { type: 'coordinates', coordinates: { lat, lng } };
   }
 
-  // 2. Fetch nearby INNO data (properties + all infra types)
-  const [nearbyProps, parks, airports, railStations, borderX] = await Promise.all([
+  // 2. Fetch nearby INNO data (properties + all infra types) + universities in parallel
+  const [nearbyProps, parks, airports, railStations, borderX, nearbyUniversities] = await Promise.all([
     inno.getNearbyProperties(lat, lng, radiusKm),
     inno.getInfrastructure('parks'),
     inno.getInfrastructure('airports'),
     inno.getInfrastructure('railway_stations'),
     inno.getInfrastructure('border_crossings'),
+    universityService.findNearby(lat, lng, radiusKm),
   ]);
 
   const addDistance = (features) =>
@@ -439,6 +447,7 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
     railway_stations: nearbyRailStations,
     border_crossings: nearbyBorderX,
     transport: nearbyTransport,
+    universities: nearbyUniversities,
   };
 
   // Transport summary
@@ -509,6 +518,18 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
       border_crossings: {
         count: nearbyBorderX.length,
         items: nearbyBorderX,
+      },
+      universities: {
+        count: nearbyUniversities.length,
+        items: nearbyUniversities.map((u) => ({
+          name: u.name,
+          city: u.city,
+          county_code: u.county_code,
+          type: u.type,
+          parent_university: u.parent_university,
+          website: u.website,
+          distance_km: u.distance_km,
+        })),
       },
     },
 
