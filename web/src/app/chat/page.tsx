@@ -10,11 +10,11 @@ import { readStorage, writeStorage } from "@/lib/persistence/storage";
 import { STORAGE_KEYS } from "@/lib/persistence/keys";
 import {
   followUpsFor,
-  respondTo,
   summarizeIntent,
   type Conversation,
   type Message,
 } from "@/lib/mock/chat";
+import { postChat, type GeminiContent } from "@/lib/api";
 
 function blankConversation(): Conversation {
   const now = Date.now();
@@ -24,22 +24,22 @@ function blankConversation(): Conversation {
     messages: [],
     createdAt: now,
     updatedAt: now,
+    geminiHistory: [],
   };
 }
 
-/** Time the assistant "thinks" before streaming begins (ms). */
-const THINKING_MS = 600;
-/** Total duration of the word-by-word stream (ms). */
-const STREAM_MS = 1400;
+/** Total duration of the word-by-word stream animation (ms). */
+const STREAM_MS = 1800;
 
 export default function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [pendingIntent, setPendingIntent] = useState<string | null>(null);
   const [streamingProgress, setStreamingProgress] = useState<number | null>(null);
-  /** Follow-up prompts per assistant message id (keyed so they survive reorders). */
   const [followUps, setFollowUps] = useState<Record<string, readonly string[]>>({});
+  const [error, setError] = useState<string | null>(null);
   const rafRef = useRef<number | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     const stored = readStorage<Conversation[]>(STORAGE_KEYS.chats, []);
@@ -53,17 +53,20 @@ export default function ChatPage() {
     }
   }, []);
 
-  // Tear down any in-flight animation on unmount.
   useEffect(() => {
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      abortRef.current?.abort();
     };
   }, []);
 
   const active = conversations.find((c) => c.id === activeId);
   const isBusy = pendingIntent !== null || streamingProgress !== null;
 
-  function persist(updater: (prev: Conversation[]) => Conversation[], nextActive: string | null) {
+  function persist(
+    updater: (prev: Conversation[]) => Conversation[],
+    nextActive: string | null
+  ) {
     setConversations((prev) => {
       const next = updater(prev);
       writeStorage(STORAGE_KEYS.chats, next);
@@ -79,25 +82,29 @@ export default function ChatPage() {
     if (isBusy) return;
     const fresh = blankConversation();
     persist((prev) => [fresh, ...prev], fresh.id);
+    setError(null);
   }
 
   function handleSelect(id: string) {
     if (isBusy) return;
     setActiveId(id);
     writeStorage(STORAGE_KEYS.activeChat, id);
+    setError(null);
   }
 
-  function handleSend(text: string) {
+  async function handleSend(text: string) {
     if (!active || isBusy) return;
+    setError(null);
 
-    // 1. Append the user message immediately.
+    // 1. Append user message immediately.
     const userMsg: Message = {
       id: `m-${crypto.randomUUID()}`,
       role: "user",
       text,
       timestamp: Date.now(),
     };
-    const updatedTitle = active.messages.length === 0 ? text.slice(0, 60) : active.title;
+    const updatedTitle =
+      active.messages.length === 0 ? text.slice(0, 60) : active.title;
     const withUser: Conversation = {
       ...active,
       title: updatedTitle,
@@ -106,42 +113,50 @@ export default function ChatPage() {
     };
     persist((prev) => prev.map((c) => (c.id === active.id ? withUser : c)), active.id);
 
-    // Conversation history BEFORE this user message — used for
-    // multi-turn referential resolution ("what about Maramureș?").
-    const historyForClassifier = active.messages;
+    // 2. Show the "thinking" indicator with classified intent label.
+    setPendingIntent(summarizeIntent(text, active.messages));
 
-    // 2. Show the smart "thinking" indicator with the classified intent.
-    setPendingIntent(summarizeIntent(text, historyForClassifier));
+    // 3. Call the real backend.
+    abortRef.current = new AbortController();
+    try {
+      const result = await postChat({
+        message: text,
+        history: (active.geminiHistory ?? []) as GeminiContent[],
+      });
 
-    // 3. After the "thinking" delay, append the assistant message and
-    //    animate its reveal word-by-word over STREAM_MS.
-    setTimeout(() => {
-      const blocks = respondTo(text, historyForClassifier);
       const assistantId = `m-${crypto.randomUUID()}`;
+      const blocks = [{ kind: "text" as const, text: result.response }];
+
       const assistantMsg: Message = {
         id: assistantId,
         role: "assistant",
         blocks,
         timestamp: Date.now(),
       };
-      // Pass blocks so ranking/recommendation follow-ups can reference the
-      // actual top location by name (otherwise the chip text is too vague
-      // for the intent classifier to route correctly). Pass history so
-      // referential follow-ups inherit context.
-      const follow = followUpsFor(text, blocks, historyForClassifier);
+
+      // Follow-up suggestions are still derived locally from the user text.
+      const follow = followUpsFor(text, blocks, active.messages);
       setFollowUps((prev) => ({ ...prev, [assistantId]: follow }));
+
+      // Save message + updated Gemini history to this conversation.
       persist(
         (prev) =>
           prev.map((c) =>
             c.id === active.id
-              ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
+              ? {
+                  ...c,
+                  messages: [...c.messages, assistantMsg],
+                  geminiHistory: result.history,
+                  updatedAt: Date.now(),
+                }
               : c
           ),
         active.id
       );
+
+      // 4. Animate the word-reveal.
       setPendingIntent(null);
       setStreamingProgress(0);
-
       const start = performance.now();
       const tick = (now: number) => {
         const elapsed = now - start;
@@ -155,10 +170,19 @@ export default function ChatPage() {
         }
       };
       rafRef.current = requestAnimationFrame(tick);
-    }, THINKING_MS);
+    } catch (err) {
+      // Don't show error for user-initiated aborts.
+      if (err instanceof Error && err.name === "AbortError") return;
+      setPendingIntent(null);
+      setStreamingProgress(null);
+      const msg =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(msg);
+    }
   }
 
   function handleStop() {
+    abortRef.current?.abort();
     if (rafRef.current !== null) {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
@@ -195,9 +219,10 @@ export default function ChatPage() {
                       What can I help you understand?
                     </h2>
                     <p className="font-body-md text-body-md mb-8 text-on-surface-variant">
-                      I have access to {/* keep simple — exact counts live on /data */}
-                      ~2,000 observations across NW Romania&apos;s 13 commune-, city-, and
-                      county-level locations. Ask in plain English.
+                      Ask about investment properties, infrastructure, or any
+                      location in North-West Romania — infrastructure projects,
+                      industrial parks, universities, transport connectivity,
+                      and more.
                     </p>
                     <SuggestedPrompts onPick={handleSend} />
                   </div>
@@ -211,6 +236,13 @@ export default function ChatPage() {
                   />
                 )}
               </div>
+
+              {error && (
+                <div className="mx-auto mb-2 w-full max-w-[880px] rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <strong>Error:</strong> {error}
+                </div>
+              )}
+
               <div className="py-4">
                 <MessageInput
                   disabled={isBusy}

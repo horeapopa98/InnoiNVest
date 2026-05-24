@@ -528,6 +528,8 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
           type: u.type,
           parent_university: u.parent_university,
           website: u.website,
+          lat: u.lat,
+          lng: u.lng,
           distance_km: u.distance_km,
         })),
       },

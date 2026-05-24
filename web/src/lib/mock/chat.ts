@@ -106,6 +106,12 @@ export type Conversation = {
   messages: Message[];
   createdAt: number;
   updatedAt: number;
+  /**
+   * Raw Gemini-format history returned by the backend after each turn.
+   * Sent back on subsequent requests to maintain multi-turn context.
+   * Opaque to the frontend — only the backend reads this.
+   */
+  geminiHistory?: unknown[];
 };
 
 // ---------------------------------------------------------------------
