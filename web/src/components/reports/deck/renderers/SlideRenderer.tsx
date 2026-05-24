@@ -3,6 +3,9 @@ import { SlideShell } from "@/components/reports/chrome/SlideShell";
 import type { Deck, Slide } from "@/lib/mock/decks";
 import { TextSlideRenderer } from "./TextSlideRenderer";
 import { ContactSlideRenderer } from "./ContactSlideRenderer";
+import { SectionDividerSlideRenderer } from "./SectionDividerSlideRenderer";
+import { StrategicLocationSlideRenderer } from "./StrategicLocationSlideRenderer";
+import { InfrastructureDividerSlideRenderer } from "./InfrastructureDividerSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -28,6 +31,12 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <TextSlideRenderer slide={slide} />;
       case "contact":
         return <ContactSlideRenderer slide={slide} />;
+      case "section_divider":
+        return <SectionDividerSlideRenderer slide={slide} />;
+      case "strategic_location":
+        return <StrategicLocationSlideRenderer slide={slide} />;
+      case "infrastructure_divider":
+        return <InfrastructureDividerSlideRenderer slide={slide} />;
       default:
         return (
           <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
