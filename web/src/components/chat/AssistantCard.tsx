@@ -11,7 +11,7 @@ import {
   type AssistantBlock,
 } from "@/lib/mock/chat";
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import { useActiveDeck } from "@/lib/decks/useActiveDeck";
 import { MetricCardBlock } from "./blocks/MetricCardBlock";
 import { RankingTableBlock } from "./blocks/RankingTableBlock";
 import { LineChartBlock } from "./blocks/LineChartBlock";
@@ -68,6 +68,11 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
   );
 
   const wordsToReveal = streaming ? Math.floor((progress ?? 1) * totalWords) : totalWords;
+
+  const { addSlideFromChat } = useActiveDeck();
+  function handleUseInReport() {
+    addSlideFromChat(blocks);
+  }
 
   async function handleCopy() {
     try {
@@ -269,12 +274,13 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                 {copied ? <Check size={12} /> : <Copy size={12} />}
                 {copied ? "Copied" : "Copy"}
               </button>
-              <Link
-                href="/reports"
+              <button
+                type="button"
+                onClick={handleUseInReport}
                 className="font-label-md text-label-md inline-flex items-center gap-1 rounded border border-border-subtle px-2 py-1 text-on-surface-variant transition-colors hover:border-primary hover:text-primary-deep"
               >
                 <FileText size={12} /> Use in report
-              </Link>
+              </button>
             </div>
           )}
         </div>
