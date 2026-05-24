@@ -5,8 +5,8 @@
  */
 
 export const STORAGE_KEYS = {
-  templates: "innoinvest:templates",
-  reports: "innoinvest:reports",
+  decks: "innoinvest:decks",
+  activeDeck: "innoinvest:active-deck",
   chats: "innoinvest:chats",
   activeChat: "innoinvest:active-chat",
   dataColumnOrder: "innoinvest:data-column-order",

@@ -373,12 +373,13 @@ function compareResponse(intent: Extract<Intent, { kind: "compare" }>): Assistan
     latest.length > 0
       ? `Latest year leader: ${latest[0].name} at ${latest[0].value.toLocaleString("en-US")} ${intent.kpi.unit}. ${latest.length > 1 ? `Trailing: ${latest[latest.length - 1].name} at ${latest[latest.length - 1].value.toLocaleString("en-US")}.` : ""}`
       : "";
-  return [
-    { kind: "text", text: `Comparing ${intent.kpi.nameEn} across ${names}.` },
-    { kind: "lineChart", kpiCode: intent.kpi.code, yearRange, series },
-    summary ? { kind: "text", text: summary } : { kind: "text", text: "" },
+  const blocks: AssistantBlock[] = [
+    { kind: "text" as const, text: `Comparing ${intent.kpi.nameEn} across ${names}.` },
+    { kind: "lineChart" as const, kpiCode: intent.kpi.code, yearRange, series },
+    ...(summary ? [{ kind: "text" as const, text: summary }] : []),
     citeSources([intent.kpi]),
-  ].filter((b) => !(b.kind === "text" && b.text === ""));
+  ];
+  return blocks.filter((b) => !(b.kind === "text" && b.text === ""));
 }
 
 function lookupResponse(intent: Extract<Intent, { kind: "lookup" }>): AssistantBlock[] {
