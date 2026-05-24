@@ -94,6 +94,20 @@ export type AssistantBlock =
       kind: "parcelMap";
       filterType: ParcelType | "all";
       parcelIds: string[];
+    }
+  /** Real-data location map from an investment report. */
+  | {
+      kind: "locationMap";
+      lat: number;
+      lng: number;
+      label: string;
+      radius_km: number;
+      markers: Array<{
+        lat: number;
+        lng: number;
+        name: string;
+        type: "park" | "airport" | "railway" | "university" | "border";
+      }>;
     };
 
 export type Message =
@@ -768,6 +782,8 @@ export function messageToCopyText(blocks: AssistantBlock[]): string {
       );
     else if (b.kind === "citation")
       parts.push("Sources:\n" + b.sources.map((s, i) => `[${i + 1}] ${s.label}`).join("\n"));
+    else if (b.kind === "locationMap")
+      parts.push(`[Map: ${b.label} — ${b.lat.toFixed(4)}, ${b.lng.toFixed(4)}]`);
   }
   return parts.join("\n\n");
 }

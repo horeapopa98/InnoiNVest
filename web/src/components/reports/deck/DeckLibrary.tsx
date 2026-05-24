@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -195,16 +194,11 @@ function SortableRow({
     transition,
     opacity: isDragging ? 0.6 : 1,
   };
-  const [showMenu, setShowMenu] = useState(false);
   return (
     <li
       ref={setNodeRef}
       style={style}
       className="group relative flex items-start gap-1"
-      onContextMenu={(e) => {
-        e.preventDefault();
-        setShowMenu(true);
-      }}
     >
       <button
         type="button"
@@ -218,33 +212,25 @@ function SortableRow({
       <div className="min-w-0 flex-1">
         <SlideThumbnail slide={slide} index={index} active={active} onSelect={onSelect} />
       </div>
-      {showMenu && (
-        <div
-          onMouseLeave={() => setShowMenu(false)}
-          className="absolute right-0 top-6 z-30 flex flex-col rounded border border-border-subtle bg-surface-container-lowest text-xs shadow-lg"
+      {/* Action buttons — visible on hover */}
+      <div className="absolute right-0 top-1 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={onDuplicate}
+          title="Duplicate slide"
+          className="rounded p-1 text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
         >
-          <button
-            type="button"
-            className="flex items-center gap-1.5 px-2 py-1.5 hover:bg-surface-container"
-            onClick={() => {
-              setShowMenu(false);
-              onDuplicate();
-            }}
-          >
-            <Copy size={12} /> Duplicate
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 px-2 py-1.5 text-error hover:bg-surface-container"
-            onClick={() => {
-              setShowMenu(false);
-              onDelete();
-            }}
-          >
-            <Trash2 size={12} /> Delete
-          </button>
-        </div>
-      )}
+          <Copy size={11} />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          title="Delete slide"
+          className="rounded p-1 text-on-surface-variant hover:bg-red-50 hover:text-red-600"
+        >
+          <Trash2 size={11} />
+        </button>
+      </div>
     </li>
   );
 }

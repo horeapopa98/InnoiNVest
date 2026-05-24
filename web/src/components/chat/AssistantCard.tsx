@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Check, Copy, FileText, Sparkles } from "lucide-react";
+import { stripMarkdown } from "@/lib/utils";
 import { Sparkline } from "@/components/charts/Sparkline";
 import { MiniBarChart } from "@/components/charts/MiniBarChart";
 import { getKpi } from "@/lib/mock/kpis";
@@ -31,6 +32,10 @@ const MapBlock = dynamic(
 );
 const ParcelMapBlock = dynamic(
   () => import("./blocks/ParcelMapBlock").then((m) => m.ParcelMapBlock),
+  { ssr: false, loading: MapLoadingFallback }
+);
+const LocationMapBlock = dynamic(
+  () => import("./blocks/LocationMapBlock").then((m) => m.LocationMapBlock),
   { ssr: false, loading: MapLoadingFallback }
 );
 
@@ -105,7 +110,7 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                 const blockStart = consumed;
                 consumed += wordsInBlock;
 
-                let displayed = "";
+                let raw = "";
                 let wordCount = 0;
                 for (const tok of tokens) {
                   const isWord = tok.trim().length > 0;
@@ -113,27 +118,34 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                     if (blockStart + wordCount >= wordsToReveal) break;
                     wordCount++;
                   }
-                  displayed += tok;
+                  raw += tok;
                 }
 
+                const displayed = stripMarkdown(raw);
                 const isCurrentBlock =
                   streaming &&
                   wordsToReveal > blockStart &&
                   wordsToReveal < blockStart + wordsInBlock;
 
                 return (
-                  <p
-                    key={i}
-                    className="font-body-md text-body-md whitespace-pre-line text-on-surface"
-                  >
-                    {displayed}
+                  <div key={i} className="space-y-2 text-sm leading-relaxed text-on-surface">
+                    {displayed.split(/\n\n+/).map((para, pi) => (
+                      <p key={pi}>
+                        {para.split("\n").map((line, li, arr) => (
+                          <span key={li}>
+                            {line}
+                            {li < arr.length - 1 && <br />}
+                          </span>
+                        ))}
+                      </p>
+                    ))}
                     {isCurrentBlock && (
                       <span
                         aria-hidden="true"
                         className="ml-0.5 inline-block h-4 w-[3px] animate-pulse bg-primary align-middle"
                       />
                     )}
-                  </p>
+                  </div>
                 );
               }
 
@@ -227,6 +239,17 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
                       key={i}
                       parcelIds={b.parcelIds}
                       filterType={b.filterType}
+                    />
+                  );
+                case "locationMap":
+                  return (
+                    <LocationMapBlock
+                      key={i}
+                      lat={b.lat}
+                      lng={b.lng}
+                      label={b.label}
+                      radius_km={b.radius_km}
+                      markers={b.markers}
                     />
                   );
                 case "citation":

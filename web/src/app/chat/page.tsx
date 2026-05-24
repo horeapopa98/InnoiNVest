@@ -92,6 +92,29 @@ export default function ChatPage() {
     setError(null);
   }
 
+  function handleDelete(id: string) {
+    if (isBusy) return;
+    setConversations((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      // If we deleted the active chat, switch to the first remaining one
+      // (or create a blank if none left).
+      if (id === activeId) {
+        if (next.length > 0) {
+          setActiveId(next[0].id);
+          writeStorage(STORAGE_KEYS.activeChat, next[0].id);
+        } else {
+          const fresh = blankConversation();
+          next.push(fresh);
+          setActiveId(fresh.id);
+          writeStorage(STORAGE_KEYS.activeChat, fresh.id);
+        }
+      }
+      writeStorage(STORAGE_KEYS.chats, next);
+      return next;
+    });
+    setError(null);
+  }
+
   async function handleSend(text: string) {
     if (!active || isBusy) return;
     setError(null);
@@ -125,7 +148,20 @@ export default function ChatPage() {
       });
 
       const assistantId = `m-${crypto.randomUUID()}`;
-      const blocks = [{ kind: "text" as const, text: result.response }];
+      const blocks: import("@/lib/mock/chat").AssistantBlock[] = [
+        { kind: "text", text: result.response },
+      ];
+      // Append a live map block when the backend resolved a location.
+      if (result.map_data) {
+        blocks.push({
+          kind: "locationMap",
+          lat: result.map_data.lat,
+          lng: result.map_data.lng,
+          label: result.map_data.label,
+          radius_km: result.map_data.radius_km,
+          markers: result.map_data.markers,
+        });
+      }
 
       const assistantMsg: Message = {
         id: assistantId,
@@ -201,6 +237,7 @@ export default function ChatPage() {
             activeId={activeId}
             onSelect={handleSelect}
             onNew={handleNew}
+            onDelete={handleDelete}
           />
         </aside>
 
