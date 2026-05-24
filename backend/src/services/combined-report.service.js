@@ -14,6 +14,7 @@
 const connectorRegistry = require('../repositories/connectors/registry');
 const { haversineKm, boundsFromCenter } = require('../utils/geo');
 const { geocodeCity } = require('../utils/geocoder');
+const populationService = require('./population.service');
 
 const DEFAULT_RADIUS_KM = 30;
 
@@ -161,6 +162,72 @@ async function _resolveByName(inno, name, county, landType) {
   }
 
   return null;
+}
+
+async function _reverseGeocode(lat, lng) {
+  try {
+    const params = new URLSearchParams({ lat, lon: lng, format: 'json', addressdetails: 1 });
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
+      headers: { 'User-Agent': 'InnoiNVest/1.0', 'Accept-Language': 'ro,en' },
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data.address || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Derive the best place name + county from the resolved target
+ * and look it up in the population table.
+ */
+async function _lookupPopulation(target, locationQuery) {
+  let placeName = null;
+  let countyHint = null;
+
+  if (target) {
+    switch (target.type) {
+      case 'location':
+        // Geocoded place — use the original query (e.g. "comuna Moldovenești")
+        placeName = locationQuery || target.queried_place;
+        break;
+      case 'listing':
+        // Strip trailing number suffixes ("Alesd 2" → "Alesd")
+        placeName = (target.city || target.county?.name || '').replace(/\s+\d+$/, '').trim();
+        countyHint = target.county?.name;
+        break;
+      case 'property':
+        // UAT is the administrative unit — best match
+        placeName = target.uat || target.name;
+        // UAT names often look like "ALEȘD" — strip county code prefix if present
+        if (placeName) placeName = placeName.replace(/^[A-Z]{2}_/, '');
+        countyHint = target.county;
+        break;
+      case 'park': {
+        // Parks don't have a city — reverse-geocode the coordinates
+        const parkCoords = target.coordinates;
+        if (parkCoords) {
+          const reverseResult = await _reverseGeocode(parkCoords.lat, parkCoords.lng);
+          if (reverseResult) {
+            placeName = reverseResult.city || reverseResult.town || reverseResult.village;
+            countyHint = reverseResult.county;
+          }
+        }
+        break;
+      }
+      default:
+        return null;
+    }
+  }
+
+  if (!placeName) return null;
+
+  try {
+    return await populationService.findByName(placeName, countyHint);
+  } catch {
+    return null;
+  }
 }
 
 function _connectivityScore(nearby) {
@@ -401,11 +468,16 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
 
   const connectivity = _connectivityScore(nearby);
 
+  // Population lookup — derive place name + county from target
+  const locationPopulation = await _lookupPopulation(target, location);
+
   return {
     report_type: 'combined_investment_location',
     target,
     center: { lat, lng },
     radius_km: radiusKm,
+
+    location_population: locationPopulation,
 
     connectivity_score: connectivity,
 
