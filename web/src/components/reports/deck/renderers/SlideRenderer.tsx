@@ -1,5 +1,8 @@
+import type * as React from "react";
 import { SlideShell } from "@/components/reports/chrome/SlideShell";
 import type { Deck, Slide } from "@/lib/mock/decks";
+import { TextSlideRenderer } from "./TextSlideRenderer";
+import { ContactSlideRenderer } from "./ContactSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -19,6 +22,24 @@ type Props = {
  * a clear placeholder so the editor scaffolding can be exercised early.
  */
 export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: Props) {
+  function renderBody(): React.ReactNode {
+    switch (slide.kind) {
+      case "text":
+        return <TextSlideRenderer slide={slide} />;
+      case "contact":
+        return <ContactSlideRenderer slide={slide} />;
+      default:
+        return (
+          <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
+            <div className="text-center">
+              <p className="text-xs uppercase tracking-wider">{slide.kind}</p>
+              <p className="text-sm">Renderer pending</p>
+            </div>
+          </div>
+        );
+    }
+  }
+
   return (
     <SlideShell
       locationSiruta={deck.locationSiruta}
@@ -26,12 +47,7 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
       total={total}
       bare={slide.kind === "cover"}
     >
-      <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
-        <div className="text-center">
-          <p className="text-xs uppercase tracking-wider">{slide.kind}</p>
-          <p className="text-sm">Renderer pending</p>
-        </div>
-      </div>
+      {renderBody()}
     </SlideShell>
   );
 }
