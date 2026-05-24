@@ -1,0 +1,51 @@
+/* Print rules for /reports/[reportId] read-only deck view.
+   Imported globally only inside that route via `import "./deck-print.css"`.
+   No selectors should fire on screen — every rule is wrapped in @media print. */
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  /* Hide everything outside the deck root, including TopNav and toolbars. */
+  body > *:not(.deck-print-root) {
+    display: none !important;
+  }
+
+  .deck-print-root {
+    background: #fff;
+  }
+
+  .deck-print-root > .deck-slide {
+    page-break-after: always;
+    break-after: page;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+  }
+
+  .deck-print-root > .deck-slide:last-child {
+    page-break-after: auto;
+  }
+
+  /* Kill Leaflet zoom controls and transitions during print. */
+  .leaflet-control-container,
+  .leaflet-bar {
+    display: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

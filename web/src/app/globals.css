@@ -1,0 +1,323 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* Point Tailwind's built-in font-sans / font-heading utilities at DM Sans
+     so `font-sans` (applied to <html> via @layer base) and any utility
+     consumer get the same family. Custom `--font-body-md` / `--font-headline-*`
+     tokens below cover the Stitch class-name aliases. */
+  --font-sans: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* =========================================================================
+   InnoiNVest design system — aligned with inno.ro brand
+   Brand teal #45afaa (inno.ro hero color, 68 uses in their style.min.css).
+   Signature red accent #de0b24. Surfaces are subtly cool-tinted toward the
+   brand hue for whole-product cohesion (per frontend-design guidance:
+   "tint your neutrals toward your brand hue").
+
+   Class names like bg-surface, text-on-surface, font-headline-md, p-gutter
+   work directly — the M3 token structure from the Stitch port is preserved.
+   ========================================================================= */
+@theme {
+  /* --- Surface layers (cool-tinted neutrals for brand cohesion) --- */
+  --color-surface: #f8fafa;
+  --color-surface-dim: #d8dcdc;
+  --color-surface-bright: #ffffff;
+  --color-surface-variant: #e2e7e7;
+  --color-surface-muted: #f7f8ff; /* inno.ro alt background — cool cream */
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f6f6;
+  --color-surface-container: #edf1f1;
+  --color-surface-container-high: #e6ebeb;
+  --color-surface-container-highest: #dfe4e4;
+  --color-inverse-surface: #2b3433;
+  --color-inverse-on-surface: #eef3f3;
+
+  /* --- On-surface foreground --- */
+  --color-on-surface: #1a2322;
+  --color-on-surface-variant: #3d4947;
+  --color-on-background: #1a2322;
+
+  /* --- Primary (inno.ro brand teal) --- */
+  --color-primary-container: #1ea79b;       /* slightly stronger teal for emphasis */
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #06342f;
+  --color-primary-fixed: #7fd9d3;
+  --color-primary-fixed-dim: #5dcec7;
+  --color-on-primary-fixed: #00201d;
+  --color-on-primary-fixed-variant: #125959; /* inno.ro dark teal */
+  --color-inverse-primary: #5dcec7;
+  --color-surface-tint: #45afaa;
+  --color-primary-deep: #125959;             /* inno.ro dark teal, for hover/active */
+
+  /* --- Secondary (slate-blue) --- */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d1e1f6;
+  --color-on-secondary-container: #546475;
+  --color-secondary-fixed: #d3e4f8;
+  --color-secondary-fixed-dim: #b8c8dc;
+  --color-on-secondary-fixed: #0c1d2b;
+  --color-on-secondary-fixed-variant: #384858;
+
+  /* --- Tertiary --- */
+  --color-tertiary: #516161;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #869796;
+  --color-on-tertiary-container: #1f2f2f;
+  --color-tertiary-fixed: #d4e6e5;
+  --color-tertiary-fixed-dim: #b8cac9;
+  --color-on-tertiary-fixed: #0e1e1e;
+  --color-on-tertiary-fixed-variant: #3a4a49;
+
+  /* --- Error (inno.ro signature red #de0b24) --- */
+  --color-error: #de0b24;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #6b0010;
+
+  /* --- Lines & borders --- */
+  --color-outline: #6c7a78;
+  --color-outline-variant: #bcc9c7;
+  --color-border-subtle: #e3e8e8;
+
+  /* --- Data viz / status --- */
+  --color-data-indigo: #3f51b5;
+  --color-data-amber: #d97706;
+  --color-status-loading: #d8dcdc;
+
+  /* --- Stitch named spacing scale --- */
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 48px;
+  --spacing-container-max: 1280px;
+  --spacing-section-gap: 64px;
+
+  /* --- Font families — DM Sans for everything. The granular aliases are
+         kept so Stitch class names (font-headline-md, font-body-md, etc.)
+         keep working without touching every component. --- */
+  --font-display-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-sm: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg-mobile: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-sm: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-label-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Font sizes (with default line-height, weight, tracking) --- */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--font-weight: 700;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--font-weight: 600;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-sm: 20px;
+  --text-headline-sm--line-height: 28px;
+  --text-headline-sm--font-weight: 600;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 36px;
+  --text-headline-lg-mobile--font-weight: 600;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+
+  --text-label-md: 12px;
+  --text-label-md--line-height: 16px;
+  --text-label-md--font-weight: 600;
+  --text-label-md--letter-spacing: 0.05em;
+
+  /* --- Deck palette (Investor Pitch — scoped to /reports renderers) --- */
+  --color-deck-deep: #157777;
+  --color-deck-bright: #1ea29a;
+  --color-deck-accent: #f5a623;
+  --color-deck-paper: #fafbfb;
+  --color-deck-ink: #1a2322;
+  --color-deck-muted: #6b7271;
+}
+
+:root {
+  /* InnoiNVest light theme — shadcn token bridge mapped to inno.ro brand */
+  --background: #f8fafa;
+  --foreground: #1a2322;
+  --card: #ffffff;
+  --card-foreground: #1a2322;
+  --popover: #ffffff;
+  --popover-foreground: #1a2322;
+  --primary: #45afaa;
+  --primary-foreground: #ffffff;
+  --secondary: #506071;
+  --secondary-foreground: #ffffff;
+  --muted: #f7f8ff;
+  --muted-foreground: #3d4947;
+  --accent: #edf1f1;
+  --accent-foreground: #125959;
+  --destructive: #de0b24;
+  --border: #e3e8e8;
+  --input: #e3e8e8;
+  --ring: #45afaa;
+  --chart-1: #45afaa;
+  --chart-2: #3f51b5;
+  --chart-3: #de0b24;
+  --chart-4: #125959;
+  --chart-5: #5dcec7;
+  --radius: 0.5rem;
+  --sidebar: #f8fafa;
+  --sidebar-foreground: #1a2322;
+  --sidebar-primary: #45afaa;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #edf1f1;
+  --sidebar-accent-foreground: #125959;
+  --sidebar-border: #e3e8e8;
+  --sidebar-ring: #45afaa;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+
+}
+
+/* A4-aspect document preview used by /report-preview (screen 3 of the
+   Stitch port). Mirrors the .a4-page rule from the source HTML so the
+   browser preview reads like a real document and prints cleanly. */
+.a4-page {
+  aspect-ratio: 1 / 1.414;
+  width: 100%;
+  max-width: 800px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .a4-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+}
+
+/* =========================================================================
+   Deck builder utilities — scoped to slide renderers under /reports.
+   ========================================================================= */
+.deck-underline::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 2px;
+  background: var(--color-deck-accent);
+  margin-top: 8px;
+}
+
+.deck-eyebrow {
+  font-family: var(--font-body-md);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-deck-bright);
+}
