@@ -258,7 +258,7 @@ export function AssistantCard({ blocks, progress, followUps, onPickFollowUp }: P
           </div>
 
           {done && (
-            <div className="mt-3 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="mt-3 flex gap-1.5 border-t border-border-subtle/60 pt-3">
               <button
                 type="button"
                 onClick={handleCopy}
