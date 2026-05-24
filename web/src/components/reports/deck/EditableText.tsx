@@ -57,19 +57,22 @@ export function EditableText({
   }
 
   // dynamic Tag binding — createElement avoids ref-type erasure issue with JSX
-  return createElement(as, {
-    ref,
-    contentEditable: !readOnly,
-    suppressContentEditableWarning: true,
-    onFocus: () => setFocused(true),
-    onBlur: handleBlur,
-    onKeyDown: handleKey,
-    className:
-      (readOnly
-        ? ""
-        : "outline-none focus:rounded-sm focus:ring-2 focus:ring-[var(--color-deck-bright)] hover:underline hover:decoration-dashed hover:underline-offset-4 ") +
-      className,
-    "data-placeholder": placeholder,
-    children: value,
-  });
+  return createElement(
+    as,
+    {
+      ref,
+      contentEditable: !readOnly,
+      suppressContentEditableWarning: true,
+      onFocus: () => setFocused(true),
+      onBlur: handleBlur,
+      onKeyDown: handleKey,
+      className:
+        (readOnly
+          ? ""
+          : "outline-none focus:rounded-sm focus:ring-2 focus:ring-[var(--color-deck-bright)] hover:underline hover:decoration-dashed hover:underline-offset-4 ") +
+        className,
+      "data-placeholder": placeholder,
+    },
+    value,
+  );
 }
