@@ -14,6 +14,7 @@ import { StatInfographicSlideRenderer } from "./StatInfographicSlideRenderer";
 import { TrendSlideRenderer } from "./TrendSlideRenderer";
 import { ComparisonSlideRenderer } from "./ComparisonSlideRenderer";
 import { RecommendationSlideRenderer } from "./RecommendationSlideRenderer";
+import { ParcelDetailSlideRenderer } from "./ParcelDetailSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -61,6 +62,8 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <ComparisonSlideRenderer slide={slide} />;
       case "recommendation":
         return <RecommendationSlideRenderer slide={slide} />;
+      case "parcel_detail":
+        return <ParcelDetailSlideRenderer slide={slide} />;
       default:
         return (
           <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
