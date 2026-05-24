@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  /* Point Tailwind's built-in font-sans / font-heading utilities at DM Sans
+     so `font-sans` (applied to <html> via @layer base) and any utility
+     consumer get the same family. Custom `--font-body-md` / `--font-headline-*`
+     tokens below cover the Stitch class-name aliases. */
+  --font-sans: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -133,16 +137,18 @@
   --spacing-container-max: 1280px;
   --spacing-section-gap: 64px;
 
-  /* --- Font families (granular aliases so Stitch class names just work) --- */
-  --font-display-lg: var(--font-raleway), "Raleway", ui-sans-serif, system-ui, sans-serif;
-  --font-headline-lg: var(--font-raleway), "Raleway", ui-sans-serif, system-ui, sans-serif;
-  --font-headline-md: var(--font-raleway), "Raleway", ui-sans-serif, system-ui, sans-serif;
-  --font-headline-sm: var(--font-raleway), "Raleway", ui-sans-serif, system-ui, sans-serif;
-  --font-headline-lg-mobile: var(--font-raleway), "Raleway", ui-sans-serif, system-ui, sans-serif;
-  --font-body-lg: var(--font-open-sans), "Open Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body-md: var(--font-open-sans), "Open Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-body-sm: var(--font-open-sans), "Open Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-label-md: var(--font-open-sans), "Open Sans", ui-sans-serif, system-ui, sans-serif;
+  /* --- Font families — DM Sans for everything. The granular aliases are
+         kept so Stitch class names (font-headline-md, font-body-md, etc.)
+         keep working without touching every component. --- */
+  --font-display-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-sm: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg-mobile: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-lg: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body-sm: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-label-md: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
 
   /* --- Font sizes (with default line-height, weight, tracking) --- */
   --text-display-lg: 48px;

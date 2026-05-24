@@ -1,18 +1,15 @@
 import type { Metadata } from "next";
-import { Open_Sans, Raleway } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
+// One typeface for body + display. DM Sans pairs a humanist body weight
+// (400/500) with sturdy display weights (600/700) so it carries both the
+// data-dense KPI tiles and the pitch-deck hero headlines without needing a
+// second family.
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["400", "600"],
-  display: "swap",
-});
-
-const raleway = Raleway({
-  variable: "--font-raleway",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -36,10 +33,14 @@ export default function RootLayout({
     //
     // suppressHydrationWarning silences any further extension-induced
     // attribute mutations on <html> / <body> (data-grammarly, etc.).
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`light ${dmSans.variable}`}
+      suppressHydrationWarning
+    >
       <body
         suppressHydrationWarning
-        className={`${openSans.variable} ${raleway.variable} font-body-md text-on-surface antialiased`}
+        className="font-body-md text-on-surface antialiased"
       >
         {children}
       </body>
