@@ -156,6 +156,26 @@ export type ContactSlide = BaseSlide & {
   ctaText: string;
 };
 
+export type InvestmentMapMarker = {
+  lat: number;
+  lng: number;
+  name: string;
+  type: "park" | "airport" | "railway" | "university" | "border";
+};
+
+export type InvestmentMapSlide = BaseSlide & {
+  kind: "investment_map";
+  title: string;
+  paragraphs: string[];
+  mapData: {
+    lat: number;
+    lng: number;
+    label: string;
+    radius_km: number;
+    markers: InvestmentMapMarker[];
+  };
+};
+
 export type Slide =
   | CoverSlide
   | SectionDividerSlide
@@ -171,7 +191,8 @@ export type Slide =
   | ComparisonSlide
   | RecommendationSlide
   | TextSlide
-  | ContactSlide;
+  | ContactSlide
+  | InvestmentMapSlide;
 
 export type SlideKind = Slide["kind"];
 
@@ -191,6 +212,7 @@ export const SLIDE_KIND_LABELS: Record<SlideKind, string> = {
   recommendation: "Recommendation",
   text: "Text",
   contact: "Contact",
+  investment_map: "Investment Map",
 };
 
 export const SLIDE_PALETTE_GROUPS: ReadonlyArray<{
@@ -460,6 +482,22 @@ export function makeTextSlide(opts: { year: number; title?: string }): TextSlide
     dataYear: opts.year,
     title: opts.title ?? "Section",
     paragraphs: ["Add narrative content here."],
+  };
+}
+
+export function makeInvestmentMapSlide(opts: {
+  year: number;
+  title?: string;
+  paragraphs?: string[];
+  mapData: InvestmentMapSlide["mapData"];
+}): InvestmentMapSlide {
+  return {
+    id: nextSlideId("investment_map"),
+    kind: "investment_map",
+    dataYear: opts.year,
+    title: opts.title ?? "Investment Location",
+    paragraphs: opts.paragraphs ?? [],
+    mapData: opts.mapData,
   };
 }
 

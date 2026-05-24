@@ -35,6 +35,7 @@ type Props = {
 
 const DEFAULT_ITEMS: TopNavItem[] = [
   { label: "Workspace", href: "/sectors" },
+  { label: "Properties", href: "/properties" },
   { label: "Reports", href: "/reports" },
   { label: "Data", href: "/data" },
   { label: "Chat", href: "/chat" },

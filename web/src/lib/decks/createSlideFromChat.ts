@@ -1,5 +1,6 @@
 import type { AssistantBlock } from "@/lib/mock/chat";
 import { getLocation } from "@/lib/mock/locations";
+import { stripMarkdown } from "@/lib/utils";
 import {
   makeCitySnapshot,
   makeCountySnapshot,
@@ -10,6 +11,7 @@ import {
   makeParcelDetail,
   makeRecommendation,
   makeTextSlide,
+  makeInvestmentMapSlide,
   type Slide,
 } from "@/lib/mock/decks";
 
@@ -28,6 +30,28 @@ export function slideFromAssistantBlocks(blocks: AssistantBlock[], ctx: Ctx): Sl
   const reco = blocks.find((b) => b.kind === "interactiveRecommendation");
   if (reco && reco.kind === "interactiveRecommendation") {
     return makeRecommendation({ year, sector: reco.sector });
+  }
+
+  // Investment map: when the chat generated a location map, create a slide that
+  // embeds the interactive map alongside the text summary.
+  const locationMap = blocks.find((b) => b.kind === "locationMap");
+  if (locationMap && locationMap.kind === "locationMap") {
+    const textBlock = blocks.find((b) => b.kind === "text" && b.text.trim().length > 0);
+    const paragraphs = textBlock && textBlock.kind === "text"
+      ? stripMarkdown(textBlock.text).split(/\n\n+/).map((p) => p.trim()).filter(Boolean)
+      : [];
+    return makeInvestmentMapSlide({
+      year,
+      title: locationMap.label ?? "Investment Location",
+      paragraphs,
+      mapData: {
+        lat: locationMap.lat,
+        lng: locationMap.lng,
+        label: locationMap.label,
+        radius_km: locationMap.radius_km ?? 30,
+        markers: (locationMap.markers ?? []) as import("@/lib/mock/decks").InvestmentMapMarker[],
+      },
+    });
   }
 
   const parcelMap = blocks.find((b) => b.kind === "parcelMap");
@@ -76,7 +100,8 @@ export function slideFromAssistantBlocks(blocks: AssistantBlock[], ctx: Ctx): Sl
 
   const text = blocks.find((b) => b.kind === "text" && b.text.trim().length > 0);
   if (text && text.kind === "text") {
-    return { ...makeTextSlide({ year }), paragraphs: text.text.split(/\n\n+/) };
+    const clean = stripMarkdown(text.text);
+    return { ...makeTextSlide({ year }), paragraphs: clean.split(/\n\n+/).map((p) => p.trim()).filter(Boolean) };
   }
 
   return makeTextSlide({ year });

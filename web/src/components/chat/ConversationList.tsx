@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { type Conversation } from "@/lib/mock/chat";
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onDelete: (id: string) => void;
 };
 
 function bucketLabel(updatedAt: number, now: number): string {
@@ -18,7 +19,7 @@ function bucketLabel(updatedAt: number, now: number): string {
   return "Older";
 }
 
-export function ConversationList({ conversations, activeId, onSelect, onNew }: Props) {
+export function ConversationList({ conversations, activeId, onSelect, onNew, onDelete }: Props) {
   const now = Date.now();
   const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
   const buckets = sorted.reduce<Record<string, Conversation[]>>((acc, c) => {
@@ -46,18 +47,30 @@ export function ConversationList({ conversations, activeId, onSelect, onNew }: P
             </h3>
             <ul className="space-y-1">
               {items.map((c) => (
-                <li key={c.id}>
+                <li key={c.id} className="group relative flex items-center">
                   <button
                     type="button"
                     onClick={() => onSelect(c.id)}
                     aria-current={c.id === activeId ? "true" : undefined}
                     className={
-                      c.id === activeId
-                        ? "font-body-sm text-body-sm w-full truncate rounded bg-primary/10 px-3 py-2 text-left font-semibold text-primary-deep"
-                        : "font-body-sm text-body-sm w-full truncate rounded px-3 py-2 text-left text-on-surface transition-colors hover:bg-surface-muted"
+                      "font-body-sm text-body-sm min-w-0 flex-1 truncate rounded py-2 pl-3 pr-8 text-left transition-colors " +
+                      (c.id === activeId
+                        ? "bg-primary/10 font-semibold text-primary-deep"
+                        : "text-on-surface hover:bg-surface-muted")
                     }
                   >
                     {c.title}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(c.id);
+                    }}
+                    title="Delete conversation"
+                    className="absolute right-1 rounded p-1 text-on-surface-variant opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+                  >
+                    <Trash2 size={13} />
                   </button>
                 </li>
               ))}

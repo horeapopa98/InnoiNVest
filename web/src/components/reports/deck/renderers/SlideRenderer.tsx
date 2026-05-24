@@ -16,6 +16,7 @@ import { ComparisonSlideRenderer } from "./ComparisonSlideRenderer";
 import { RecommendationSlideRenderer } from "./RecommendationSlideRenderer";
 import { ParcelDetailSlideRenderer } from "./ParcelDetailSlideRenderer";
 import { InfrastructurePageSlideRenderer } from "./InfrastructurePageSlideRenderer";
+import { InvestmentMapSlideRenderer } from "./InvestmentMapSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -67,6 +68,8 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <ParcelDetailSlideRenderer slide={slide} />;
       case "infrastructure_page":
         return <InfrastructurePageSlideRenderer slide={slide} />;
+      case "investment_map":
+        return <InvestmentMapSlideRenderer slide={slide} />;
     }
   }
 
