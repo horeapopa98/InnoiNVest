@@ -1,6 +1,6 @@
 "use client";
 
-import { defaultSlideForKind, SLIDE_KIND_LABELS, type Deck, type Slide } from "@/lib/mock/decks";
+import { SLIDE_KIND_LABELS, type Deck, type Slide } from "@/lib/mock/decks";
 import { KpiPicker } from "./KpiPicker";
 import { ParcelPicker } from "./ParcelPicker";
 import { PhotoPicker } from "./PhotoPicker";
@@ -39,7 +39,7 @@ export function EditPanel({ deck, slide, onChange, onResetToDefaults }: Props) {
   );
 }
 
-function Body({ deck, slide, onChange }: { deck: Deck; slide: Slide; onChange: (p: Partial<Slide>) => void }) {
+function Body({ slide, onChange }: { deck: Deck; slide: Slide; onChange: (p: Partial<Slide>) => void }) {
   switch (slide.kind) {
     case "cover":
       return (
