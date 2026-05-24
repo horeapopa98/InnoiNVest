@@ -7,13 +7,16 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "mcp": "node src/mcp/server.js",
-    "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); })\""
+    "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => { console.log('Schema updated.'); process.exit(0); }).catch((e) => { console.error(e); process.exit(1); })\"",
+    "seed:population": "node src/seeders/population.seeder.js",
+    "seed:population:force": "node src/seeders/population.seeder.js --force"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "node-html-parser": "^7.1.0",
     "pg": "^8.21.0",

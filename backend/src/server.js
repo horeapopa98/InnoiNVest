@@ -11,7 +11,9 @@ async function startServer() {
     console.log('Database connection established.');
 
     if (process.env.DB_SYNC === 'true') {
-      await db.sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+      // sync() without alter — creates tables that don't exist, never ALTERs existing ones.
+      // Use `npm run db:sync` explicitly when you need to apply schema changes.
+      await db.sequelize.sync();
       console.log('Database schema synced from models.');
     }
 
