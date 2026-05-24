@@ -10,6 +10,10 @@ import { CoverSlideRenderer } from "./CoverSlideRenderer";
 import { CountySnapshotSlideRenderer } from "./CountySnapshotSlideRenderer";
 import { CitySnapshotSlideRenderer } from "./CitySnapshotSlideRenderer";
 import { CommuneDetailSlideRenderer } from "./CommuneDetailSlideRenderer";
+import { StatInfographicSlideRenderer } from "./StatInfographicSlideRenderer";
+import { TrendSlideRenderer } from "./TrendSlideRenderer";
+import { ComparisonSlideRenderer } from "./ComparisonSlideRenderer";
+import { RecommendationSlideRenderer } from "./RecommendationSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -49,6 +53,14 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <CitySnapshotSlideRenderer slide={slide} />;
       case "commune_detail":
         return <CommuneDetailSlideRenderer slide={slide} />;
+      case "stat_infographic":
+        return <StatInfographicSlideRenderer slide={slide} />;
+      case "trend":
+        return <TrendSlideRenderer slide={slide} />;
+      case "comparison":
+        return <ComparisonSlideRenderer slide={slide} />;
+      case "recommendation":
+        return <RecommendationSlideRenderer slide={slide} />;
       default:
         return (
           <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
