@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "innoinvest-backend": {
+      "command": "node",
+      "args": ["${workspaceFolder}/backend/src/mcp/server.js"],
+      "env": {
+        "DATABASE_URL": "${env:DATABASE_URL}"
+      }
+    }
+  }
+}
