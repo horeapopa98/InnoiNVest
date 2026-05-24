@@ -6,6 +6,7 @@ import { ContactSlideRenderer } from "./ContactSlideRenderer";
 import { SectionDividerSlideRenderer } from "./SectionDividerSlideRenderer";
 import { StrategicLocationSlideRenderer } from "./StrategicLocationSlideRenderer";
 import { InfrastructureDividerSlideRenderer } from "./InfrastructureDividerSlideRenderer";
+import { CoverSlideRenderer } from "./CoverSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -27,6 +28,8 @@ type Props = {
 export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: Props) {
   function renderBody(): React.ReactNode {
     switch (slide.kind) {
+      case "cover":
+        return <CoverSlideRenderer slide={slide} />;
       case "text":
         return <TextSlideRenderer slide={slide} />;
       case "contact":
