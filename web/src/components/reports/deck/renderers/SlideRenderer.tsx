@@ -7,6 +7,7 @@ import { SectionDividerSlideRenderer } from "./SectionDividerSlideRenderer";
 import { StrategicLocationSlideRenderer } from "./StrategicLocationSlideRenderer";
 import { InfrastructureDividerSlideRenderer } from "./InfrastructureDividerSlideRenderer";
 import { CoverSlideRenderer } from "./CoverSlideRenderer";
+import { CountySnapshotSlideRenderer } from "./CountySnapshotSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -40,6 +41,8 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <StrategicLocationSlideRenderer slide={slide} />;
       case "infrastructure_divider":
         return <InfrastructureDividerSlideRenderer slide={slide} />;
+      case "county_snapshot":
+        return <CountySnapshotSlideRenderer slide={slide} />;
       default:
         return (
           <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
