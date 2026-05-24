@@ -568,6 +568,12 @@ export function defaultSlideForKind(kind: SlideKind, ctx: { year: number; locati
   }
 }
 
+/** Resolve a PhotoId to a public URL. Returns null for `null` PhotoId. */
+export function photoUrl(id: PhotoId): string | null {
+  if (id === null) return null;
+  return `/deck-photos/${id}.svg`;
+}
+
 /** Stable label for a slide in the sidebar outline. */
 export function slideOutlineLabel(slide: Slide): string {
   switch (slide.kind) {
