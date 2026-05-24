@@ -9,7 +9,9 @@
     "mcp": "node src/mcp/server.js",
     "db:sync": "DB_SYNC=true node -e \"require('dotenv').config(); require('./src/models').sequelize.sync({ alter: true }).then(() => { console.log('Schema updated.'); process.exit(0); }).catch((e) => { console.error(e); process.exit(1); })\"",
     "seed:population": "node src/seeders/population.seeder.js",
-    "seed:population:force": "node src/seeders/population.seeder.js --force"
+    "seed:population:force": "node src/seeders/population.seeder.js --force",
+    "seed:universities": "node src/seeders/university.seeder.js",
+    "seed:universities:force": "node src/seeders/university.seeder.js --force"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
