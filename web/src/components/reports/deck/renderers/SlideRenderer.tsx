@@ -15,6 +15,7 @@ import { TrendSlideRenderer } from "./TrendSlideRenderer";
 import { ComparisonSlideRenderer } from "./ComparisonSlideRenderer";
 import { RecommendationSlideRenderer } from "./RecommendationSlideRenderer";
 import { ParcelDetailSlideRenderer } from "./ParcelDetailSlideRenderer";
+import { InfrastructurePageSlideRenderer } from "./InfrastructurePageSlideRenderer";
 
 type Props = {
   slide: Slide;
@@ -64,15 +65,8 @@ export function SlideRenderer({ slide, page, total, deck, readOnly, onChange }: 
         return <RecommendationSlideRenderer slide={slide} />;
       case "parcel_detail":
         return <ParcelDetailSlideRenderer slide={slide} />;
-      default:
-        return (
-          <div className="grid h-full place-items-center text-[var(--color-deck-muted)]">
-            <div className="text-center">
-              <p className="text-xs uppercase tracking-wider">{slide.kind}</p>
-              <p className="text-sm">Renderer pending</p>
-            </div>
-          </div>
-        );
+      case "infrastructure_page":
+        return <InfrastructurePageSlideRenderer slide={slide} />;
     }
   }
 
