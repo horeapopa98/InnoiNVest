@@ -31,7 +31,7 @@ Existing routes (`/sectors`, `/sectors/macro`, `/report-preview`) remain untouch
 
 ### 2.2 TopNav update
 
-`DEFAULT_ITEMS` in `web/src/components/stitch/TopNav.tsx` grows from 3 to 4 items:
+`DEFAULT_ITEMS` in `frontend/src/components/stitch/TopNav.tsx` grows from 3 to 4 items:
 
 ```ts
 [
@@ -46,7 +46,7 @@ The existing `usePathname()`-based active-state logic handles routing without fu
 
 ### 2.3 Shared mock data layer
 
-A new `web/src/lib/mock/` directory holds all sample data:
+A new `frontend/src/lib/mock/` directory holds all sample data:
 
 - **`kpis.ts`** — ~20 KPI definitions modeled after `config/kpis.yaml`. Each entry: `{ code, name_en, name_ro, unit, category, source, formatter }`. Categories: Demographics, Macro-Economy, Labor Market, Real Estate, Infrastructure, Education, Risks.
 - **`locations.ts`** — 12 SIRUTA locations:
@@ -396,7 +396,7 @@ The following are explicitly NOT in this scope and will land in follow-up phases
 ## 7. Component layout (new files)
 
 ```
-web/src/
+frontend/src/
 ├── app/
 │   ├── reports/
 │   │   ├── page.tsx                 # Report Builder (the 3-column workspace)

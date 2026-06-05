@@ -16,6 +16,9 @@ const { haversineKm, boundsFromCenter } = require('../utils/geo');
 const { geocodeCity } = require('../utils/geocoder');
 const populationService = require('./population.service');
 const universityService = require('./university.service');
+const reportRepository = require('../repositories/report.repository');
+const cache = require('../lib/cache');
+const { TTL } = require('../constants/cache');
 
 const DEFAULT_RADIUS_KM = 30;
 
@@ -50,6 +53,16 @@ function _buildPropertyTarget(p) {
     land_book_number: p.land_book_number || null,
     coordinates: p.coordinates,
   };
+}
+
+/**
+ * Stable identifier for the resolved target, used as the persistence key
+ * (one report row per property) and the Redis cache key.
+ */
+function _propertyKey(target, lat, lng) {
+  const id = target?.id || target?.nearest_inno_property?.id;
+  if (id) return String(id);
+  return `coords:${lat.toFixed(4)},${lng.toFixed(4)}`;
 }
 
 /**
@@ -166,17 +179,21 @@ async function _resolveByName(inno, name, county, landType) {
 }
 
 async function _reverseGeocode(lat, lng) {
-  try {
-    const params = new URLSearchParams({ lat, lon: lng, format: 'json', addressdetails: 1 });
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
-      headers: { 'User-Agent': 'InnoiNVest/1.0', 'Accept-Language': 'ro,en' },
-    });
-    if (!r.ok) return null;
-    const data = await r.json();
-    return data.address || null;
-  } catch {
-    return null;
-  }
+  // Round to ~100m so nearby pins share a cache entry and Nominatim is hit less.
+  const key = `revgeocode:${lat.toFixed(3)},${lng.toFixed(3)}`;
+  return cache.getOrSet(key, TTL.GEOCODE, async () => {
+    try {
+      const params = new URLSearchParams({ lat, lon: lng, format: 'json', addressdetails: 1 });
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
+        headers: { 'User-Agent': 'InnoiNVest/1.0', 'Accept-Language': 'ro,en' },
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      return data.address || null;
+    } catch {
+      return null;
+    }
+  });
 }
 
 /**
@@ -355,6 +372,13 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
     target = { type: 'coordinates', coordinates: { lat, lng } };
   }
 
+  // 1b. Fast path — return the cached assembled report for this property if we
+  //     have one. Target resolution above is cheap (cached datasources).
+  const propertyKey = _propertyKey(target, lat, lng);
+  const reportCacheKey = `report:v1:${propertyKey}:r${radiusKm}`;
+  const cachedReport = await cache.get(reportCacheKey);
+  if (cachedReport) return cachedReport;
+
   // 2. Fetch nearby INNO data (properties + all infra types) + universities in parallel
   const [nearbyProps, parks, airports, railStations, borderX, nearbyUniversities] = await Promise.all([
     inno.getNearbyProperties(lat, lng, radiusKm),
@@ -480,7 +504,7 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
   // Population lookup — derive place name + county from target
   const locationPopulation = await _lookupPopulation(target, location);
 
-  return {
+  const report = {
     report_type: 'combined_investment_location',
     target,
     center: { lat, lng },
@@ -542,6 +566,25 @@ async function generateLocationReport({ id, location, name, lat, lng, radiusKm =
 
     generated_at: new Date().toISOString(),
   };
+
+  // Persist one canonical row per property (best-effort: a DB hiccup must not
+  // break report delivery — the assembled report is still valid).
+  try {
+    await reportRepository.upsertByPropertyId({
+      propertyId: propertyKey,
+      topic: report.report_type,
+      sourceId: 'investment-report',
+      parameters: { id, location, name, lat, lng, radiusKm, county, landType },
+      data: report,
+    });
+  } catch (err) {
+    console.warn(`Failed to persist report for ${propertyKey}:`, err.message);
+  }
+
+  // Cache the assembled report for fast repeat reads.
+  await cache.set(reportCacheKey, report, TTL.REPORT);
+
+  return report;
 }
 
 module.exports = { generateLocationReport };

@@ -1,4 +1,6 @@
 const AppError = require('../errors/AppError');
+const cache = require('../lib/cache');
+const { TTL } = require('../constants/cache');
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 
@@ -12,6 +14,14 @@ const ZOOM_BY_TYPE = {
 };
 
 async function geocodeCity(cityName) {
+  return cache.getOrSet(
+    `geocode:${cityName.trim().toLowerCase()}`,
+    TTL.GEOCODE,
+    () => _geocodeCityLive(cityName)
+  );
+}
+
+async function _geocodeCityLive(cityName) {
   const params = new URLSearchParams({
     q: cityName,
     format: 'json',

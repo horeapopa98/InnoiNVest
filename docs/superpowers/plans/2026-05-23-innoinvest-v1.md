@@ -4,7 +4,7 @@
 
 **Goal:** Build the NW-Romania regional data source-of-truth: type a commune name → see ~5 KPIs grouped by the 15 brief categories, with click-to-copy + CSV/Word export, backed by Postgres pre-ingested from Eurostat + INS Tempo.
 
-**Architecture:** Single Python backend package (`src/innoinvest/`) exposes a FastAPI HTTP layer and an ingestion runner (CLI). Postgres holds the source-of-truth tables. Next.js frontend in `web/` consumes the API. `docker-compose up` runs the whole demo.
+**Architecture:** Single Python backend package (`src/innoinvest/`) exposes a FastAPI HTTP layer and an ingestion runner (CLI). Postgres holds the source-of-truth tables. Next.js frontend in `frontend/` consumes the API. `docker-compose up` runs the whole demo.
 
 **Tech Stack:** Postgres 16, Python 3.11 (FastAPI, SQLAlchemy 2.x, pydantic-settings, requests, pyjstat, lxml, typer, pyyaml, apscheduler, python-docx), Node 20 (Next.js 15 App Router, Tailwind, shadcn/ui, TanStack Table). Tests: pytest, responses (HTTP mocking).
 
@@ -65,7 +65,7 @@
 │   └── kpis.yaml                               # declarative KPI catalog
 ├── data/
 │   └── siruta_nw_romania.csv                   # checked-in seed of ~400 SIRUTA codes
-└── web/
+└── frontend/
     ├── package.json
     ├── next.config.js
     ├── tailwind.config.ts
@@ -258,7 +258,7 @@ git commit -m "chore: bootstrap python project + postgres docker compose"
 ### Task 0.2: Initialize Next.js project
 
 **Files:**
-- Create: `web/` (entire Next.js scaffold)
+- Create: `frontend/` (entire Next.js scaffold)
 
 - [ ] **Step 1: Generate the Next.js project with `src/` layout**
 
@@ -275,7 +275,7 @@ npx --yes create-next-app@15 web \
   --no-turbopack
 ```
 
-This creates `web/src/app/` (App Router) with the `@/*` import alias pointing at `web/src/*` — exactly the layout the rest of the plan assumes.
+This creates `frontend/src/app/` (App Router) with the `@/*` import alias pointing at `frontend/src/*` — exactly the layout the rest of the plan assumes.
 
 - [ ] **Step 2: Install additional UI dependencies**
 
@@ -315,7 +315,7 @@ Expected: `200`.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/
+git add frontend/
 git commit -m "chore: scaffold nextjs frontend with tailwind, shadcn, tanstack table"
 ```
 
@@ -2460,15 +2460,15 @@ git commit -m "feat(cli): typer entry points for seed, ingest, serve"
 ### Task 7.1: API client + landing page with location picker
 
 **Files:**
-- Create: `web/src/lib/api.ts`
-- Create: `web/src/lib/format.ts`
-- Create: `web/src/components/LocationPicker.tsx`
-- Modify: `web/src/app/page.tsx`
-- Create: `web/.env.local`
+- Create: `frontend/src/lib/api.ts`
+- Create: `frontend/src/lib/format.ts`
+- Create: `frontend/src/components/LocationPicker.tsx`
+- Modify: `frontend/src/app/page.tsx`
+- Create: `frontend/.env.local`
 
 - [ ] **Step 1: Add the API base URL env var**
 
-Create `web/.env.local`:
+Create `frontend/.env.local`:
 
 ```
 NEXT_PUBLIC_API_BASE=http://localhost:8000
@@ -2476,7 +2476,7 @@ NEXT_PUBLIC_API_BASE=http://localhost:8000
 
 - [ ] **Step 2: Implement the API client**
 
-Create `web/src/lib/api.ts`:
+Create `frontend/src/lib/api.ts`:
 
 ```typescript
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
@@ -2552,7 +2552,7 @@ export async function getFlatReport(siruta: string): Promise<FlatReport> {
 
 - [ ] **Step 3: Implement number formatting helpers**
 
-Create `web/src/lib/format.ts`:
+Create `frontend/src/lib/format.ts`:
 
 ```typescript
 export function formatValue(raw: string | null, unit: string): string {
@@ -2587,7 +2587,7 @@ export function freshnessLabel(fetchedAtIso: string | null): "fresh" | "ok" | "s
 
 - [ ] **Step 4: Implement the LocationPicker component**
 
-Create `web/src/components/LocationPicker.tsx`:
+Create `frontend/src/components/LocationPicker.tsx`:
 
 ```tsx
 "use client";
@@ -2642,7 +2642,7 @@ export function LocationPicker() {
 
 - [ ] **Step 5: Replace the default landing page**
 
-Overwrite `web/src/app/page.tsx`:
+Overwrite `frontend/src/app/page.tsx`:
 
 ```tsx
 import { LocationPicker } from "@/components/LocationPicker";
@@ -2684,7 +2684,7 @@ kill %1 %2
 - [ ] **Step 7: Commit**
 
 ```bash
-git add web/.env.local web/src/lib/ web/src/components/LocationPicker.tsx web/src/app/page.tsx
+git add frontend/.env.local frontend/src/lib/ frontend/src/components/LocationPicker.tsx frontend/src/app/page.tsx
 git commit -m "feat(web): location picker + api client + format helpers"
 ```
 
@@ -2693,16 +2693,16 @@ git commit -m "feat(web): location picker + api client + format helpers"
 ### Task 7.2: Report page — 15-category view + flat table
 
 **Files:**
-- Create: `web/src/components/KpiRow.tsx`
-- Create: `web/src/components/CategorySection.tsx`
-- Create: `web/src/components/FlatTable.tsx`
-- Create: `web/src/components/ReportView.tsx`
-- Create: `web/src/components/ExportButtons.tsx`
-- Create: `web/src/app/report/[siruta]/page.tsx`
+- Create: `frontend/src/components/KpiRow.tsx`
+- Create: `frontend/src/components/CategorySection.tsx`
+- Create: `frontend/src/components/FlatTable.tsx`
+- Create: `frontend/src/components/ReportView.tsx`
+- Create: `frontend/src/components/ExportButtons.tsx`
+- Create: `frontend/src/app/report/[siruta]/page.tsx`
 
 - [ ] **Step 1: KpiRow with click-to-copy + freshness badge**
 
-Create `web/src/components/KpiRow.tsx`:
+Create `frontend/src/components/KpiRow.tsx`:
 
 ```tsx
 "use client";
@@ -2750,7 +2750,7 @@ export function KpiRow({ kpi }: { kpi: KpiDto }) {
 
 - [ ] **Step 2: CategorySection**
 
-Create `web/src/components/CategorySection.tsx`:
+Create `frontend/src/components/CategorySection.tsx`:
 
 ```tsx
 import { KpiRow } from "./KpiRow";
@@ -2770,7 +2770,7 @@ export function CategorySection({ category, kpis }: { category: string; kpis: Kp
 
 - [ ] **Step 3: FlatTable with TanStack Table**
 
-Create `web/src/components/FlatTable.tsx`:
+Create `frontend/src/components/FlatTable.tsx`:
 
 ```tsx
 "use client";
@@ -2862,7 +2862,7 @@ export function FlatTable({ rows }: { rows: FlatRow[] }) {
 
 - [ ] **Step 4: ExportButtons (CSV + Word) — calls the API export endpoints**
 
-Create `web/src/components/ExportButtons.tsx`:
+Create `frontend/src/components/ExportButtons.tsx`:
 
 ```tsx
 "use client";
@@ -2892,7 +2892,7 @@ export function ExportButtons({ siruta }: { siruta: string }) {
 
 - [ ] **Step 5: ReportView with Tabs**
 
-Create `web/src/components/ReportView.tsx`:
+Create `frontend/src/components/ReportView.tsx`:
 
 ```tsx
 "use client";
@@ -2937,7 +2937,7 @@ export function ReportView({ grouped, flat }: { grouped: GroupedReport; flat: Fl
 
 - [ ] **Step 6: Report page (server component → fetches both formats in parallel)**
 
-Create `web/src/app/report/[siruta]/page.tsx`:
+Create `frontend/src/app/report/[siruta]/page.tsx`:
 
 ```tsx
 import { notFound } from "next/navigation";
@@ -2981,7 +2981,7 @@ Kill: `kill %1 %2`.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add web/src/components/ web/src/app/report/
+git add frontend/src/components/ frontend/src/app/report/
 git commit -m "feat(web): report view with 15-category + flat tabs, copy-with-citation"
 ```
 
@@ -3258,7 +3258,7 @@ git commit -m "feat(api,export): CSV + Word export endpoints with provenance pre
 **Files:**
 - Modify: `docker-compose.yml`
 - Create: `Dockerfile.api`
-- Create: `web/Dockerfile`
+- Create: `frontend/Dockerfile`
 - Create: `README.md`
 
 - [ ] **Step 1: Backend Dockerfile**
@@ -3278,12 +3278,12 @@ CMD ["uvicorn", "innoinvest.api.main:app", "--host", "0.0.0.0", "--port", "8000"
 
 - [ ] **Step 2: Frontend Dockerfile**
 
-Create `web/Dockerfile`:
+Create `frontend/Dockerfile`:
 
 ```dockerfile
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY web/package.json web/package-lock.json* ./
+COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 
 FROM node:20-alpine AS build
@@ -3345,7 +3345,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: web/Dockerfile
+      dockerfile: frontend/Dockerfile
     depends_on: [api]
     ports:
       - "3000:3000"
@@ -3384,7 +3384,7 @@ Try typing **Floresti** in the picker.
 - `src/innoinvest/export/` — CSV + Word writers
 - `config/kpis.yaml` — declarative KPI catalog (add KPIs without code changes)
 - `data/siruta_nw_romania.csv` — seeded SIRUTA codes
-- `web/` — Next.js frontend
+- `frontend/` — Next.js frontend
 
 ## Dev setup
 
@@ -3426,7 +3426,7 @@ Expected: the `seed` container shows `inserted N locations` and `ingest complete
 - [ ] **Step 6: Commit**
 
 ```bash
-git add Dockerfile.api web/Dockerfile docker-compose.yml README.md
+git add Dockerfile.api frontend/Dockerfile docker-compose.yml README.md
 git commit -m "chore: one-command demo via docker compose + readme"
 ```
 

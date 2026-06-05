@@ -78,7 +78,7 @@ Each kind has a discriminated `kind: "cover" | "section_divider" | …` field. T
 ### 2.4 File structure
 
 ```
-web/src/
+frontend/src/
 ├── app/reports/
 │   ├── page.tsx                              # MODIFY: rewritten as 3-column deck editor
 │   └── [reportId]/page.tsx                   # MODIFY: read-only deck render w/ print
@@ -256,7 +256,7 @@ Three-column workspace at desktop, simplified collapse on smaller widths.
 The chat's **Use in report** button on every `AssistantCard` becomes a real handler:
 
 ```ts
-// web/src/lib/decks/createSlideFromChat.ts
+// frontend/src/lib/decks/createSlideFromChat.ts
 export function slideFromAssistantBlocks(
   blocks: AssistantBlock[],
   ctx: { activeDeckLocation: string | null; activeDeckYear: number }
@@ -291,13 +291,13 @@ Each slide carries `dataYear: number`. The deck's year pill drives the **default
 
 ### 5.3 Persistence migration
 
-On first mount, `web/src/lib/decks/deckMigration.ts` runs:
+On first mount, `frontend/src/lib/decks/deckMigration.ts` runs:
 
 1. If `innoinvest:decks` exists → no-op.
 2. Otherwise, clear `innoinvest:templates` + `innoinvest:reports` + `innoinvest:active-deck` (the schemas are incompatible — no need to preserve old user data, the demo restarts cleanly).
 3. Seed `innoinvest:decks` with the Investor Pitch — Florești deck and set it as active.
 
-`STORAGE_KEYS` in `web/src/lib/persistence/keys.ts` gains `decks: "innoinvest:decks"` and `activeDeck: "innoinvest:active-deck"`; `templates` and `reports` constants are removed.
+`STORAGE_KEYS` in `frontend/src/lib/persistence/keys.ts` gains `decks: "innoinvest:decks"` and `activeDeck: "innoinvest:active-deck"`; `templates` and `reports` constants are removed.
 
 ## 6. Visual style
 
@@ -332,7 +332,7 @@ The existing brand tokens (`--color-primary` etc.) stay untouched. The deck uses
 
 ### 6.4 Photos
 
-`public/deck-photos/` carries 6 stock photos sourced from a free-commercial-use library (Unsplash with appropriate attribution in a `web/public/deck-photos/CREDITS.md`):
+`public/deck-photos/` carries 6 stock photos sourced from a free-commercial-use library (Unsplash with appropriate attribution in a `frontend/public/deck-photos/CREDITS.md`):
 
 - `industrial-park-1.jpg` — generic industrial park, used as default for parcel_detail / strategic_location
 - `urban-cluj.jpg` — Cluj-Napoca skyline
@@ -345,7 +345,7 @@ Each ~150-300 KB JPEG, served statically.
 
 ## 7. Print / PDF export
 
-Browser print-to-PDF via `window.print()`. Print CSS lives in `web/src/components/reports/chrome/deck-print.css`, applied globally when the page is in print mode.
+Browser print-to-PDF via `window.print()`. Print CSS lives in `frontend/src/components/reports/chrome/deck-print.css`, applied globally when the page is in print mode.
 
 `@media print` rules:
 

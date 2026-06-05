@@ -1,4 +1,6 @@
 const { parse } = require('node-html-parser');
+const cache = require('../../lib/cache');
+const { TTL } = require('../../constants/cache');
 
 const SOURCE_URL = 'https://inno.ro/investeste-in-nv/proprietati-imobiliare';
 const CACHE_TTL_MS = 60 * 60 * 1000;
@@ -26,13 +28,17 @@ async function _arcgisQuery(layerUrl, { where = '1=1', outFields = '*', limit = 
     resultRecordCount: String(limit),
     outSR: String(outSR),
   });
-  const r = await fetch(`${layerUrl}/query?${params}`, {
-    headers: { 'User-Agent': 'InnoiNVest/1.0 (investment research tool)' },
+  const queryUrl = `${layerUrl}/query?${params}`;
+
+  return cache.getOrSet(`arcgis:${queryUrl}`, TTL.ARCGIS, async () => {
+    const r = await fetch(queryUrl, {
+      headers: { 'User-Agent': 'InnoiNVest/1.0 (investment research tool)' },
+    });
+    if (!r.ok) throw new Error(`ArcGIS query failed: ${r.status}`);
+    const data = await r.json();
+    if (data.error) throw new Error(`ArcGIS error: ${data.error.message}`);
+    return data.features || [];
   });
-  if (!r.ok) throw new Error(`ArcGIS query failed: ${r.status}`);
-  const data = await r.json();
-  if (data.error) throw new Error(`ArcGIS error: ${data.error.message}`);
-  return data.features || [];
 }
 
 const COUNTY_MAP = {
@@ -176,19 +182,26 @@ class InnoConnector {
   }
 
   async _loadListings(force = false) {
+    // L1: in-process cache (fastest, avoids re-parsing within a process).
     const stale = Date.now() - this._loadedAt > CACHE_TTL_MS;
     if (!force && this._cache && !stale) return this._cache;
 
-    const response = await fetch(SOURCE_URL, {
-      headers: { 'User-Agent': 'InnoiNVest/1.0 (investment research tool)' },
+    // L2: shared Redis cache of the already-parsed listings (survives restarts,
+    // shared across instances, avoids the network fetch + HTML parse).
+    const listings = await cache.getOrSet('inno:listings', TTL.INNO_LISTINGS, async () => {
+      const response = await fetch(SOURCE_URL, {
+        headers: { 'User-Agent': 'InnoiNVest/1.0 (investment research tool)' },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch INNO listings: ${response.status}`);
+      }
+
+      const html = await response.text();
+      return this._parseListings(html);
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch INNO listings: ${response.status}`);
-    }
-
-    const html = await response.text();
-    this._cache = this._parseListings(html);
+    this._cache = listings;
     this._loadedAt = Date.now();
     return this._cache;
   }
