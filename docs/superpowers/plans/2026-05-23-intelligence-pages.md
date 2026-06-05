@@ -4,7 +4,7 @@
 
 **Goal:** Ship `/reports` (Report Builder with template library + regenerate-with-diff), `/data` (filterable long-format observations table), and `/chat` (mocked agent thread with ChatGPT-style history) as high-fidelity static UI in the InnoiNVest web frontend.
 
-**Architecture:** All data flows through `web/src/lib/mock/*` so a follow-up phase can replace those modules with real API clients without touching component code. State persists via `localStorage` with an `innoinvest:` key prefix. `@dnd-kit` handles all drag and reorder. Charts are inline SVG components (no chart library). Routes are Next.js App Router server components except where DOM interaction forces `"use client"` (drag, chat input, filters, time-travel).
+**Architecture:** All data flows through `frontend/src/lib/mock/*` so a follow-up phase can replace those modules with real API clients without touching component code. State persists via `localStorage` with an `innoinvest:` key prefix. `@dnd-kit` handles all drag and reorder. Charts are inline SVG components (no chart library). Routes are Next.js App Router server components except where DOM interaction forces `"use client"` (drag, chat input, filters, time-travel).
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript, Tailwind v4, `@dnd-kit/core` + `@dnd-kit/sortable` (new), `lucide-react` (already installed). No new test framework added — frontend has no existing test setup; verification is via `npm run build` + visual screenshots against the running dev server, matching how prior phases were validated.
 
@@ -15,7 +15,7 @@
 ## File structure
 
 ```
-web/
+frontend/
 ├── package.json                      # MODIFY: add @dnd-kit packages
 └── src/
     ├── app/
@@ -73,9 +73,9 @@ Total: 28 new files, 2 modified.
 ### Task 1: Install `@dnd-kit` packages
 
 **Files:**
-- Modify: `web/package.json`
+- Modify: `frontend/package.json`
 
-- [ ] **Step 1: Run install (from `web/`)**
+- [ ] **Step 1: Run install (from `frontend/`)**
 
 ```bash
 cd web && npm install @dnd-kit/core@^6 @dnd-kit/sortable@^8 @dnd-kit/utilities@^3
@@ -85,7 +85,7 @@ Expected output: `added 3 packages` (or "up to date" if you re-run).
 
 - [ ] **Step 2: Verify the additions in `package.json`**
 
-`web/package.json` `dependencies` block should now include:
+`frontend/package.json` `dependencies` block should now include:
 
 ```json
 "@dnd-kit/core": "^6.x.x",
@@ -104,7 +104,7 @@ Expected: existing routes still build, no new errors.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add web/package.json web/package-lock.json
+git add frontend/package.json frontend/package-lock.json
 git commit -m "build(web): add @dnd-kit for drag-and-drop in intelligence pages"
 ```
 
@@ -115,11 +115,11 @@ git commit -m "build(web): add @dnd-kit for drag-and-drop in intelligence pages"
 This lets us land the nav update without 404s. Bodies will be filled in subsequent tasks.
 
 **Files:**
-- Create: `web/src/app/reports/page.tsx`
-- Create: `web/src/app/data/page.tsx`
-- Create: `web/src/app/chat/page.tsx`
+- Create: `frontend/src/app/reports/page.tsx`
+- Create: `frontend/src/app/data/page.tsx`
+- Create: `frontend/src/app/chat/page.tsx`
 
-- [ ] **Step 1: Create `web/src/app/reports/page.tsx`**
+- [ ] **Step 1: Create `frontend/src/app/reports/page.tsx`**
 
 ```tsx
 import { TopNav } from "@/components/stitch/TopNav";
@@ -139,7 +139,7 @@ export default function ReportsPage() {
 }
 ```
 
-- [ ] **Step 2: Create `web/src/app/data/page.tsx`**
+- [ ] **Step 2: Create `frontend/src/app/data/page.tsx`**
 
 ```tsx
 import { TopNav } from "@/components/stitch/TopNav";
@@ -159,7 +159,7 @@ export default function DataPage() {
 }
 ```
 
-- [ ] **Step 3: Create `web/src/app/chat/page.tsx`**
+- [ ] **Step 3: Create `frontend/src/app/chat/page.tsx`**
 
 ```tsx
 import { TopNav } from "@/components/stitch/TopNav";
@@ -190,7 +190,7 @@ Expected: 3 new routes in the route table, all static (`○`).
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/app/reports web/src/app/data web/src/app/chat
+git add frontend/src/app/reports frontend/src/app/data frontend/src/app/chat
 git commit -m "feat(web): scaffold /reports, /data, /chat routes"
 ```
 
@@ -199,7 +199,7 @@ git commit -m "feat(web): scaffold /reports, /data, /chat routes"
 ### Task 3: Update TopNav to include the 3 new routes
 
 **Files:**
-- Modify: `web/src/components/stitch/TopNav.tsx` (the `DEFAULT_ITEMS` constant)
+- Modify: `frontend/src/components/stitch/TopNav.tsx` (the `DEFAULT_ITEMS` constant)
 
 - [ ] **Step 1: Replace the `DEFAULT_ITEMS` const**
 
@@ -235,7 +235,7 @@ Visit `http://localhost:3000/sectors` (or whichever port is auto-assigned). Clic
 - [ ] **Step 3: Stop dev server, commit**
 
 ```bash
-git add web/src/components/stitch/TopNav.tsx
+git add frontend/src/components/stitch/TopNav.tsx
 git commit -m "feat(web): expand TopNav to Workspace / Reports / Data / Chat"
 ```
 
@@ -248,9 +248,9 @@ This wave produces the data foundation that all 3 pages depend on. No UI changes
 ### Task 4: KPI catalog
 
 **Files:**
-- Create: `web/src/lib/mock/kpis.ts`
+- Create: `frontend/src/lib/mock/kpis.ts`
 
-- [ ] **Step 1: Create `web/src/lib/mock/kpis.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/mock/kpis.ts`**
 
 ```ts
 /**
@@ -365,7 +365,7 @@ Expected: build passes; no new routes added so no route-table change.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/mock/kpis.ts
+git add frontend/src/lib/mock/kpis.ts
 git commit -m "feat(web): KPI catalog mock (~20 indicators, 7 categories)"
 ```
 
@@ -374,9 +374,9 @@ git commit -m "feat(web): KPI catalog mock (~20 indicators, 7 categories)"
 ### Task 5: Locations
 
 **Files:**
-- Create: `web/src/lib/mock/locations.ts`
+- Create: `frontend/src/lib/mock/locations.ts`
 
-- [ ] **Step 1: Create `web/src/lib/mock/locations.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/mock/locations.ts`**
 
 ```ts
 /**
@@ -447,7 +447,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/mock/locations.ts
+git add frontend/src/lib/mock/locations.ts
 git commit -m "feat(web): mock SIRUTA locations (6 counties + 6 cities + Florești)"
 ```
 
@@ -458,9 +458,9 @@ git commit -m "feat(web): mock SIRUTA locations (6 counties + 6 cities + Floreș
 This is the most important mock module — it generates the time series that every other page reads from. Determinism matters (same value every reload).
 
 **Files:**
-- Create: `web/src/lib/mock/observations.ts`
+- Create: `frontend/src/lib/mock/observations.ts`
 
-- [ ] **Step 1: Create `web/src/lib/mock/observations.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/mock/observations.ts`**
 
 ```ts
 /**
@@ -625,7 +625,7 @@ Expected: build passes (no compile errors).
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/mock/observations.ts
+git add frontend/src/lib/mock/observations.ts
 git commit -m "feat(web): deterministic observations PRNG (10y × 13 loc × 20 kpi)"
 ```
 
@@ -634,10 +634,10 @@ git commit -m "feat(web): deterministic observations PRNG (10y × 13 loc × 20 k
 ### Task 7: Persistence helpers
 
 **Files:**
-- Create: `web/src/lib/persistence/keys.ts`
-- Create: `web/src/lib/persistence/storage.ts`
+- Create: `frontend/src/lib/persistence/keys.ts`
+- Create: `frontend/src/lib/persistence/storage.ts`
 
-- [ ] **Step 1: Create `web/src/lib/persistence/keys.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/persistence/keys.ts`**
 
 ```ts
 /**
@@ -658,7 +658,7 @@ export const STORAGE_KEYS = {
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 ```
 
-- [ ] **Step 2: Create `web/src/lib/persistence/storage.ts`**
+- [ ] **Step 2: Create `frontend/src/lib/persistence/storage.ts`**
 
 ```ts
 /**
@@ -705,7 +705,7 @@ cd web && npm run build
 - [ ] **Step 4: Commit**
 
 ```bash
-git add web/src/lib/persistence
+git add frontend/src/lib/persistence
 git commit -m "feat(web): typed localStorage wrapper with namespaced keys"
 ```
 
@@ -714,9 +714,9 @@ git commit -m "feat(web): typed localStorage wrapper with namespaced keys"
 ### Task 8: System clock (time-travel control)
 
 **Files:**
-- Create: `web/src/lib/system-clock.ts`
+- Create: `frontend/src/lib/system-clock.ts`
 
-- [ ] **Step 1: Create `web/src/lib/system-clock.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/system-clock.ts`**
 
 ```ts
 /**
@@ -761,7 +761,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/system-clock.ts
+git add frontend/src/lib/system-clock.ts
 git commit -m "feat(web): system-clock helper for demo time-travel"
 ```
 
@@ -772,9 +772,9 @@ git commit -m "feat(web): system-clock helper for demo time-travel"
 ### Task 9: Sparkline chart
 
 **Files:**
-- Create: `web/src/components/charts/Sparkline.tsx`
+- Create: `frontend/src/components/charts/Sparkline.tsx`
 
-- [ ] **Step 1: Create `web/src/components/charts/Sparkline.tsx`**
+- [ ] **Step 1: Create `frontend/src/components/charts/Sparkline.tsx`**
 
 ```tsx
 /**
@@ -867,7 +867,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/components/charts/Sparkline.tsx
+git add frontend/src/components/charts/Sparkline.tsx
 git commit -m "feat(web): inline-SVG Sparkline component"
 ```
 
@@ -876,9 +876,9 @@ git commit -m "feat(web): inline-SVG Sparkline component"
 ### Task 10: MiniBarChart
 
 **Files:**
-- Create: `web/src/components/charts/MiniBarChart.tsx`
+- Create: `frontend/src/components/charts/MiniBarChart.tsx`
 
-- [ ] **Step 1: Create `web/src/components/charts/MiniBarChart.tsx`**
+- [ ] **Step 1: Create `frontend/src/components/charts/MiniBarChart.tsx`**
 
 ```tsx
 /**
@@ -979,7 +979,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/components/charts/MiniBarChart.tsx
+git add frontend/src/components/charts/MiniBarChart.tsx
 git commit -m "feat(web): inline-SVG MiniBarChart component"
 ```
 
@@ -990,9 +990,9 @@ git commit -m "feat(web): inline-SVG MiniBarChart component"
 ### Task 11: Templates mock + types
 
 **Files:**
-- Create: `web/src/lib/mock/templates.ts`
+- Create: `frontend/src/lib/mock/templates.ts`
 
-- [ ] **Step 1: Create `web/src/lib/mock/templates.ts`**
+- [ ] **Step 1: Create `frontend/src/lib/mock/templates.ts`**
 
 ```ts
 /**
@@ -1158,7 +1158,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/mock/templates.ts
+git add frontend/src/lib/mock/templates.ts
 git commit -m "feat(web): report template + generated-report types, seeded ADR template"
 ```
 
@@ -1167,7 +1167,7 @@ git commit -m "feat(web): report template + generated-report types, seeded ADR t
 ### Task 12: Reports page layout shell
 
 **Files:**
-- Modify: `web/src/app/reports/page.tsx` (replace placeholder with 3-column shell)
+- Modify: `frontend/src/app/reports/page.tsx` (replace placeholder with 3-column shell)
 
 - [ ] **Step 1: Replace the entire file with the layout shell**
 
@@ -1228,7 +1228,7 @@ Expected: Compile error for missing imports. That's OK — the next tasks add th
 ### Task 13: TemplateLibrary sidebar
 
 **Files:**
-- Create: `web/src/components/reports/TemplateLibrary.tsx`
+- Create: `frontend/src/components/reports/TemplateLibrary.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -1375,7 +1375,7 @@ export function TemplateLibrary({ activeId, onSelect }: Props) {
 ### Task 14: VariablesPicker sidebar
 
 **Files:**
-- Create: `web/src/components/reports/VariablesPicker.tsx`
+- Create: `frontend/src/components/reports/VariablesPicker.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -1479,8 +1479,8 @@ export function VariablesPicker() {
 ### Task 15: SlotDropZone + SectionBlock
 
 **Files:**
-- Create: `web/src/components/reports/SlotDropZone.tsx`
-- Create: `web/src/components/reports/SectionBlock.tsx`
+- Create: `frontend/src/components/reports/SlotDropZone.tsx`
+- Create: `frontend/src/components/reports/SectionBlock.tsx`
 
 - [ ] **Step 1: Create `SlotDropZone.tsx`**
 
@@ -1619,7 +1619,7 @@ export function SectionBlock({ section, onClearSlot }: Props) {
 ### Task 16: TemplateCanvas + drag-drop wiring
 
 **Files:**
-- Create: `web/src/components/reports/TemplateCanvas.tsx`
+- Create: `frontend/src/components/reports/TemplateCanvas.tsx`
 
 - [ ] **Step 1: Create the canvas with DnD context, drop handling, and a stub for Generate**
 
@@ -1821,7 +1821,7 @@ export function TemplateCanvas({ template, onChange }: Props) {
 ### Task 17: LocationPicker
 
 **Files:**
-- Create: `web/src/components/reports/LocationPicker.tsx`
+- Create: `frontend/src/components/reports/LocationPicker.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -1870,7 +1870,7 @@ export function LocationPicker({ value, onChange }: Props) {
 ### Task 18: GenerateOverlay
 
 **Files:**
-- Create: `web/src/components/reports/GenerateOverlay.tsx`
+- Create: `frontend/src/components/reports/GenerateOverlay.tsx`
 
 - [ ] **Step 1: Create the overlay**
 
@@ -1918,8 +1918,8 @@ export function GenerateOverlay({ visible }: Props) {
 ### Task 19: ReportPreview + DiffBadge
 
 **Files:**
-- Create: `web/src/components/reports/DiffBadge.tsx`
-- Create: `web/src/components/reports/ReportPreview.tsx`
+- Create: `frontend/src/components/reports/DiffBadge.tsx`
+- Create: `frontend/src/components/reports/ReportPreview.tsx`
 
 - [ ] **Step 1: Create `DiffBadge.tsx`**
 
@@ -2176,7 +2176,7 @@ export function ReportPreview({ report, template, onBack }: Props) {
 ### Task 20: SystemClock footer
 
 **Files:**
-- Create: `web/src/components/reports/SystemClock.tsx`
+- Create: `frontend/src/components/reports/SystemClock.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -2252,7 +2252,7 @@ Visit `http://localhost:<port>/reports`:
 - [ ] **Step 4: Commit the whole `/reports` page in one go**
 
 ```bash
-git add web/src/app/reports web/src/components/reports
+git add frontend/src/app/reports frontend/src/components/reports
 git commit -m "feat(web): /reports page — builder, library, generate, regenerate, time-travel"
 ```
 
@@ -2261,7 +2261,7 @@ git commit -m "feat(web): /reports page — builder, library, generate, regenera
 ### Task 21: `/reports/[reportId]` route
 
 **Files:**
-- Create: `web/src/app/reports/[reportId]/page.tsx`
+- Create: `frontend/src/app/reports/[reportId]/page.tsx`
 
 - [ ] **Step 1: Create the dynamic route**
 
@@ -2337,7 +2337,7 @@ Expected: `/reports/[reportId]` listed as a dynamic route.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/app/reports/[reportId]
+git add frontend/src/app/reports/[reportId]
 git commit -m "feat(web): /reports/[reportId] read-only report preview"
 ```
 
@@ -2348,7 +2348,7 @@ git commit -m "feat(web): /reports/[reportId] read-only report preview"
 ### Task 22: DataFilters
 
 **Files:**
-- Create: `web/src/components/data/DataFilters.tsx`
+- Create: `frontend/src/components/data/DataFilters.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -2479,7 +2479,7 @@ export function DataFiltersBar({ value, onChange, resultCount }: Props) {
 ### Task 23: exportCsv helper
 
 **Files:**
-- Create: `web/src/components/data/exportCsv.ts`
+- Create: `frontend/src/components/data/exportCsv.ts`
 
 - [ ] **Step 1: Create the helper**
 
@@ -2518,7 +2518,7 @@ export function downloadCsv(filename: string, headers: string[], rows: Array<Arr
 ### Task 24: DataTable + sort logic
 
 **Files:**
-- Create: `web/src/components/data/DataTable.tsx`
+- Create: `frontend/src/components/data/DataTable.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -2666,7 +2666,7 @@ export function DataTable({ rows, onRowClick }: Props) {
 ### Task 25: DataRowDrawer
 
 **Files:**
-- Create: `web/src/components/data/DataRowDrawer.tsx`
+- Create: `frontend/src/components/data/DataRowDrawer.tsx`
 
 - [ ] **Step 1: Create the drawer**
 
@@ -2774,7 +2774,7 @@ export function DataRowDrawer({ observation, onClose }: Props) {
 ### Task 26: Wire the `/data` page
 
 **Files:**
-- Modify: `web/src/app/data/page.tsx` (replace placeholder)
+- Modify: `frontend/src/app/data/page.tsx` (replace placeholder)
 
 - [ ] **Step 1: Replace the file**
 
@@ -2893,7 +2893,7 @@ cd web && npm run build
 - [ ] **Step 4: Commit**
 
 ```bash
-git add web/src/app/data web/src/components/data
+git add frontend/src/app/data frontend/src/components/data
 git commit -m "feat(web): /data page — long-format table, filters, drawer, CSV export"
 ```
 
@@ -2904,7 +2904,7 @@ git commit -m "feat(web): /data page — long-format table, filters, drawer, CSV
 ### Task 27: Chat mock response engine
 
 **Files:**
-- Create: `web/src/lib/mock/chat.ts`
+- Create: `frontend/src/lib/mock/chat.ts`
 
 - [ ] **Step 1: Create the engine**
 
@@ -3140,7 +3140,7 @@ cd web && npm run build
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/lib/mock/chat.ts
+git add frontend/src/lib/mock/chat.ts
 git commit -m "feat(web): mock chat response engine + intent classifier"
 ```
 
@@ -3149,8 +3149,8 @@ git commit -m "feat(web): mock chat response engine + intent classifier"
 ### Task 28: SuggestedPrompts + MessageInput
 
 **Files:**
-- Create: `web/src/components/chat/SuggestedPrompts.tsx`
-- Create: `web/src/components/chat/MessageInput.tsx`
+- Create: `frontend/src/components/chat/SuggestedPrompts.tsx`
+- Create: `frontend/src/components/chat/MessageInput.tsx`
 
 - [ ] **Step 1: Create `SuggestedPrompts.tsx`**
 
@@ -3252,7 +3252,7 @@ export function MessageInput({ disabled, onSubmit }: Props) {
 ### Task 29: AssistantCard
 
 **Files:**
-- Create: `web/src/components/chat/AssistantCard.tsx`
+- Create: `frontend/src/components/chat/AssistantCard.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -3330,7 +3330,7 @@ export function AssistantCard({ blocks }: { blocks: AssistantBlock[] }) {
 ### Task 30: MessageThread
 
 **Files:**
-- Create: `web/src/components/chat/MessageThread.tsx`
+- Create: `frontend/src/components/chat/MessageThread.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -3381,7 +3381,7 @@ export function MessageThread({ messages, streaming }: Props) {
 ### Task 31: ConversationList
 
 **Files:**
-- Create: `web/src/components/chat/ConversationList.tsx`
+- Create: `frontend/src/components/chat/ConversationList.tsx`
 
 - [ ] **Step 1: Create the component**
 
@@ -3465,7 +3465,7 @@ export function ConversationList({ conversations, activeId, onSelect, onNew }: P
 ### Task 32: Wire the `/chat` page
 
 **Files:**
-- Modify: `web/src/app/chat/page.tsx` (replace placeholder)
+- Modify: `frontend/src/app/chat/page.tsx` (replace placeholder)
 
 - [ ] **Step 1: Replace the file**
 
@@ -3640,7 +3640,7 @@ Expected: build passes; `/chat` listed in the route table.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add web/src/app/chat web/src/components/chat
+git add frontend/src/app/chat frontend/src/components/chat
 git commit -m "feat(web): /chat page — mocked agent with sidebar, streaming, persistence"
 ```
 
@@ -3695,9 +3695,9 @@ git commit -m "chore(web): smoke-test fixes for intelligence pages"
 ## Notes for the executor
 
 - **No frontend tests** are introduced by this plan. The project has zero pre-existing frontend tests; rather than spinning up a test framework as a side-quest, validation is via TypeScript build + visual smoke-test in the dev server. If you want unit coverage for the pure helpers later (PRNG determinism, intent classifier, CSV escaping), add Vitest in a follow-up.
-- **Cache-clobber gotcha:** `npm run build` overwrites `web/.next/` while `npm run dev` is also using it. Always stop dev before building, or build in a worktree.
+- **Cache-clobber gotcha:** `npm run build` overwrites `frontend/.next/` while `npm run dev` is also using it. Always stop dev before building, or build in a worktree.
 - **`@dnd-kit` SSR caveat:** `useDraggable` / `useDroppable` only run on the client. Every component that uses them must be marked `"use client"`. The plan does this everywhere it matters.
-- **Mocked data boundary:** Everything funnels through `web/src/lib/mock/*`. To wire a real backend later, replace those modules' exports with async equivalents and pull the components that use them into Suspense boundaries — no other code changes needed.
+- **Mocked data boundary:** Everything funnels through `frontend/src/lib/mock/*`. To wire a real backend later, replace those modules' exports with async equivalents and pull the components that use them into Suspense boundaries — no other code changes needed.
 
 ## Deferred from spec — intentionally out of scope for this plan
 

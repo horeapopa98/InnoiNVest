@@ -17,76 +17,76 @@
 ### New files (~30)
 
 ```
-web/src/lib/mock/decks.ts                                 # Deck/Slide types + seeded Florești deck + factories
-web/src/lib/decks/deckMigration.ts                        # One-time localStorage migration
-web/src/lib/decks/autoNarrative.ts                        # Templated paragraph generators
-web/src/lib/decks/createSlideFromChat.ts                  # AssistantBlock[] → Slide
-web/src/lib/decks/useActiveDeck.ts                        # Hook for chat bridge
-web/src/lib/decks/__tests__/decks.test.ts                 # Factory tests
-web/src/lib/decks/__tests__/autoNarrative.test.ts         # Narrative tests
-web/src/lib/decks/__tests__/createSlideFromChat.test.ts   # Bridge tests
-web/src/lib/decks/__tests__/deckMigration.test.ts         # Migration tests
-web/src/components/reports/chrome/BrandFlag.tsx           # ADR Nord-Vest flag
-web/src/components/reports/chrome/LogoStrip.tsx           # Logos
-web/src/components/reports/chrome/PageNumber.tsx          # Bottom-right number
-web/src/components/reports/chrome/SlideShell.tsx          # Aspect ratio + composed chrome wrapper
-web/src/components/reports/chrome/deck-print.css          # @media print rules
-web/src/components/reports/deck/DeckLibrary.tsx           # Left rail
-web/src/components/reports/deck/DeckCanvas.tsx            # Centre
-web/src/components/reports/deck/EditPanel.tsx             # Right rail
-web/src/components/reports/deck/SlidePalette.tsx          # + Add slide popover
-web/src/components/reports/deck/SlideThumbnail.tsx        # Sidebar preview
-web/src/components/reports/deck/KpiPicker.tsx             # Chip list + autocomplete
-web/src/components/reports/deck/ParcelPicker.tsx          # Parcel autocomplete
-web/src/components/reports/deck/PhotoPicker.tsx           # 3×2 photo grid
-web/src/components/reports/deck/EditableText.tsx          # contenteditable helper
-web/src/components/reports/deck/renderers/CoverSlideRenderer.tsx
-web/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx
-web/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx
-web/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx
-web/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx
-web/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx
-web/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx
-web/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx
-web/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx
-web/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx
-web/src/components/reports/deck/renderers/TrendSlideRenderer.tsx
-web/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx
-web/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx
-web/src/components/reports/deck/renderers/TextSlideRenderer.tsx
-web/src/components/reports/deck/renderers/ContactSlideRenderer.tsx
-web/src/components/reports/deck/renderers/SlideRenderer.tsx  # discriminated-union switch
-web/public/deck-photos/CREDITS.md                         # Attribution
-web/public/deck-photos/*.jpg                              # 6 stock images
-web/public/deck-photos/coats/*.svg                        # 6 county coat-of-arms placeholders
+frontend/src/lib/mock/decks.ts                                 # Deck/Slide types + seeded Florești deck + factories
+frontend/src/lib/decks/deckMigration.ts                        # One-time localStorage migration
+frontend/src/lib/decks/autoNarrative.ts                        # Templated paragraph generators
+frontend/src/lib/decks/createSlideFromChat.ts                  # AssistantBlock[] → Slide
+frontend/src/lib/decks/useActiveDeck.ts                        # Hook for chat bridge
+frontend/src/lib/decks/__tests__/decks.test.ts                 # Factory tests
+frontend/src/lib/decks/__tests__/autoNarrative.test.ts         # Narrative tests
+frontend/src/lib/decks/__tests__/createSlideFromChat.test.ts   # Bridge tests
+frontend/src/lib/decks/__tests__/deckMigration.test.ts         # Migration tests
+frontend/src/components/reports/chrome/BrandFlag.tsx           # ADR Nord-Vest flag
+frontend/src/components/reports/chrome/LogoStrip.tsx           # Logos
+frontend/src/components/reports/chrome/PageNumber.tsx          # Bottom-right number
+frontend/src/components/reports/chrome/SlideShell.tsx          # Aspect ratio + composed chrome wrapper
+frontend/src/components/reports/chrome/deck-print.css          # @media print rules
+frontend/src/components/reports/deck/DeckLibrary.tsx           # Left rail
+frontend/src/components/reports/deck/DeckCanvas.tsx            # Centre
+frontend/src/components/reports/deck/EditPanel.tsx             # Right rail
+frontend/src/components/reports/deck/SlidePalette.tsx          # + Add slide popover
+frontend/src/components/reports/deck/SlideThumbnail.tsx        # Sidebar preview
+frontend/src/components/reports/deck/KpiPicker.tsx             # Chip list + autocomplete
+frontend/src/components/reports/deck/ParcelPicker.tsx          # Parcel autocomplete
+frontend/src/components/reports/deck/PhotoPicker.tsx           # 3×2 photo grid
+frontend/src/components/reports/deck/EditableText.tsx          # contenteditable helper
+frontend/src/components/reports/deck/renderers/CoverSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/TrendSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/TextSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/ContactSlideRenderer.tsx
+frontend/src/components/reports/deck/renderers/SlideRenderer.tsx  # discriminated-union switch
+frontend/public/deck-photos/CREDITS.md                         # Attribution
+frontend/public/deck-photos/*.jpg                              # 6 stock images
+frontend/public/deck-photos/coats/*.svg                        # 6 county coat-of-arms placeholders
 ```
 
 ### Modified files (4)
 
 ```
-web/src/app/globals.css                                   # Add --color-deck-* tokens
-web/src/lib/persistence/keys.ts                           # Drop templates/reports, add decks/activeDeck
-web/src/app/reports/page.tsx                              # Rewrite as 3-column workspace
-web/src/app/reports/[reportId]/page.tsx                   # Rewrite as read-only print view
-web/src/components/chat/AssistantCard.tsx                 # Wire Use-in-report button
+frontend/src/app/globals.css                                   # Add --color-deck-* tokens
+frontend/src/lib/persistence/keys.ts                           # Drop templates/reports, add decks/activeDeck
+frontend/src/app/reports/page.tsx                              # Rewrite as 3-column workspace
+frontend/src/app/reports/[reportId]/page.tsx                   # Rewrite as read-only print view
+frontend/src/components/chat/AssistantCard.tsx                 # Wire Use-in-report button
 ```
 
 ### Deleted files (10)
 
 ```
-web/src/components/reports/TemplateLibrary.tsx
-web/src/components/reports/TemplateCanvas.tsx
-web/src/components/reports/SectionBlock.tsx
-web/src/components/reports/SlotDropZone.tsx
-web/src/components/reports/VariablesPicker.tsx
-web/src/components/reports/LocationPicker.tsx
-web/src/components/reports/GenerateOverlay.tsx
-web/src/components/reports/ReportPreview.tsx
-web/src/components/reports/DiffBadge.tsx
-web/src/lib/mock/templates.ts
+frontend/src/components/reports/TemplateLibrary.tsx
+frontend/src/components/reports/TemplateCanvas.tsx
+frontend/src/components/reports/SectionBlock.tsx
+frontend/src/components/reports/SlotDropZone.tsx
+frontend/src/components/reports/VariablesPicker.tsx
+frontend/src/components/reports/LocationPicker.tsx
+frontend/src/components/reports/GenerateOverlay.tsx
+frontend/src/components/reports/ReportPreview.tsx
+frontend/src/components/reports/DiffBadge.tsx
+frontend/src/lib/mock/templates.ts
 ```
 
-`web/src/components/reports/SystemClock.tsx` stays (the editor still surfaces system year).
+`frontend/src/components/reports/SystemClock.tsx` stays (the editor still surfaces system year).
 
 ### Testing
 
@@ -101,8 +101,8 @@ Tokens, persistence keys, print CSS, and the test runner.
 ### Task 1: Install Vitest + add test script
 
 **Files:**
-- Modify: `web/package.json`
-- Create: `web/vitest.config.ts`
+- Modify: `frontend/package.json`
+- Create: `frontend/vitest.config.ts`
 
 - [ ] **Step 1: Install vitest**
 
@@ -112,7 +112,7 @@ cd web && npm install --save-dev vitest@^2 @vitest/ui jsdom
 
 - [ ] **Step 2: Add test script to package.json**
 
-In `web/package.json`, add to `scripts`:
+In `frontend/package.json`, add to `scripts`:
 
 ```json
 "test": "vitest run",
@@ -121,7 +121,7 @@ In `web/package.json`, add to `scripts`:
 
 - [ ] **Step 3: Create vitest config**
 
-Create `web/vitest.config.ts`:
+Create `frontend/vitest.config.ts`:
 
 ```ts
 import { defineConfig } from "vitest/config";
@@ -147,14 +147,14 @@ Expected: PASS with "No test files found" or "0 tests" — runner works, nothing
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/package.json web/package-lock.json web/vitest.config.ts
+git add frontend/package.json frontend/package-lock.json frontend/vitest.config.ts
 git commit -m "chore(reports): add vitest for deck builder TDD"
 ```
 
 ### Task 2: Add deck palette tokens to globals.css
 
 **Files:**
-- Modify: `web/src/app/globals.css`
+- Modify: `frontend/src/app/globals.css`
 
 - [ ] **Step 1: Add tokens inside the existing `@theme {}` block**
 
@@ -204,14 +204,14 @@ Run: `cd web && npm run dev`, then open http://localhost:3000 and inspect — co
 - [ ] **Step 4: Commit**
 
 ```bash
-git add web/src/app/globals.css
+git add frontend/src/app/globals.css
 git commit -m "feat(reports): add deck palette tokens + .deck-underline utility"
 ```
 
 ### Task 3: Update STORAGE_KEYS (drop templates/reports, add decks/activeDeck)
 
 **Files:**
-- Modify: `web/src/lib/persistence/keys.ts`
+- Modify: `frontend/src/lib/persistence/keys.ts`
 
 - [ ] **Step 1: Edit the keys object**
 
@@ -242,11 +242,11 @@ The typecheck errors are expected interim state; commit happens at end of Wave 1
 ### Task 4: Create print CSS
 
 **Files:**
-- Create: `web/src/components/reports/chrome/deck-print.css`
+- Create: `frontend/src/components/reports/chrome/deck-print.css`
 
 - [ ] **Step 1: Write the CSS file**
 
-Create `web/src/components/reports/chrome/deck-print.css`:
+Create `frontend/src/components/reports/chrome/deck-print.css`:
 
 ```css
 /* Print rules for /reports/[reportId] read-only deck view.
@@ -304,7 +304,7 @@ Create `web/src/components/reports/chrome/deck-print.css`:
 
 - [ ] **Step 2: Verify file exists**
 
-Run: `ls web/src/components/reports/chrome/deck-print.css`
+Run: `ls frontend/src/components/reports/chrome/deck-print.css`
 Expected: file listed.
 
 - [ ] **Step 3: Do NOT commit yet**
@@ -320,11 +320,11 @@ CSS is imported by code that doesn't exist yet — commit lands with `[reportId]
 ### Task 5: Define Slide / Deck types in lib/mock/decks.ts
 
 **Files:**
-- Create: `web/src/lib/mock/decks.ts`
+- Create: `frontend/src/lib/mock/decks.ts`
 
 - [ ] **Step 1: Write the types and shared helpers**
 
-Create `web/src/lib/mock/decks.ts`:
+Create `frontend/src/lib/mock/decks.ts`:
 
 ```ts
 /**
@@ -561,11 +561,11 @@ Expected: same set of pre-existing errors as Task 3 (no new errors from decks.ts
 ### Task 6: Add slide factories + seeded Investor Pitch — Florești deck
 
 **Files:**
-- Modify: `web/src/lib/mock/decks.ts` (append)
+- Modify: `frontend/src/lib/mock/decks.ts` (append)
 
 - [ ] **Step 1: Append slide-factory helpers**
 
-Append to `web/src/lib/mock/decks.ts`:
+Append to `frontend/src/lib/mock/decks.ts`:
 
 ```ts
 // ---------------------------------------------------------------------
@@ -947,11 +947,11 @@ Expected: pre-existing errors only; no new errors in `decks.ts`.
 ### Task 7: Test slide factories + seeded deck integrity
 
 **Files:**
-- Create: `web/src/lib/decks/__tests__/decks.test.ts`
+- Create: `frontend/src/lib/decks/__tests__/decks.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `web/src/lib/decks/__tests__/decks.test.ts`:
+Create `frontend/src/lib/decks/__tests__/decks.test.ts`:
 
 ```ts
 import { describe, it, expect } from "vitest";
@@ -1034,7 +1034,7 @@ Expected: 8 tests pass.
 - [ ] **Step 3: Commit Wave 1 in one diff**
 
 ```bash
-git add web/src/lib/mock/decks.ts web/src/lib/decks/__tests__/decks.test.ts
+git add frontend/src/lib/mock/decks.ts frontend/src/lib/decks/__tests__/decks.test.ts
 git commit -m "feat(reports): deck data model + seeded Investor Pitch Florești"
 ```
 
@@ -1047,12 +1047,12 @@ Migrate localStorage, delete old report files. After Wave 2, the repo compiles a
 ### Task 8: Write deckMigration + tests, then delete old report files
 
 **Files:**
-- Create: `web/src/lib/decks/deckMigration.ts`
-- Create: `web/src/lib/decks/__tests__/deckMigration.test.ts`
+- Create: `frontend/src/lib/decks/deckMigration.ts`
+- Create: `frontend/src/lib/decks/__tests__/deckMigration.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `web/src/lib/decks/__tests__/deckMigration.test.ts`:
+Create `frontend/src/lib/decks/__tests__/deckMigration.test.ts`:
 
 ```ts
 import { describe, it, expect, beforeEach } from "vitest";
@@ -1098,7 +1098,7 @@ Expected: FAIL — module does not exist.
 
 - [ ] **Step 3: Implement the migration**
 
-Create `web/src/lib/decks/deckMigration.ts`:
+Create `frontend/src/lib/decks/deckMigration.ts`:
 
 ```ts
 /**
@@ -1154,7 +1154,7 @@ rm src/lib/mock/templates.ts
 
 These will be properly rewritten in Wave 8 and 9. For now, install minimal stubs so the build compiles.
 
-Overwrite `web/src/app/reports/page.tsx`:
+Overwrite `frontend/src/app/reports/page.tsx`:
 
 ```tsx
 "use client";
@@ -1173,7 +1173,7 @@ export default function ReportsPage() {
 }
 ```
 
-Overwrite `web/src/app/reports/[reportId]/page.tsx`:
+Overwrite `frontend/src/app/reports/[reportId]/page.tsx`:
 
 ```tsx
 "use client";
@@ -1213,13 +1213,13 @@ Locked top-left flag, top-right logo strip, bottom-right page number, and a `Sli
 ### Task 9: BrandFlag, LogoStrip, PageNumber components
 
 **Files:**
-- Create: `web/src/components/reports/chrome/BrandFlag.tsx`
-- Create: `web/src/components/reports/chrome/LogoStrip.tsx`
-- Create: `web/src/components/reports/chrome/PageNumber.tsx`
+- Create: `frontend/src/components/reports/chrome/BrandFlag.tsx`
+- Create: `frontend/src/components/reports/chrome/LogoStrip.tsx`
+- Create: `frontend/src/components/reports/chrome/PageNumber.tsx`
 
 - [ ] **Step 1: Create BrandFlag**
 
-Create `web/src/components/reports/chrome/BrandFlag.tsx`:
+Create `frontend/src/components/reports/chrome/BrandFlag.tsx`:
 
 ```tsx
 /**
@@ -1249,7 +1249,7 @@ export function BrandFlag() {
 
 - [ ] **Step 2: Create LogoStrip**
 
-Create `web/src/components/reports/chrome/LogoStrip.tsx`:
+Create `frontend/src/components/reports/chrome/LogoStrip.tsx`:
 
 ```tsx
 import { getLocation } from "@/lib/mock/locations";
@@ -1296,7 +1296,7 @@ export function LogoStrip({ locationSiruta }: Props) {
 
 - [ ] **Step 3: Create PageNumber**
 
-Create `web/src/components/reports/chrome/PageNumber.tsx`:
+Create `frontend/src/components/reports/chrome/PageNumber.tsx`:
 
 ```tsx
 type Props = { page: number; total: number };
@@ -1323,15 +1323,15 @@ Expected: clean.
 ### Task 10: SlideShell wrapper + stock photo placeholders
 
 **Files:**
-- Create: `web/src/components/reports/chrome/SlideShell.tsx`
-- Create: `web/public/deck-photos/CREDITS.md`
-- Create: `web/public/deck-photos/coats/default.svg`
+- Create: `frontend/src/components/reports/chrome/SlideShell.tsx`
+- Create: `frontend/public/deck-photos/CREDITS.md`
+- Create: `frontend/public/deck-photos/coats/default.svg`
 - Create: 5 more placeholder coat SVGs (`54`, `63`, `120`, `275`, `393`, `402`)
 - Create: 6 placeholder photo files
 
 - [ ] **Step 1: Write SlideShell**
 
-Create `web/src/components/reports/chrome/SlideShell.tsx`:
+Create `frontend/src/components/reports/chrome/SlideShell.tsx`:
 
 ```tsx
 import type { ReactNode } from "react";
@@ -1383,7 +1383,7 @@ export function SlideShell({ children, locationSiruta, page, total, className = 
 
 - [ ] **Step 2: Create coat-of-arms placeholders**
 
-Create `web/public/deck-photos/coats/default.svg`:
+Create `frontend/public/deck-photos/coats/default.svg`:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
@@ -1433,11 +1433,11 @@ Create one SVG per filename, replacing "PLACEHOLDER LABEL" with the photo's stub
 | `highway-aerial.svg` | A3 MOTORWAY |
 | `satellite-default.svg` | SATELLITE |
 
-Each file goes in `web/public/deck-photos/<name>.svg`.
+Each file goes in `frontend/public/deck-photos/<name>.svg`.
 
 - [ ] **Step 4: Create CREDITS.md**
 
-Create `web/public/deck-photos/CREDITS.md`:
+Create `frontend/public/deck-photos/CREDITS.md`:
 
 ```markdown
 # Deck photo credits
@@ -1459,7 +1459,7 @@ Note: the spec specifies `.jpg`, but placeholders are `.svg`. The renderer maps 
 
 - [ ] **Step 5: Add photo URL helper to decks.ts**
 
-Append to `web/src/lib/mock/decks.ts`:
+Append to `frontend/src/lib/mock/decks.ts`:
 
 ```ts
 /** Resolve a PhotoId to a public URL. Returns null for `null` PhotoId. */
@@ -1476,18 +1476,18 @@ Run `cd web && npm run dev`, then in a browser open `http://localhost:3000/deck-
 - [ ] **Step 7: Commit**
 
 ```bash
-git add web/src/components/reports/chrome web/public/deck-photos web/src/lib/mock/decks.ts
+git add frontend/src/components/reports/chrome frontend/public/deck-photos frontend/src/lib/mock/decks.ts
 git commit -m "feat(reports): brand chrome (flag/logo/page) + SlideShell + photo placeholders"
 ```
 
 ### Task 11: SlideRenderer skeleton (discriminated-union switch)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/SlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the skeleton**
 
-Create `web/src/components/reports/deck/renderers/SlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/SlideRenderer.tsx`:
 
 ```tsx
 import { SlideShell } from "@/components/reports/chrome/SlideShell";
@@ -1537,7 +1537,7 @@ Expected: clean.
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/components/reports/deck/renderers/SlideRenderer.tsx
+git add frontend/src/components/reports/deck/renderers/SlideRenderer.tsx
 git commit -m "feat(reports): SlideRenderer skeleton with kind-dispatch placeholder"
 ```
 
@@ -1550,12 +1550,12 @@ The 5 simplest slide kinds (no charts, no maps).
 ### Task 12: autoNarrative.ts + tests
 
 **Files:**
-- Create: `web/src/lib/decks/autoNarrative.ts`
-- Create: `web/src/lib/decks/__tests__/autoNarrative.test.ts`
+- Create: `frontend/src/lib/decks/autoNarrative.ts`
+- Create: `frontend/src/lib/decks/__tests__/autoNarrative.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `web/src/lib/decks/__tests__/autoNarrative.test.ts`:
+Create `frontend/src/lib/decks/__tests__/autoNarrative.test.ts`:
 
 ```ts
 import { describe, it, expect } from "vitest";
@@ -1592,7 +1592,7 @@ Expected: FAIL — module missing.
 
 - [ ] **Step 3: Implement the helpers**
 
-Create `web/src/lib/decks/autoNarrative.ts`:
+Create `frontend/src/lib/decks/autoNarrative.ts`:
 
 ```ts
 /**
@@ -1650,20 +1650,20 @@ Expected: 4 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/lib/decks/autoNarrative.ts web/src/lib/decks/__tests__/autoNarrative.test.ts
+git add frontend/src/lib/decks/autoNarrative.ts frontend/src/lib/decks/__tests__/autoNarrative.test.ts
 git commit -m "feat(reports): templated auto-narrative for snapshot slides"
 ```
 
 ### Task 13: TextSlideRenderer + ContactSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/TextSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/ContactSlideRenderer.tsx`
-- Modify: `web/src/components/reports/deck/renderers/SlideRenderer.tsx` (wire 2 kinds)
+- Create: `frontend/src/components/reports/deck/renderers/TextSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/ContactSlideRenderer.tsx`
+- Modify: `frontend/src/components/reports/deck/renderers/SlideRenderer.tsx` (wire 2 kinds)
 
 - [ ] **Step 1: Write TextSlideRenderer**
 
-Create `web/src/components/reports/deck/renderers/TextSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/TextSlideRenderer.tsx`:
 
 ```tsx
 import type { TextSlide } from "@/lib/mock/decks";
@@ -1688,7 +1688,7 @@ export function TextSlideRenderer({ slide }: Props) {
 
 - [ ] **Step 2: Write ContactSlideRenderer**
 
-Create `web/src/components/reports/deck/renderers/ContactSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/ContactSlideRenderer.tsx`:
 
 ```tsx
 import type { ContactSlide } from "@/lib/mock/decks";
@@ -1719,7 +1719,7 @@ export function ContactSlideRenderer({ slide }: Props) {
 
 - [ ] **Step 3: Wire both into SlideRenderer**
 
-Edit `web/src/components/reports/deck/renderers/SlideRenderer.tsx`. Add imports near the top:
+Edit `frontend/src/components/reports/deck/renderers/SlideRenderer.tsx`. Add imports near the top:
 
 ```tsx
 import { TextSlideRenderer } from "./TextSlideRenderer";
@@ -1758,21 +1758,21 @@ Expected: clean.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): TextSlide + ContactSlide renderers"
 ```
 
 ### Task 14: Divider renderers (SectionDivider, StrategicLocation, InfrastructureDivider)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx` (wire 3 kinds)
 
 - [ ] **Step 1: All three are structurally identical — write a shared inner**
 
-Create `web/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/SectionDividerSlideRenderer.tsx`:
 
 ```tsx
 import { photoUrl, type SectionDividerSlide } from "@/lib/mock/decks";
@@ -1816,7 +1816,7 @@ export function DividerInner({
 
 - [ ] **Step 2: Create the other two as thin wrappers**
 
-Create `web/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/StrategicLocationSlideRenderer.tsx`:
 
 ```tsx
 import type { StrategicLocationSlide } from "@/lib/mock/decks";
@@ -1827,7 +1827,7 @@ export function StrategicLocationSlideRenderer({ slide }: { slide: StrategicLoca
 }
 ```
 
-Create `web/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/InfrastructureDividerSlideRenderer.tsx`:
 
 ```tsx
 import type { InfrastructureDividerSlide } from "@/lib/mock/decks";
@@ -1864,19 +1864,19 @@ Expected: clean.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): section/strategic/infrastructure divider renderers"
 ```
 
 ### Task 15: CoverSlideRenderer (RO map with county highlight)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/CoverSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/CoverSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx` (wire `cover`)
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/CoverSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/CoverSlideRenderer.tsx`:
 
 ```tsx
 import type { CoverSlide } from "@/lib/mock/decks";
@@ -1950,7 +1950,7 @@ export function CoverSlideRenderer({ slide }: Props) {
 
 - [ ] **Step 2: Verify NW_COUNTIES_GEO export shape**
 
-Run: `grep -n "NW_COUNTIES_GEO\|features\|coordinates\|siruta\|properties" web/src/lib/mock/nw-counties-geo.ts | head -20`
+Run: `grep -n "NW_COUNTIES_GEO\|features\|coordinates\|siruta\|properties" frontend/src/lib/mock/nw-counties-geo.ts | head -20`
 Expected: confirm the export is `NW_COUNTIES_GEO` with `.features[i].geometry.coordinates[0]` (Polygon outer ring) and `properties.siruta`. If a sibling key is used (e.g. `code` instead of `siruta`), update the renderer to match.
 
 - [ ] **Step 3: Wire into SlideRenderer**
@@ -1971,7 +1971,7 @@ Expected: clean.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): CoverSlide renderer with NW counties RO map"
 ```
 
@@ -1984,12 +1984,12 @@ The data-bound headline slides: county / city / commune.
 ### Task 16: CountySnapshotSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/CountySnapshotSlideRenderer.tsx`:
 
 ```tsx
 import { formatKpiValue, getKpi } from "@/lib/mock/kpis";
@@ -2067,19 +2067,19 @@ case "county_snapshot": return <CountySnapshotSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): CountySnapshot renderer"
 ```
 
 ### Task 17: CitySnapshotSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/CitySnapshotSlideRenderer.tsx`:
 
 ```tsx
 import { formatKpiValue, getKpi } from "@/lib/mock/kpis";
@@ -2148,19 +2148,19 @@ case "city_snapshot": return <CitySnapshotSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): CitySnapshot renderer"
 ```
 
 ### Task 18: CommuneDetailSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/CommuneDetailSlideRenderer.tsx`:
 
 ```tsx
 import { photoUrl, type CommuneDetailSlide } from "@/lib/mock/decks";
@@ -2209,7 +2209,7 @@ case "commune_detail": return <CommuneDetailSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): CommuneDetail renderer"
 ```
 
@@ -2222,12 +2222,12 @@ Charts, composite scores, infographics.
 ### Task 19: StatInfographicSlideRenderer (radial + panel)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/StatInfographicSlideRenderer.tsx`:
 
 ```tsx
 import type { StatInfographicSlide } from "@/lib/mock/decks";
@@ -2343,21 +2343,21 @@ case "stat_infographic": return <StatInfographicSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): StatInfographic renderer (radial + panel layouts)"
 ```
 
 ### Task 20: TrendSlideRenderer + ComparisonSlideRenderer (shared inline chart)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/TrendSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/DeckLineChart.tsx` (shared inline SVG)
+- Create: `frontend/src/components/reports/deck/renderers/TrendSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/DeckLineChart.tsx` (shared inline SVG)
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write shared DeckLineChart**
 
-Create `web/src/components/reports/deck/renderers/DeckLineChart.tsx`:
+Create `frontend/src/components/reports/deck/renderers/DeckLineChart.tsx`:
 
 ```tsx
 import { getLocation } from "@/lib/mock/locations";
@@ -2458,7 +2458,7 @@ export function DeckLineChart({ series, yearRange, width = 800, height = 320, un
 
 - [ ] **Step 2: Write TrendSlideRenderer**
 
-Create `web/src/components/reports/deck/renderers/TrendSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/TrendSlideRenderer.tsx`:
 
 ```tsx
 import { getKpi } from "@/lib/mock/kpis";
@@ -2499,7 +2499,7 @@ export function TrendSlideRenderer({ slide }: { slide: TrendSlide }) {
 
 - [ ] **Step 3: Write ComparisonSlideRenderer**
 
-Create `web/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/ComparisonSlideRenderer.tsx`:
 
 ```tsx
 import { getKpi } from "@/lib/mock/kpis";
@@ -2546,19 +2546,19 @@ case "comparison": return <ComparisonSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): Trend + Comparison renderers with shared inline chart"
 ```
 
 ### Task 21: RecommendationSlideRenderer (composite + RO map)
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx`
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the renderer**
 
-Create `web/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/RecommendationSlideRenderer.tsx`:
 
 ```tsx
 import { computeComposite, DEFAULT_WEIGHTS } from "@/lib/mock/composite";
@@ -2667,7 +2667,7 @@ case "recommendation": return <RecommendationSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): Recommendation renderer with composite + RO choropleth"
 ```
 
@@ -2680,13 +2680,13 @@ Two Leaflet-backed renderers — must use `next/dynamic` with `ssr: false`.
 ### Task 22: ParcelDetailSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/ParcelDetailMap.tsx` (Leaflet client-only)
+- Create: `frontend/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/ParcelDetailMap.tsx` (Leaflet client-only)
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the Leaflet inner**
 
-Create `web/src/components/reports/deck/renderers/ParcelDetailMap.tsx`:
+Create `frontend/src/components/reports/deck/renderers/ParcelDetailMap.tsx`:
 
 ```tsx
 "use client";
@@ -2730,7 +2730,7 @@ export function ParcelDetailMap({ parcelId }: Props) {
 
 - [ ] **Step 2: Write the slide renderer**
 
-Create `web/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/ParcelDetailSlideRenderer.tsx`:
 
 ```tsx
 import dynamic from "next/dynamic";
@@ -2805,20 +2805,20 @@ case "parcel_detail": return <ParcelDetailSlideRenderer slide={slide} />;
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): ParcelDetail renderer with satellite tiles"
 ```
 
 ### Task 23: InfrastructurePageSlideRenderer
 
 **Files:**
-- Create: `web/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx`
-- Create: `web/src/components/reports/deck/renderers/InfrastructureMap.tsx` (Leaflet client-only)
+- Create: `frontend/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx`
+- Create: `frontend/src/components/reports/deck/renderers/InfrastructureMap.tsx` (Leaflet client-only)
 - Modify: `SlideRenderer.tsx`
 
 - [ ] **Step 1: Write the Leaflet inner**
 
-Create `web/src/components/reports/deck/renderers/InfrastructureMap.tsx`:
+Create `frontend/src/components/reports/deck/renderers/InfrastructureMap.tsx`:
 
 ```tsx
 "use client";
@@ -2864,7 +2864,7 @@ export function InfrastructureMap({ parcelId }: Props) {
 
 - [ ] **Step 2: Write the slide renderer**
 
-Create `web/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx`:
+Create `frontend/src/components/reports/deck/renderers/InfrastructurePageSlideRenderer.tsx`:
 
 ```tsx
 import dynamic from "next/dynamic";
@@ -2936,7 +2936,7 @@ case "infrastructure_page": return <InfrastructurePageSlideRenderer slide={slide
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/renderers
+git add frontend/src/components/reports/deck/renderers
 git commit -m "feat(reports): InfrastructurePage renderer with OSM road map"
 ```
 
@@ -2949,11 +2949,11 @@ Reusable form components shared by the edit panel.
 ### Task 24: EditableText (contenteditable wrapper)
 
 **Files:**
-- Create: `web/src/components/reports/deck/EditableText.tsx`
+- Create: `frontend/src/components/reports/deck/EditableText.tsx`
 
 - [ ] **Step 1: Write the component**
 
-Create `web/src/components/reports/deck/EditableText.tsx`:
+Create `frontend/src/components/reports/deck/EditableText.tsx`:
 
 ```tsx
 "use client";
@@ -3040,19 +3040,19 @@ export function EditableText({
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/EditableText.tsx
+git add frontend/src/components/reports/deck/EditableText.tsx
 git commit -m "feat(reports): EditableText contenteditable wrapper"
 ```
 
 ### Task 25: KpiPicker + ParcelPicker
 
 **Files:**
-- Create: `web/src/components/reports/deck/KpiPicker.tsx`
-- Create: `web/src/components/reports/deck/ParcelPicker.tsx`
+- Create: `frontend/src/components/reports/deck/KpiPicker.tsx`
+- Create: `frontend/src/components/reports/deck/ParcelPicker.tsx`
 
 - [ ] **Step 1: Write KpiPicker**
 
-Create `web/src/components/reports/deck/KpiPicker.tsx`:
+Create `frontend/src/components/reports/deck/KpiPicker.tsx`:
 
 ```tsx
 "use client";
@@ -3160,7 +3160,7 @@ export function KpiPicker({ selected, onChange, max = 8 }: Props) {
 
 - [ ] **Step 2: Write ParcelPicker**
 
-Create `web/src/components/reports/deck/ParcelPicker.tsx`:
+Create `frontend/src/components/reports/deck/ParcelPicker.tsx`:
 
 ```tsx
 "use client";
@@ -3224,19 +3224,19 @@ export function ParcelPicker({ selected, onChange }: Props) {
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/KpiPicker.tsx web/src/components/reports/deck/ParcelPicker.tsx
+git add frontend/src/components/reports/deck/KpiPicker.tsx frontend/src/components/reports/deck/ParcelPicker.tsx
 git commit -m "feat(reports): KpiPicker + ParcelPicker for edit panel"
 ```
 
 ### Task 26: PhotoPicker + SlideThumbnail
 
 **Files:**
-- Create: `web/src/components/reports/deck/PhotoPicker.tsx`
-- Create: `web/src/components/reports/deck/SlideThumbnail.tsx`
+- Create: `frontend/src/components/reports/deck/PhotoPicker.tsx`
+- Create: `frontend/src/components/reports/deck/SlideThumbnail.tsx`
 
 - [ ] **Step 1: Write PhotoPicker**
 
-Create `web/src/components/reports/deck/PhotoPicker.tsx`:
+Create `frontend/src/components/reports/deck/PhotoPicker.tsx`:
 
 ```tsx
 "use client";
@@ -3299,7 +3299,7 @@ export function PhotoPicker({ selected, onChange }: Props) {
 
 - [ ] **Step 2: Write SlideThumbnail**
 
-Create `web/src/components/reports/deck/SlideThumbnail.tsx`:
+Create `frontend/src/components/reports/deck/SlideThumbnail.tsx`:
 
 ```tsx
 import { SLIDE_KIND_LABELS, slideOutlineLabel, type Slide } from "@/lib/mock/decks";
@@ -3343,18 +3343,18 @@ export function SlideThumbnail({ slide, index, active, onSelect }: Props) {
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/PhotoPicker.tsx web/src/components/reports/deck/SlideThumbnail.tsx
+git add frontend/src/components/reports/deck/PhotoPicker.tsx frontend/src/components/reports/deck/SlideThumbnail.tsx
 git commit -m "feat(reports): PhotoPicker + SlideThumbnail"
 ```
 
 ### Task 27: SlidePalette (+ Add slide popover)
 
 **Files:**
-- Create: `web/src/components/reports/deck/SlidePalette.tsx`
+- Create: `frontend/src/components/reports/deck/SlidePalette.tsx`
 
 - [ ] **Step 1: Write the component**
 
-Create `web/src/components/reports/deck/SlidePalette.tsx`:
+Create `frontend/src/components/reports/deck/SlidePalette.tsx`:
 
 ```tsx
 "use client";
@@ -3418,7 +3418,7 @@ export function SlidePalette({ onPick }: Props) {
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/SlidePalette.tsx
+git add frontend/src/components/reports/deck/SlidePalette.tsx
 git commit -m "feat(reports): SlidePalette popover grouped by category"
 ```
 
@@ -3431,11 +3431,11 @@ The 3-column workspace that ties everything together.
 ### Task 28: DeckLibrary (left rail with reorder)
 
 **Files:**
-- Create: `web/src/components/reports/deck/DeckLibrary.tsx`
+- Create: `frontend/src/components/reports/deck/DeckLibrary.tsx`
 
 - [ ] **Step 1: Write the component**
 
-Create `web/src/components/reports/deck/DeckLibrary.tsx`:
+Create `frontend/src/components/reports/deck/DeckLibrary.tsx`:
 
 ```tsx
 "use client";
@@ -3694,18 +3694,18 @@ function SortableRow({
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/DeckLibrary.tsx
+git add frontend/src/components/reports/deck/DeckLibrary.tsx
 git commit -m "feat(reports): DeckLibrary with dnd reorder + new-deck + context menu"
 ```
 
 ### Task 29: DeckCanvas (renderer + sticky toolbar)
 
 **Files:**
-- Create: `web/src/components/reports/deck/DeckCanvas.tsx`
+- Create: `frontend/src/components/reports/deck/DeckCanvas.tsx`
 
 - [ ] **Step 1: Write the component**
 
-Create `web/src/components/reports/deck/DeckCanvas.tsx`:
+Create `frontend/src/components/reports/deck/DeckCanvas.tsx`:
 
 ```tsx
 "use client";
@@ -3831,18 +3831,18 @@ export function DeckCanvas({ deck, slide, onChangeDeck, onSelectSlide, onRequest
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/DeckCanvas.tsx
+git add frontend/src/components/reports/deck/DeckCanvas.tsx
 git commit -m "feat(reports): DeckCanvas + sticky toolbar with prev/next + share"
 ```
 
 ### Task 30: EditPanel (kind-specific forms)
 
 **Files:**
-- Create: `web/src/components/reports/deck/EditPanel.tsx`
+- Create: `frontend/src/components/reports/deck/EditPanel.tsx`
 
 - [ ] **Step 1: Write the component**
 
-Create `web/src/components/reports/deck/EditPanel.tsx`:
+Create `frontend/src/components/reports/deck/EditPanel.tsx`:
 
 ```tsx
 "use client";
@@ -4351,18 +4351,18 @@ function StatsBlock({
 
 ```bash
 cd web && npx tsc --noEmit
-git add web/src/components/reports/deck/EditPanel.tsx
+git add frontend/src/components/reports/deck/EditPanel.tsx
 git commit -m "feat(reports): EditPanel with kind-specific forms"
 ```
 
 ### Task 31: Rewrite /reports page as 3-column workspace
 
 **Files:**
-- Modify: `web/src/app/reports/page.tsx`
+- Modify: `frontend/src/app/reports/page.tsx`
 
 - [ ] **Step 1: Replace the stub with the full editor**
 
-Overwrite `web/src/app/reports/page.tsx`:
+Overwrite `frontend/src/app/reports/page.tsx`:
 
 ```tsx
 "use client";
@@ -4535,7 +4535,7 @@ Open `http://localhost:3000/reports`. Expected:
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/app/reports/page.tsx
+git add frontend/src/app/reports/page.tsx
 git commit -m "feat(reports): wire 3-column deck editor in /reports"
 ```
 
@@ -4548,11 +4548,11 @@ The `[reportId]` print view, the `AssistantBlock[] → Slide` mapper, and wiring
 ### Task 32: /reports/[reportId] read-only print view
 
 **Files:**
-- Modify: `web/src/app/reports/[reportId]/page.tsx`
+- Modify: `frontend/src/app/reports/[reportId]/page.tsx`
 
 - [ ] **Step 1: Replace the stub**
 
-Overwrite `web/src/app/reports/[reportId]/page.tsx`:
+Overwrite `frontend/src/app/reports/[reportId]/page.tsx`:
 
 ```tsx
 "use client";
@@ -4621,19 +4621,19 @@ Visit `http://localhost:3000/reports/deck-investor-pitch-floresti`. Expected: al
 - [ ] **Step 3: Commit**
 
 ```bash
-git add web/src/app/reports/[reportId]/page.tsx
+git add frontend/src/app/reports/[reportId]/page.tsx
 git commit -m "feat(reports): read-only deck preview with print-to-PDF"
 ```
 
 ### Task 33: createSlideFromChat + tests
 
 **Files:**
-- Create: `web/src/lib/decks/createSlideFromChat.ts`
-- Create: `web/src/lib/decks/__tests__/createSlideFromChat.test.ts`
+- Create: `frontend/src/lib/decks/createSlideFromChat.ts`
+- Create: `frontend/src/lib/decks/__tests__/createSlideFromChat.test.ts`
 
 - [ ] **Step 1: Write the failing tests**
 
-Create `web/src/lib/decks/__tests__/createSlideFromChat.test.ts`:
+Create `frontend/src/lib/decks/__tests__/createSlideFromChat.test.ts`:
 
 ```ts
 import { describe, it, expect } from "vitest";
@@ -4738,7 +4738,7 @@ Expected: FAIL — module missing.
 
 - [ ] **Step 3: Implement the mapper**
 
-Create `web/src/lib/decks/createSlideFromChat.ts`:
+Create `frontend/src/lib/decks/createSlideFromChat.ts`:
 
 ```ts
 import type { AssistantBlock } from "@/lib/mock/chat";
@@ -4834,19 +4834,19 @@ Expected: 8 tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/lib/decks/createSlideFromChat.ts web/src/lib/decks/__tests__/createSlideFromChat.test.ts
+git add frontend/src/lib/decks/createSlideFromChat.ts frontend/src/lib/decks/__tests__/createSlideFromChat.test.ts
 git commit -m "feat(reports): chat → deck bridge (assistant blocks → slide)"
 ```
 
 ### Task 34: useActiveDeck hook + AssistantCard wire-up
 
 **Files:**
-- Create: `web/src/lib/decks/useActiveDeck.ts`
-- Modify: `web/src/components/chat/AssistantCard.tsx`
+- Create: `frontend/src/lib/decks/useActiveDeck.ts`
+- Modify: `frontend/src/components/chat/AssistantCard.tsx`
 
 - [ ] **Step 1: Write the hook**
 
-Create `web/src/lib/decks/useActiveDeck.ts`:
+Create `frontend/src/lib/decks/useActiveDeck.ts`:
 
 ```ts
 "use client";
@@ -4905,7 +4905,7 @@ export function useActiveDeck() {
 
 - [ ] **Step 2: Wire AssistantCard's "Use in report" link to call the hook**
 
-Edit `web/src/components/chat/AssistantCard.tsx`.
+Edit `frontend/src/components/chat/AssistantCard.tsx`.
 
 Add imports near the top (with the other imports):
 
@@ -4956,7 +4956,7 @@ In the browser:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add web/src/lib/decks/useActiveDeck.ts web/src/components/chat/AssistantCard.tsx
+git add frontend/src/lib/decks/useActiveDeck.ts frontend/src/components/chat/AssistantCard.tsx
 git commit -m "feat(chat): wire Use-in-report to append a slide to active deck"
 ```
 

@@ -10,6 +10,28 @@ class ReportRepository {
     });
   }
 
+  /**
+   * Insert or update the single report row for a property. Keeps one canonical
+   * report per `propertyId`; regenerating overwrites parameters + data.
+   */
+  async upsertByPropertyId({ propertyId, topic, sourceId, parameters, data }) {
+    const [report] = await db.Report.upsert(
+      {
+        property_id: propertyId,
+        topic,
+        source_id: sourceId,
+        parameters,
+        data,
+      },
+      { conflictFields: ['property_id'] }
+    );
+    return report;
+  }
+
+  async findByPropertyId(propertyId) {
+    return db.Report.findOne({ where: { property_id: propertyId } });
+  }
+
   async findAll({ sourceId, limit = 50 } = {}) {
     const where = {};
     if (sourceId) where.source_id = sourceId;

@@ -1,5 +1,7 @@
 const { parseStatus, classifyProject } = require('../../utils/statusParser');
 const { featureInBounds, getFeatureCenter, boundsFromCenter } = require('../../utils/geo');
+const cache = require('../../lib/cache');
+const { TTL } = require('../../constants/cache');
 
 const PUM_API = 'https://pum.project-online.se';
 const DATA_URL = `${PUM_API}/maps/data/data-sql-infra.geo.json`;
@@ -40,12 +42,13 @@ class ProInfrastructuraConnector {
       return this._projectsCache;
     }
 
-    const response = await fetch(DATA_URL);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
-    }
-
-    this._projectsCache = await response.json();
+    this._projectsCache = await cache.getOrSet('proinfra:projects', TTL.PROINFRA, async () => {
+      const response = await fetch(DATA_URL);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+      }
+      return response.json();
+    });
     this._loadedAt = Date.now();
     return this._projectsCache;
   }
@@ -53,12 +56,13 @@ class ProInfrastructuraConnector {
   async _loadLotLimits() {
     if (this._lotLimitsCache) return this._lotLimitsCache;
 
-    const response = await fetch(LOT_LIMITS_URL);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch lot limits: ${response.status}`);
-    }
-
-    this._lotLimitsCache = await response.json();
+    this._lotLimitsCache = await cache.getOrSet('proinfra:lot-limits', TTL.PROINFRA, async () => {
+      const response = await fetch(LOT_LIMITS_URL);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch lot limits: ${response.status}`);
+      }
+      return response.json();
+    });
     return this._lotLimitsCache;
   }
 

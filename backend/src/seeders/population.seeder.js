@@ -1,7 +1,7 @@
 /**
  * Population seeder
  *
- * Reads P15_-Populatia-rezidenta-*.xlsx from the project root and imports
+ * Reads P15_-Populatia-rezidenta-*.xlsx from backend/data/ and imports
  * all ~3187 locality records into the `population` table.
  *
  * Usage:
@@ -20,29 +20,21 @@ const { DataTypes } = require('sequelize');
 const db = require('../models');
 const Population = db.Population;
 
-// Path to the Excel file (project root, one level above /backend)
-// Path to Excel file — at InnoiNVest project root
-const EXCEL_PATH = path.resolve(
-  __dirname,
-  '../../../../P15_-Populatia-rezidenta-pe-municipii-orase-si-comune-la-1-decembrie-2021-rezultate-provizorii.xlsx'
-);
+// Path to the Excel file — lives in backend/data/
+const EXCEL_FILE = 'P15_-Populatia-rezidenta-pe-municipii-orase-si-comune-la-1-decembrie-2021-rezultate-provizorii.xlsx';
+const EXCEL_PATH = path.resolve(__dirname, '../../data', EXCEL_FILE);
 
-// Verify file exists before proceeding
+// Verify file exists before proceeding (fall back to the old repo-root location)
 const fs = require('fs');
-if (!fs.existsSync(EXCEL_PATH)) {
-  const alt = path.resolve(
-    __dirname,
-    '../../../P15_-Populatia-rezidenta-pe-municipii-orase-si-comune-la-1-decembrie-2021-rezultate-provizorii.xlsx'
-  );
-  if (!fs.existsSync(alt)) {
-    console.error('Excel file not found. Tried:\n ', EXCEL_PATH, '\n ', alt);
+let RESOLVED_EXCEL_PATH = EXCEL_PATH;
+if (!fs.existsSync(RESOLVED_EXCEL_PATH)) {
+  const legacyRoot = path.resolve(__dirname, '../../../', EXCEL_FILE);
+  if (!fs.existsSync(legacyRoot)) {
+    console.error('Excel file not found. Tried:\n ', EXCEL_PATH, '\n ', legacyRoot);
     process.exit(1);
   }
-  // use alt
-  module.exports = alt; // won't actually export but keeps linter quiet
-  process.env._EXCEL_PATH_OVERRIDE = alt;
+  RESOLVED_EXCEL_PATH = legacyRoot;
 }
-const RESOLVED_EXCEL_PATH = process.env._EXCEL_PATH_OVERRIDE || EXCEL_PATH;
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 

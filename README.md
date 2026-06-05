@@ -3,54 +3,94 @@
 Regional data source-of-truth for NW Romania. Built for the ADR Nord-Vest
 "AI-Powered Regional Investment Intelligence" challenge.
 
-ADR analysts type a commune, city, or county name → see all KPIs grouped by
-the 15 brief categories → click-to-copy with citations, or export CSV / Word.
+ADR analysts type a commune, city, or county name -> see all KPIs grouped by
+the brief categories -> explore intelligence pages, chat with an AI agent, and
+build investment report decks.
 
-## Demo (one command)
+## Stack
 
-```
-docker compose up --build
-```
+- `backend/` — Node.js / Express API with Sequelize over PostgreSQL. Exposes a
+  REST API under `/api` and Swagger docs at `/api/docs`. Integrates Google
+  Gemini for the chat/agent features and an MCP server.
+- `frontend/` — Next.js 15 (App Router) app that consumes the backend API.
+- `docs/` — design specs, plans, and the data-category catalog.
 
-Then open: <http://localhost:3000>
+## Prerequisites
 
-Try typing **Floresti** in the picker.
+- Node.js 22 (`nvm use 22`)
+- A running PostgreSQL instance
+- A free Google Gemini API key (https://aistudio.google.com) for chat/agent features
 
-> Note: on first start, the `seed` container pulls live data from Eurostat
-> (always works) and INS Tempo (occasionally returns HTTP 500 — known
-> upstream issue; the runner is fault-tolerant and continues with whatever
-> data is available).
+## Setup
 
-## Components
-
-- `src/innoinvest/api/` — FastAPI HTTP layer
-- `src/innoinvest/ingest/` — Eurostat + INS Tempo clients + runner
-- `src/innoinvest/export/` — CSV + Word writers
-- `config/kpis.yaml` — declarative KPI catalog (add KPIs without code changes)
-- `data/siruta_nw_romania.csv` — **demo seed** (16 rows: 6 counties + 9 cities/communes including Florești) with placeholder SIRUTA codes the test fixtures depend on
-- `data/siruta_nw_romania_full.csv` — **canonical full seed** (452 rows: 6 counties + 43 cities + 403 communes) using real INS SIRUTA codes from data.gov.ro 2025. To use this in production: point `innoinvest seed` at it AND update the test fixtures that hard-code SIRUTA codes (e.g. `4324` → `57706` for Florești)
-- `web/` — Next.js frontend
-
-## Dev setup (without Docker for backend/frontend)
+### 1. Backend (`backend/`)
 
 ```
-docker compose up -d db                # Postgres only
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-innoinvest seed                        # load SIRUTA
-innoinvest ingest                      # pull data from Eurostat + INS Tempo
-innoinvest serve --port 8000           # API
-cd web && nvm use 22 && npm install && npm run dev   # frontend
+cd backend
+cp .env.example .env        # then fill in DATABASE_URL and GEMINI_API_KEY
+npm install
+npm run seed:population      # import population data
+npm run seed:universities    # import university data
+npm run dev                  # starts the API on http://localhost:3001
 ```
 
-Tests:
+With `DB_SYNC=true` (the default in `.env.example`), tables are created from the
+Sequelize models on startup. Use `npm run db:sync` to apply schema changes
+(`alter`) explicitly.
+
+API docs are served at <http://localhost:3001/api/docs>.
+
+### 2. Frontend (`frontend/`)
 
 ```
-pytest                 # unit + DB tests (skips live by default)
-pytest -m live         # opt-in: hits real Eurostat + INS Tempo
+cd frontend
+cp .env.example .env.local 2>/dev/null || echo "NEXT_PUBLIC_API_BASE=http://localhost:3001" > .env.local
+nvm use 22
+npm install
+npm run dev                  # starts the app on http://localhost:3000
 ```
 
-## Design & Plan
+Then open <http://localhost:3000>. Try typing **Florești** in the picker.
 
-- `docs/superpowers/specs/2026-05-23-data-pipeline-design.md`
-- `docs/superpowers/plans/2026-05-23-innoinvest-v1.md`
+## Backend layout (`backend/src/`)
+
+- `routes/` + `controllers/` — HTTP layer (`/api/resources`, `/reports`,
+  `/cities`, `/properties`, `/chat`, `/agents`, `/investment-report`)
+- `services/` — business logic (cities, reports, population, universities, chat)
+- `models/` — Sequelize models (`Population`, `University`, `Report`, `User`)
+- `repositories/connectors/` — external data connectors
+- `seeders/` — population + university data seeders
+- `agents/` + `mcp/` — AI agent runner and MCP server
+
+## Frontend layout (`frontend/src/`)
+
+- `app/` — Next.js App Router pages
+- `components/` — UI components
+- `lib/` — client utilities and mock data
+
+## Scripts
+
+Backend (`backend/`):
+
+```
+npm run dev                  # API with nodemon
+npm start                    # API (node)
+npm run mcp                  # MCP server
+npm run db:sync              # apply model schema changes (alter)
+npm run seed:population[:force]
+npm run seed:universities[:force]
+```
+
+Frontend (`frontend/`):
+
+```
+npm run dev / build / start
+npm run lint
+npm test                     # vitest
+```
+
+## Design & Plans
+
+- `docs/superpowers/specs/`
+- `docs/superpowers/plans/`
+- `docs/data-categories.md`

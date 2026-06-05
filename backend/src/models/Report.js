@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      // Stable per-property key. When set, there is at most one report row per
+      // property (upserted on regeneration). Null for ad-hoc/source reports.
+      property_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
       parameters: {
         type: DataTypes.JSONB,
         allowNull: false,
