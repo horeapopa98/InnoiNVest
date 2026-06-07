@@ -400,6 +400,21 @@ class ProInfrastructuraConnector {
       generated_at: new Date().toISOString(),
     };
   }
+
+  async prewarm() {
+    const results = await Promise.allSettled([
+      this._loadProjects(),
+      this._loadLotLimits(),
+    ]);
+    const labels = ['projects', 'lot limits'];
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        console.warn(`Prewarm ProInfra ${labels[i]} failed:`, r.reason?.message);
+      }
+    });
+    const ok = results.filter((r) => r.status === 'fulfilled').length;
+    console.log(`Prewarm ProInfra: ${ok}/2 sources cached.`);
+  }
 }
 
 module.exports = { ProInfrastructuraConnector };
