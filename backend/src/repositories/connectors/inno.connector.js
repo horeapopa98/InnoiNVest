@@ -527,6 +527,35 @@ class InnoConnector {
       })),
     };
   }
+
+  /**
+   * Warm all slow external fetches in parallel. Called at server startup so
+   * the first user request hits Redis instead of the live upstream APIs.
+   */
+  async prewarm() {
+    const label = (name) => `INNO ${name}`;
+    const tasks = [
+      { name: 'listings',        fn: () => this._loadListings() },
+      { name: 'properties',      fn: () => _arcgisQuery(ARCGIS_FS.PROPERTIES_POINTS) },
+      { name: 'polygons',        fn: () => _arcgisQuery(ARCGIS_FS.PROPERTIES_POLYGONS) },
+      { name: 'industrial parks',fn: () => _arcgisQuery(ARCGIS_FS.INDUSTRIAL_PARKS) },
+      { name: 'airports',        fn: () => _arcgisQuery(ARCGIS_FS.AIRPORTS) },
+      { name: 'railway stations',fn: () => _arcgisQuery(ARCGIS_FS.RAILWAY_STATIONS) },
+      { name: 'railway infra',   fn: () => _arcgisQuery(ARCGIS_FS.RAILWAY_INFRA) },
+      { name: 'border crossings',fn: () => _arcgisQuery(ARCGIS_FS.BORDER_CROSSINGS) },
+      { name: 'roads',           fn: () => _arcgisQuery(ARCGIS_FS.ROADS) },
+      { name: 'electric grid',   fn: () => _arcgisQuery(ARCGIS_FS.ELECTRIC_GRID) },
+    ];
+
+    const results = await Promise.allSettled(tasks.map((t) => t.fn()));
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        console.warn(`Prewarm ${label(tasks[i].name)} failed:`, r.reason?.message);
+      }
+    });
+    const ok = results.filter((r) => r.status === 'fulfilled').length;
+    console.log(`Prewarm INNO: ${ok}/${tasks.length} sources cached.`);
+  }
 }
 
 function _polygonCentroid(ring) {
